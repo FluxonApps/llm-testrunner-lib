@@ -1,0 +1,67 @@
+/* Evaluation Summary Block */
+.evaluation-summary {
+  padding: var(--spacing-5);
+  background: var(--background);
+  border-right: var(--border-width) solid var(--border);
+  display: flex;
+  flex-direction: column;
+}
+
+.evaluation-summary__details {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-2);
+}
+
+.evaluation-summary__placeholder {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--muted-foreground);
+  font-style: italic;
+  flex: 1;
+  background: var(--muted);
+  border: 2px dashed var(--border);
+  border-radius: var(--radius);
+}
+
+/* Evaluation Result Element */
+.evaluation-summary__result {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-2);
+}
+
+.evaluation-summary__result-status {
+  font-weight: var(--font-weight-semibold);
+  font-size: var(--font-size-sm);
+  padding: var(--spacing-2) var(--spacing-3);
+  border-radius: var(--radius-md);
+  text-align: center;
+}
+
+.evaluation-summary__result-status--passed {
+  background: var(--success);
+  color: var(--success-foreground);
+  border: var(--border-width) solid var(--success);
+}
+
+.evaluation-summary__result-status--failed {
+  background: var(--destructive);
+  color: var(--destructive-foreground);
+  border: var(--border-width) solid var(--destructive);
+}
+
+/* Responsive Design */
+@media (max-width: 1200px) {
+  .evaluation-summary {
+    border-right: none;
+    border-bottom: var(--border-width) solid var(--border);
+  }
+}
+
+@media (max-width: 768px) {
+  .evaluation-summary {
+    padding: var(--spacing-4);
+  }
+}

@@ -1,0 +1,35 @@
+dist/
+www/
+loader/
+
+*~
+*.sw[mnpcod]
+*.log
+# package-lock.json is committed (do not ignore) for reproducible installs
+yarn.lock
+bun.lock
+*.tmp
+*.tmp.*
+log.txt
+*.sublime-project
+*.sublime-workspace
+
+# Stencil-generated type declarations (run 'npm run build' to regenerate)
+src/components.d.ts
+
+.stencil/
+.idea/
+.vscode/
+.sass-cache/
+.versions/
+node_modules/
+$RECYCLE.BIN/
+
+.DS_Store
+Thumbs.db
+UserInterfaceState.xcuserstate
+.env
+
+llm-testrunner.code-workspace
+llm-testrunner-components-1.0.0.tgz
+generated/

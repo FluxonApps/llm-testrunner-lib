@@ -1,0 +1,34 @@
+/* Error Message Block */
+.error-message {
+  background: var(--destructive);
+  color: var(--destructive-foreground);
+  border: var(--border-width) solid var(--destructive);
+  padding: var(--spacing-3) var(--spacing-10) var(--spacing-3) var(--spacing-4);
+  border-radius: var(--radius-md);
+  margin: var(--spacing-4) 0;
+  position: relative;
+  font-size: var(--font-size-sm);
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-4);
+}
+
+.error-message__close {
+  background: none;
+  border: none;
+  color: var(--destructive-foreground);
+  font-size: var(--font-size-xl);
+  font-weight: var(--font-weight-bold);
+  cursor: pointer;
+  position: absolute;
+  right: var(--spacing-3);
+  top: 50%;
+  transform: translateY(-50%);
+  line-height: var(--line-height-none);
+  padding: 0;
+  opacity: var(--opacity-hover);
+}
+
+.error-message__close:hover {
+  opacity: 1;
+}

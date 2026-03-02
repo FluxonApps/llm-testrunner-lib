@@ -1,0 +1,42 @@
+/* Test Case Row Block */
+.test-case-row {
+  display: grid;
+  grid-template-columns: 1fr 1.5fr 0.5fr 120px;
+  gap: var(--border-width);
+  border-bottom: var(--border-width) solid var(--border);
+  min-height: 200px;
+}
+
+.test-case-row:hover {
+  background: var(--muted);
+}
+
+/* Input Column Element */
+.test-case-row__input-column {
+  padding: var(--spacing-5);
+  background: var(--background);
+  border-right: var(--border-width) solid var(--border);
+}
+
+/* Responsive Design */
+@media (max-width: 1200px) {
+  .test-case-row {
+    grid-template-columns: 1fr;
+    gap: 0;
+  }
+
+  .test-case-row__input-column {
+    border-right: none;
+    border-bottom: var(--border-width) solid var(--border);
+  }
+}
+
+@media (max-width: 768px) {
+  .test-case-row__input-column {
+    padding: var(--spacing-4);
+  }
+
+  .test-case-row {
+    min-height: auto;
+  }
+}

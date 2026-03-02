@@ -1,0 +1,31 @@
+:host {
+  display: block;
+  font-family:
+    -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu,
+    Cantarell, sans-serif;
+  background-color: var(--muted);
+  min-height: 100vh;
+}
+
+/* CSS Reset for test-runner-container */
+.test-runner-container *,
+.test-runner-container *::before,
+.test-runner-container *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+.test-runner-container {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: var(--spacing-5);
+  background: var(--background);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-lg);
+}
+
+/* Container Element: Content */
+.test-runner-container__content {
+  padding: 0;
+}

@@ -1,0 +1,38 @@
+.textarea-wrapper {
+  margin-bottom: var(--spacing-4);
+}
+
+.textarea-label {
+  display: block;
+  margin-bottom: var(--spacing-2);
+  font-weight: var(--font-weight-medium);
+  color: var(--foreground);
+  font-size: var(--font-size-sm);
+}
+
+.textarea-element {
+  width: 95%;
+  box-sizing: border-box;
+  padding: var(--spacing-3);
+  border: 2px solid var(--input);
+  border-radius: var(--radius);
+  font-size: var(--font-size-sm);
+  resize: vertical;
+  outline: none;
+  transition: border-color 0.2s ease;
+  font-family: inherit;
+  background: var(--background);
+  color: var(--foreground);
+}
+
+.textarea-element:focus {
+  border-color: var(--ring);
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+.help-text {
+  margin-top: var(--spacing-1);
+  font-size: var(--font-size-xs);
+  color: var(--muted-foreground, #6b7280);
+  line-height: 1.4;
+}

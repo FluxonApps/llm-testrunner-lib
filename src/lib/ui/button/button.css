@@ -1,0 +1,113 @@
+/* Button Base Styles */
+.ui-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--spacing-2);
+  border-radius: var(--radius);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border: var(--border-width) solid transparent;
+  outline: none;
+  position: relative;
+  white-space: nowrap;
+}
+
+.ui-button .icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: var(--font-size-base);
+  line-height: var(--line-height-none);
+}
+
+.ui-button:focus-visible {
+  outline: 2px solid var(--ring);
+  outline-offset: 2px;
+}
+
+.ui-button--disabled,
+.ui-button:disabled {
+  opacity: var(--opacity-disabled);
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+.ui-button--loading {
+  opacity: var(--opacity-muted);
+  cursor: wait;
+}
+
+/* Size Variants */
+.ui-button--sm {
+  padding: calc(var(--spacing) * 1.5) var(--spacing-3);
+  font-size: var(--font-size-xs);
+}
+
+.ui-button--sm .icon {
+  font-size: var(--font-size-sm);
+}
+
+.ui-button--md {
+  padding: var(--spacing-2) var(--spacing-4);
+  font-size: var(--font-size-sm);
+}
+
+.ui-button--md .icon {
+  font-size: var(--font-size-base);
+}
+
+.ui-button--lg {
+  padding: calc(var(--spacing) * 2.5) var(--spacing-5);
+  font-size: var(--font-size-base);
+}
+
+.ui-button--lg .icon {
+  font-size: var(--font-size-lg);
+}
+
+/* Color Variants */
+.ui-button--primary {
+  background: var(--primary);
+  color: var(--primary-foreground);
+}
+
+.ui-button--primary:hover:not(:disabled):not(.ui-button--loading) {
+  opacity: 0.9;
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-sm);
+}
+
+.ui-button--secondary {
+  background: var(--secondary);
+  color: var(--secondary-foreground);
+}
+
+.ui-button--secondary:hover:not(:disabled):not(.ui-button--loading) {
+  opacity: var(--opacity-hover);
+  transform: translateY(-1px);
+}
+
+.ui-button--outline {
+  background: transparent;
+  border-color: var(--border);
+  color: var(--foreground);
+}
+
+.ui-button--outline:hover:not(:disabled):not(.ui-button--loading) {
+  background: var(--accent);
+  transform: translateY(-1px);
+}
+
+.ui-button--destructive {
+  background: var(--destructive);
+  color: var(--destructive-foreground);
+}
+
+.ui-button--destructive:hover:not(:disabled):not(.ui-button--loading) {
+  opacity: 0.9;
+  transform: translateY(-1px);
+}
+

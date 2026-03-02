@@ -30,6 +30,5 @@ Thumbs.db
 UserInterfaceState.xcuserstate
 .env
 
-llm-testrunner.code-workspace
-llm-testrunner-components-1.0.0.tgz
+*.tgz
 generated/

@@ -57,6 +57,7 @@
   },
   "devDependencies": {
     "@rollup/plugin-replace": "^6.0.2",
+    "concurrently": "^9.2.1",
     "@stencil/core": "^4.27.1",
     "@stencil/react-output-target": "^1.2.0",
     "@types/jest": "^29.5.14",

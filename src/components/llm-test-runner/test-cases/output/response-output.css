@@ -1,0 +1,51 @@
+/* Response Output Block */
+.response-output {
+  padding: var(--spacing-5);
+  background: var(--background);
+  border-right: var(--border-width) solid var(--border);
+  display: flex;
+  flex-direction: column;
+}
+
+.response-output__content {
+  background: var(--muted);
+  border: var(--border-width) solid var(--border);
+  border-radius: var(--radius);
+  padding: var(--spacing-4);
+  font-size: var(--font-size-sm);
+  line-height: var(--line-height-relaxed);
+  color: var(--foreground);
+  white-space: pre-wrap;
+  word-wrap: break-word;
+  flex: 1;
+  overflow-y: auto;
+  max-height: 250px;
+  overflow-x: scroll;
+}
+
+.response-output__placeholder {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--muted-foreground);
+  font-style: italic;
+  flex: 1;
+  background: var(--muted);
+  border: 2px dashed var(--border);
+  border-radius: var(--radius);
+}
+
+/* Responsive Design */
+@media (max-width: 1200px) {
+  .response-output {
+    border-right: none;
+    border-bottom: var(--border-width) solid var(--border);
+  }
+}
+
+@media (max-width: 768px) {
+  .response-output {
+    padding: var(--spacing-4);
+  }
+}
+

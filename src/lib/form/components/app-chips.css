@@ -1,0 +1,97 @@
+.app-chips {
+  margin-bottom: var(--spacing-4);
+}
+
+.app-chips__label {
+  display: block;
+  margin-bottom: var(--spacing-2);
+  font-weight: var(--font-weight-medium);
+  color: var(--foreground);
+  font-size: var(--font-size-sm);
+}
+
+.app-chips__container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spacing-2);
+  align-items: center;
+}
+
+.app-chips__chip {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-2);
+  padding: var(--spacing-1) var(--spacing-2);
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-medium);
+  border-radius: var(--radius-md);
+  background: var(--accent);
+  border: var(--border-width) solid var(--border);
+}
+
+/* Keyword-style chip override (non-URL chips) */
+.app-chips__chip:not(:has(a)) {
+  background: var(--info);
+  color: var(--info-foreground);
+  border: none;
+  border-radius: var(--radius-2xl);
+}
+
+.app-chips__link {
+  color: var(--info);
+  text-decoration: none;
+  max-width: 200px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.app-chips__link:hover {
+  text-decoration: underline;
+}
+
+.app-chips__remove {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: var(--font-size-xs);
+  padding: 0;
+  width: var(--spacing-4);
+  height: var(--spacing-4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius-full);
+  color: var(--muted-foreground);
+  opacity: var(--opacity-muted);
+}
+
+.app-chips__chip:not(:has(a)) .app-chips__remove {
+  color: var(--info-foreground);
+  opacity: var(--opacity-hover);
+}
+
+.app-chips__remove:hover {
+  opacity: 1;
+  background: var(--muted);
+}
+
+.app-chips__chip:not(:has(a)) .app-chips__remove:hover {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+.app-chips__input {
+  border: var(--border-width) solid var(--input);
+  border-radius: var(--radius-md);
+  padding: var(--spacing-2);
+  font-size: var(--font-size-xs);
+  outline: none;
+  min-width: 120px;
+  background: var(--background);
+  color: var(--foreground);
+}
+
+.app-chips__input:focus {
+  border-color: var(--ring);
+  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.1);
+}

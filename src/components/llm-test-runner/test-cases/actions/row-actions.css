@@ -1,0 +1,28 @@
+/* Row Actions Block */
+.row-actions {
+  height: 100%;
+  padding: var(--spacing-5);
+  background: var(--background);
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-3);
+  align-items: center;
+  justify-content: flex-start;
+  align-self: flex-start;
+}
+
+/* Responsive Design */
+@media (max-width: 1200px) {
+  .row-actions {
+    border-right: none;
+    border-bottom: var(--border-width) solid var(--border);
+    flex-direction: row;
+    justify-content: center;
+  }
+}
+
+@media (max-width: 768px) {
+  .row-actions {
+    padding: var(--spacing-4);
+  }
+}

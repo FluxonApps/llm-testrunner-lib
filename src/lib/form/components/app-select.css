@@ -1,0 +1,28 @@
+.app-select {
+  margin-bottom: var(--spacing-4);
+}
+
+.app-select__label {
+  display: block;
+  margin-bottom: var(--spacing-2);
+  font-weight: var(--font-weight-medium);
+  color: var(--foreground);
+  font-size: var(--font-size-sm);
+}
+
+.app-select__select {
+  border: var(--border-width) solid var(--input);
+  border-radius: var(--radius-md);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+  padding: var(--spacing-1) var(--spacing-2);
+  outline: none;
+  background: var(--background);
+  width: 145px;
+  color: var(--foreground);
+}
+
+.app-select__select:focus {
+  border-color: var(--ring);
+  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.1);
+}

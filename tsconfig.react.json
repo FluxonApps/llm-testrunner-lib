@@ -5,6 +5,11 @@
     "outDir": "./dist/react",
     "declarationDir": "./dist/react",
     "target": "ES2020",
+    "baseUrl": ".",
+    "paths": {
+      "llm-testrunner-components": ["."],
+      "llm-testrunner-components/*": ["./*"]
+    },
     "useDefineForClassFields": true,
     "lib": ["ES2020", "DOM", "DOM.Iterable"],
     "module": "ESNext",

@@ -9,7 +9,7 @@ on:
       - main
 
 jobs:
-  lint-and-build:
+  build-and-test:
     runs-on: ubuntu-latest
 
     steps:
@@ -25,6 +25,9 @@ jobs:
 
       - name: Install dependencies
         run: npm ci
+
+      - name: Security audit
+        run: npm audit --audit-level=high
 
       - name: Lint
         run: npm run lint

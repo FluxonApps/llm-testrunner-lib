@@ -1,0 +1,13 @@
+{
+  "compilerOptions": {
+    "target": "ES2020",
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+    "outDir": "./dist/react",
+    "rootDir": "./dist/react",
+    "declaration": true,
+    "skipLibCheck": true
+  },
+  "include": ["./dist/react/index.ts"],
+  "exclude": []
+}

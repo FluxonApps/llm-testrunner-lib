@@ -10,9 +10,19 @@
   "unpkg": "dist/llm-testrunner-components/llm-testrunner-components.esm.js",
   "exports": {
     "./react": {
-      "import": "./dist/react/components.js",
-      "require": "./dist/react/components.js",
-      "types": "./dist/react/components.d.ts"
+      "import": "./dist/react/index.js",
+      "require": "./dist/react/index.js",
+      "types": "./dist/react/index.d.ts"
+    },
+    "./dist/components/*": {
+      "import": "./dist/components/*",
+      "require": "./dist/components/*",
+      "types": "./dist/components/*"
+    },
+    "././dist/components/*": {
+      "import": "./dist/components/*",
+      "require": "./dist/components/*",
+      "types": "./dist/components/*"
     },
     "./loader": {
       "import": "./loader/index.js",
@@ -39,7 +49,7 @@
     "generate": "stencil generate",
     "build": "stencil build",
     "watch": "concurrently -n \"Stencil Build,React Wrapper\" -c \"cyan,magenta\" \"stencil build --watch\" \"wait-on generated/react/components.ts && npm run watch:react-wrapper\"",
-    "build:react": "tsc --project tsconfig.react.json",
+    "build:react": "tsc --project tsconfig.react.json && node scripts/write-react-index.js",
     "watch:react-wrapper": "nodemon --watch generated/react --ext ts,tsx --exec \"npm run build:react\"",
     "build:all": "npm run build && npm run build:react",
     "build-publish": "npm run build:all && npm run just-publish",
@@ -49,6 +59,7 @@
   },
   "dependencies": {
     "@google/genai": "^1.40.0",
+    "@stencil/react-output-target": "^1.2.0",
     "@types/uuid": "^10.0.0",
     "@xenova/transformers": "^2.17.2",
     "bleu-score": "^1.0.4",
@@ -63,7 +74,6 @@
     "eslint": "^8.0.0",
     "eslint-config-prettier": "^10.1.8",
     "prettier": "^3.6.2",
-    "@stencil/react-output-target": "^1.2.0",
     "@types/jest": "^29.5.14",
     "@types/node": "^22.13.5",
     "concurrently": "^9.2.1",

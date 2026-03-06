@@ -114,12 +114,14 @@ Simply include the component in your HTML:
 
 ### 2. Library Integration
 
-Import as a module in your application:
+In React, import the component from the `/react` entry and use the loader:
 
 ```javascript
-import { LLMTestRunner } from 'llm-testrunner-components';
+import { LlmTestRunner } from 'llm-testrunner-components/react';
+import { defineCustomElements } from 'llm-testrunner-components/loader';
 
-// The component is automatically registered and ready to use
+defineCustomElements(); // register custom elements
+// Then use <LlmTestRunner /> or <llm-test-runner> in your app
 ```
 
 ## Configuration
@@ -163,7 +165,7 @@ The built-in evaluation engine provides:
 ### Evaluation Criteria
 
 - **Keywords**: Must be present in the AI response (case-insensitive)
-- **Source Links**: Must be present as exact URL matches
+- **Source Links**: Must be present in the response (overlap/partial match; a full URL match is not required)
 - **Pass Condition**: ALL expected keywords AND source links must be found
 
 ## Using in React Applications

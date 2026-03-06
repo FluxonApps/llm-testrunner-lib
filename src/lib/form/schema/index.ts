@@ -8,8 +8,6 @@ import {
   SelectConfig,
 } from './form-control-config';
 
-type FieldConfig = TextAreaConfig | ChipsConfig | SelectConfig;
-
 enum FormFieldType {
   TEXT_AREA = 'textarea',
   CHIPS = 'chips',
@@ -22,6 +20,5 @@ export {
   TextAreaConfig,
   ChipsConfig,
   SelectConfig,
-  FieldConfig,
   FormFieldType,
 };

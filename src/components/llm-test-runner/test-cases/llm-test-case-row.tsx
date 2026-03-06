@@ -7,7 +7,11 @@ import {
 import { ResponseOutput } from './output/response-output';
 import { EvaluationSummary } from './evaluation/evaluation-summary';
 import { RowActions } from './actions/row-actions';
-import { FieldConfig, FormFieldType } from '../../../lib/form/schema';
+import { FormFieldType, SelectConfig, TextAreaConfig } from '../../../lib/form/schema';
+import {
+  ExpectedOutcomeChangeDetail,
+  ExpectedOutcomeRenderer,
+} from './expected-outcome-renderer';
 
 export interface LLMTestCaseRowProps {
   testCase: TestCase;
@@ -17,43 +21,10 @@ export interface LLMTestCaseRowProps {
   handleTestCaseChange: (
     e: CustomEvent<{ testCaseId: string; key: string; value: string }>,
   ) => void;
-  addChip: (
-    e: CustomEvent<{ testCaseId: string; key: string; value: string }>,
-  ) => void;
-  removeChip: (
-    e: CustomEvent<{ testCaseId: string; key: string; index: number }>,
+  onExpectedOutcomeChange: (
+    e: CustomEvent<ExpectedOutcomeChangeDetail>,
   ) => void;
 }
-
-const formFields: FieldConfig[] = [
-  {
-    name: 'question',
-    fieldType: FormFieldType.TEXT_AREA,
-    type: 'text',
-    label: 'Question',
-    placeholder: 'Enter your question here...',
-    required: true,
-    rows: 3,
-  },
-  {
-    name: 'expectedOutcome',
-    fieldType: FormFieldType.TEXT_AREA,
-    type: 'text',
-    label: 'Expected outcome',
-    placeholder: 'Enter expected outcome...',
-    required: false,
-    rows: 2,
-  },
-  {
-    name: 'EvaluationApproach',
-    fieldType: FormFieldType.SELECT,
-    label: 'Evaluation',
-    placeholder: 'Select evaluation approach…',
-    required: true,
-    optionList: EvaluationApproachValues,
-    defaultValue: EvaluationApproach.EXACT,
-  },
-];
 
 export const LLMTestCaseRow: FunctionalComponent<LLMTestCaseRowProps> = ({
   testCase,
@@ -61,19 +32,54 @@ export const LLMTestCaseRow: FunctionalComponent<LLMTestCaseRowProps> = ({
   onDelete,
   onUpdateApproach,
   handleTestCaseChange,
-  addChip,
-  removeChip,
+  onExpectedOutcomeChange,
 }) => {
+  const questionConfig: TextAreaConfig = {
+    name: 'question',
+    fieldType: FormFieldType.TEXT_AREA,
+    type: 'text',
+    label: 'Question',
+    placeholder: 'Enter your question here...',
+    required: true,
+    rows: 3,
+  };
+  const evaluationConfig: SelectConfig = {
+    name: 'EvaluationApproach',
+    fieldType: FormFieldType.SELECT,
+    label: 'Evaluation',
+    placeholder: 'Select evaluation approach…',
+    required: true,
+    optionList: EvaluationApproachValues,
+    defaultValue: EvaluationApproach.EXACT,
+  };
+
   return (
     <div class="test-case-row" key={testCase.id}>
       <div class="test-case-row__input-column">
-        <form-builder
-          fields={formFields}
-          testCase={testCase}
-          onUpdateApproach={onUpdateApproach}
-          handleTestCaseChange={handleTestCaseChange}
-          addChip={addChip}
-          removeChip={removeChip}
+        <app-textarea
+          config={questionConfig}
+          value={testCase.question}
+          onValueChange={(e: CustomEvent<{ value: string }>) =>
+            handleTestCaseChange({
+              detail: {
+                testCaseId: testCase.id,
+                key: 'question',
+                value: e.detail.value,
+              },
+            } as CustomEvent<{ testCaseId: string; key: string; value: string }>)
+          }
+        />
+        <ExpectedOutcomeRenderer
+          testCaseId={testCase.id}
+          fields={testCase.expectedOutcome || []}
+          onExpectedOutcomeChange={onExpectedOutcomeChange}
+        />
+        <app-select
+          config={evaluationConfig}
+          value={testCase.evaluationParameters?.approach}
+          onValueChange={(e: CustomEvent<{ value: any }>) =>
+            onUpdateApproach(testCase, e.detail.value as EvaluationApproach)
+          }
         />
       </div>
 

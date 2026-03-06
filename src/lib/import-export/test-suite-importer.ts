@@ -34,9 +34,8 @@ export function importTestSuite(jsonContent: string): ImportValidationResult {
       try {
         return createTestCaseFromImport(item);
       } catch (err) {
-        throw new Error(
-          `Invalid test case at index ${index}: ${err instanceof Error ? err.message : 'Unknown error'}`,
-        );
+        const message = err instanceof Error ? err.message : 'Unknown error';
+        throw new Error(`Invalid test case at index ${index}: ${message}`);
       }
     });
 

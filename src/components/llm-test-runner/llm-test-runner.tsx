@@ -12,6 +12,7 @@ import { ErrorMessage } from '../error-message/error-message';
 import { RateLimitedFetcher } from '../../lib/rate-limited-fetcher/rate-limited-fetcher';
 import { EvaluationApproach } from '../../lib/evaluation/constants';
 import {
+  ExpectedOutcomeSchema,
   TestCase,
   LLMRequestPayload,
   SavePayload,
@@ -21,11 +22,16 @@ import { downloadFile } from '../../lib/file/file-download';
 import { formatTestSuiteAsJson } from '../../lib/import-export/test-suite-exporter';
 import { exportTestResultsToCsv } from '../../lib/import-export/test-results-csv';
 import { importTestSuite } from '../../lib/import-export/test-suite-importer';
-import { createTestCase } from '../../lib/test-cases/test-case-factory';
+import {
+  createTestCase,
+  DEFAULT_EXPECTED_OUTCOME_SCHEMA,
+  validateExpectedOutcomeSchema,
+} from '../../lib/test-cases/test-case-factory';
 import * as TestCaseMutations from '../../lib/test-cases/test-case-mutations';
 import { EvaluationService } from '../../lib/evaluation/evaluation-service';
 import { LLMTestRunnerHeader } from './header/llm-test-runner-header';
 import { LLMTestCases } from './test-cases/llm-test-cases';
+import { ExpectedOutcomeChangeDetail } from './test-cases/expected-outcome-renderer';
 
 @Component({
   tag: 'llm-test-runner',
@@ -50,11 +56,18 @@ export class LLMTestRunner {
   @Prop() delayMs?: number = 500;
   @Prop() useSave?: boolean = false;
   @Prop() initialTestCases?: TestCase[];
+  @Prop() defaultExpectedOutcomeSchema?: ExpectedOutcomeSchema;
   @State() testCases: TestCase[] = [
     {
       id: '1',
       question: '',
-      expectedOutcome: '',
+      expectedOutcome: [
+        {
+          type: 'textarea',
+          label: 'Expected Outcome',
+          value: '',
+        },
+      ],
       evaluationParameters: {
         approach: EvaluationApproach.EXACT,
       },
@@ -69,11 +82,32 @@ export class LLMTestRunner {
 
   private evaluationService: EvaluationService;
 
+  private getResolvedExpectedOutcomeSchema(): ExpectedOutcomeSchema {
+    if (this.defaultExpectedOutcomeSchema === undefined) {
+      return DEFAULT_EXPECTED_OUTCOME_SCHEMA;
+    }
+
+    validateExpectedOutcomeSchema(this.defaultExpectedOutcomeSchema);
+    return this.defaultExpectedOutcomeSchema;
+  }
+
   componentWillLoad() {
     this.evaluationService = new EvaluationService();
-    // Initialize testCases from prop if provided
-    if (this.initialTestCases !== undefined) {
-      this.testCases = this.initialTestCases;
+    try {
+      const schema = this.getResolvedExpectedOutcomeSchema();
+
+      // Initialize testCases from prop if provided
+      if (this.initialTestCases !== undefined) {
+        this.testCases = this.initialTestCases;
+      } else {
+        this.testCases = [createTestCase(schema)];
+      }
+    } catch (err) {
+      this.error =
+        err instanceof Error
+          ? err.message
+          : 'Invalid defaultExpectedOutcomeSchema provided.';
+      this.testCases = [];
     }
   }
 
@@ -154,34 +188,53 @@ export class LLMTestRunner {
     }
   }
 
-  private addChip = (
-    event: CustomEvent<{ testCaseId: string; key: string; value: string }>,
+  private handleExpectedOutcomeChange = (
+    event: CustomEvent<ExpectedOutcomeChangeDetail>,
   ) => {
-    const { testCaseId, key, value: chipValue } = event.detail;
-    const testCase = this.testCases.find(tc => tc.id === testCaseId);
+    const { testCaseId, index, operation, value } = event.detail;
 
-    if (testCase) {
-      const existing = Array.isArray(testCase[key]) ? testCase[key] : [];
-      const updatedField = [...existing, chipValue];
-      this.testCases = this.testCases.map(tc =>
-        tc.id === testCaseId ? { ...tc, [key]: updatedField } : tc,
-      );
-    }
-  };
+    this.testCases = this.testCases.map(tc => {
+      if (tc.id !== testCaseId) return tc;
 
-  private removeChip = (
-    event: CustomEvent<{ testCaseId: string; key: string; index: number }>,
-  ) => {
-    const { testCaseId, key, index } = event.detail;
-    const testCase = this.testCases.find(tc => tc.id === testCaseId);
+      const expectedOutcome = [...(tc.expectedOutcome || [])];
+      const target = expectedOutcome[index];
+      if (!target) return tc;
 
-    if (testCase) {
-      const existing = Array.isArray(testCase[key]) ? testCase[key] : [];
-      const updatedField = existing.filter((_, i) => i !== index);
-      this.testCases = this.testCases.map(tc =>
-        tc.id === testCaseId ? { ...tc, [key]: updatedField } : tc,
-      );
-    }
+      if (operation === 'set-value') {
+        if (target.type === 'chips-input') {
+          return tc;
+        }
+        expectedOutcome[index] = { ...target, value: value || '' };
+        return { ...tc, expectedOutcome };
+      }
+
+      if (operation === 'add-chip') {
+        if (target.type !== 'chips-input' || !value) {
+          return tc;
+        }
+        expectedOutcome[index] = {
+          ...target,
+          value: [...target.value, value],
+        };
+        return { ...tc, expectedOutcome };
+      }
+
+      if (operation === 'remove-chip') {
+        if (
+          target.type !== 'chips-input' ||
+          !value
+        ) {
+          return tc;
+        }
+        expectedOutcome[index] = {
+          ...target,
+          value: target.value.filter(chip => chip !== value),
+        };
+        return { ...tc, expectedOutcome };
+      }
+
+      return tc;
+    });
   };
 
   private async evaluateResponse(testCase: TestCase): Promise<void> {
@@ -322,8 +375,7 @@ export class LLMTestRunner {
             }
             onAddTestCase={() => this.addNewTestCase()}
             handleTestCaseChange={this.handleTestCaseChange}
-            addChip={this.addChip}
-            removeChip={this.removeChip}
+            onExpectedOutcomeChange={this.handleExpectedOutcomeChange}
           />
         </div>
       </div>

@@ -7,23 +7,16 @@ import { TextAreaConfig } from '../schema';
   shadow: true,
 })
 export class AppTextarea {
-  @Prop() testCaseId: string;
   @Prop() value: string;
   @Prop() config: TextAreaConfig;
 
-  @Event() valueChange: EventEmitter<{
-    key: string;
-    value: string;
-    testCaseId: string;
-  }>;
+  @Event() valueChange: EventEmitter<{ value: string }>;
 
   private handleChange = (e: Event) => {
     const target = e.target as HTMLTextAreaElement;
 
     this.valueChange.emit({
-      key: this.config.name,
       value: target.value,
-      testCaseId: this.testCaseId,
     });
   };
 

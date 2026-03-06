@@ -5,11 +5,12 @@
 
 ## Properties
 
-| Property           | Attribute  | Description | Type         | Default     |
-| ------------------ | ---------- | ----------- | ------------ | ----------- |
-| `delayMs`          | `delay-ms` |             | `number`     | `500`       |
-| `initialTestCases` | --         |             | `TestCase[]` | `undefined` |
-| `useSave`          | `use-save` |             | `boolean`    | `false`     |
+| Property                       | Attribute  | Description | Type                                                                                                                                                                                                                                                                                                                                                                      | Default     |
+| ------------------------------ | ---------- | ----------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------- |
+| `defaultExpectedOutcomeSchema` | --         |             | `({ label: string; type: "text"; required?: boolean; placeholder?: string; } \| { label: string; type: "textarea"; required?: boolean; placeholder?: string; rows?: number; } \| { label: string; type: "chips-input"; required?: boolean; placeholder?: string; } \| { label: string; type: "select"; options: string[]; required?: boolean; placeholder?: string; })[]` | `undefined` |
+| `delayMs`                      | `delay-ms` |             | `number`                                                                                                                                                                                                                                                                                                                                                                  | `500`       |
+| `initialTestCases`             | --         |             | `TestCase[]`                                                                                                                                                                                                                                                                                                                                                              | `undefined` |
+| `useSave`                      | `use-save` |             | `boolean`                                                                                                                                                                                                                                                                                                                                                                 | `false`     |
 
 
 ## Events
@@ -37,15 +38,16 @@ Type: `Promise<void>`
 
 ### Depends on
 
-- [form-builder](../../lib/form)
+- [app-textarea](../../lib/form/components)
+- [app-select](../../lib/form/components)
+- [app-chips](../../lib/form/components)
 
 ### Graph
 ```mermaid
 graph TD;
-  llm-test-runner --> form-builder
-  form-builder --> app-textarea
-  form-builder --> app-chips
-  form-builder --> app-select
+  llm-test-runner --> app-textarea
+  llm-test-runner --> app-select
+  llm-test-runner --> app-chips
   style llm-test-runner fill:#f9f,stroke:#333,stroke-width:4px
 ```
 

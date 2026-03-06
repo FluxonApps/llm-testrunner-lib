@@ -3,6 +3,7 @@ import { TestCase } from '../../../types/llm-test-runner';
 import { EvaluationApproach } from '../../../lib/evaluation/constants';
 import { LLMTestCaseRow } from './llm-test-case-row';
 import { Button } from '../../../lib/ui/button/index';
+import { ExpectedOutcomeChangeDetail } from './expected-outcome-renderer';
 
 export interface LLMTestCasesProps {
   testCases: TestCase[];
@@ -13,11 +14,8 @@ export interface LLMTestCasesProps {
   handleTestCaseChange: (
     e: CustomEvent<{ testCaseId: string; key: string; value: string }>,
   ) => void;
-  addChip: (
-    e: CustomEvent<{ testCaseId: string; key: string; value: string }>,
-  ) => void;
-  removeChip: (
-    e: CustomEvent<{ testCaseId: string; key: string; index: number }>,
+  onExpectedOutcomeChange: (
+    e: CustomEvent<ExpectedOutcomeChangeDetail>,
   ) => void;
 }
 
@@ -28,8 +26,7 @@ export const LLMTestCases: FunctionalComponent<LLMTestCasesProps> = ({
   onUpdateApproach,
   onAddTestCase,
   handleTestCaseChange,
-  addChip,
-  removeChip,
+  onExpectedOutcomeChange,
 }) => {
   return (
     <div class="test-cases">
@@ -47,8 +44,7 @@ export const LLMTestCases: FunctionalComponent<LLMTestCasesProps> = ({
           onDelete={onDelete}
           onUpdateApproach={onUpdateApproach}
           handleTestCaseChange={handleTestCaseChange}
-          addChip={addChip}
-          removeChip={removeChip}
+          onExpectedOutcomeChange={onExpectedOutcomeChange}
         />
       ))}
 

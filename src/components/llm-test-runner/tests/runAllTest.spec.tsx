@@ -38,7 +38,24 @@ describe('LLMTestRunner - Run All', () => {
   const testCase1: TestCase = {
     id: '1',
     question: 'What is Stencil?',
-    expectedOutcome: 'Compiler',
+    expectedOutcome: [
+      {
+        type: 'textarea',
+        label: 'Expected Outcome',
+        value: 'Compiler',
+      },
+      {
+        type: 'chips-input',
+        label: 'Keywords',
+        value: ['compiler', 'jsx'],
+      },
+      {
+        type: 'select',
+        label: 'Tool calls',
+        options: ['getWeather', 'getAnalytics', 'getValidEntities'],
+        value: 'getValidEntities',
+      },
+    ],
     evaluationParameters: { approach: EvaluationApproach.EXACT },
     isRunning: false,
   };
@@ -46,7 +63,24 @@ describe('LLMTestRunner - Run All', () => {
   const testCase2: TestCase = {
     id: '2',
     question: 'What is JSX?',
-    expectedOutcome: 'Syntax',
+    expectedOutcome: [
+      {
+        type: 'textarea',
+        label: 'Expected Outcome',
+        value: 'Syntax',
+      },
+      {
+        type: 'chips-input',
+        label: 'Keywords',
+        value: ['syntax', 'xml-like'],
+      },
+      {
+        type: 'select',
+        label: 'Tool calls',
+        options: ['getWeather', 'getAnalytics', 'getValidEntities'],
+        value: 'getAnalytics',
+      },
+    ],
     evaluationParameters: { approach: EvaluationApproach.EXACT },
     isRunning: false,
   };

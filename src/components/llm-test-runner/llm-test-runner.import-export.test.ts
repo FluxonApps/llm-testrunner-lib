@@ -23,12 +23,19 @@ import { importTestSuite } from '../../lib/import-export/test-suite-importer';
 describe('llm-test-runner import/export', () => {
   let page: SpecPage;
   let component: any;
+  const buildExpectedOutcome = (value: string) => [
+    {
+      type: 'textarea' as const,
+      label: 'Expected Outcome',
+      value,
+    },
+  ];
 
   const createMockTestCase = (overrides: Partial<TestCase> = {}): TestCase => {
     const defaults: TestCase = {
       id: '1',
       question: 'What is AI?',
-      expectedOutcome: 'artificial intelligence',
+      expectedOutcome: buildExpectedOutcome('artificial intelligence'),
       evaluationParameters: {
         approach: EvaluationApproach.EXACT,
         threshold: 0.6
@@ -68,7 +75,7 @@ describe('llm-test-runner import/export', () => {
         {
           id: '1',
           question: 'What is AI?',
-          expectedOutcome: 'artificial intelligence',
+          expectedOutcome: buildExpectedOutcome('artificial intelligence'),
           evaluationParameters: { approach: EvaluationApproach.EXACT, threshold: 0.6 },
           isRunning: false
         }
@@ -90,7 +97,7 @@ describe('llm-test-runner import/export', () => {
       expect(component.testCases[0]).toMatchObject({
         id: '1',
         question: 'What is AI?',
-        expectedOutcome: 'artificial intelligence',
+        expectedOutcome: buildExpectedOutcome('artificial intelligence'),
       });
     });
 
@@ -99,7 +106,7 @@ describe('llm-test-runner import/export', () => {
         {
           id: '1',
           question: 'Test question',
-          expectedOutcome: 'test',
+          expectedOutcome: buildExpectedOutcome('test'),
           evaluationParameters: { approach: EvaluationApproach.EXACT, threshold: 0.6 },
           isRunning: false
         }
@@ -129,14 +136,14 @@ describe('llm-test-runner import/export', () => {
         {
           id: '1',
           question: 'What is AI?',
-          expectedOutcome: 'artificial intelligence',
+          expectedOutcome: buildExpectedOutcome('artificial intelligence'),
           evaluationParameters: { approach: EvaluationApproach.EXACT },
           isRunning: false
         },
         {
           id: '2',
           question: 'What is ML?',
-          expectedOutcome: 'machine learning',
+          expectedOutcome: buildExpectedOutcome('machine learning'),
           evaluationParameters: { approach: EvaluationApproach.EXACT },
           isRunning: false
         }
@@ -163,21 +170,21 @@ describe('llm-test-runner import/export', () => {
         {
           id: '1',
           question: 'Q1',
-          expectedOutcome: 'answer1',
+          expectedOutcome: buildExpectedOutcome('answer1'),
           evaluationParameters: { approach: EvaluationApproach.EXACT },
           isRunning: false
         },
         {
           id: '2',
           question: 'Q2',
-          expectedOutcome: 'answer2',
+          expectedOutcome: buildExpectedOutcome('answer2'),
           evaluationParameters: { approach: EvaluationApproach.EXACT },
           isRunning: false
         },
         {
           id: '3',
           question: 'Q3',
-          expectedOutcome: 'answer3',
+          expectedOutcome: buildExpectedOutcome('answer3'),
           evaluationParameters: { approach: EvaluationApproach.EXACT },
           isRunning: false
         }

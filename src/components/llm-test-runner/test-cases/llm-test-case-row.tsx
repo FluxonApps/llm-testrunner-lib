@@ -59,7 +59,7 @@ export const LLMTestCaseRow: FunctionalComponent<LLMTestCaseRowProps> = ({
         <app-textarea
           config={questionConfig}
           value={testCase.question}
-          onValueChange={(e: CustomEvent<{ value: string }>) =>
+          onValueChange={(e) =>
             handleTestCaseChange({
               detail: {
                 testCaseId: testCase.id,
@@ -77,7 +77,7 @@ export const LLMTestCaseRow: FunctionalComponent<LLMTestCaseRowProps> = ({
         <app-select
           config={evaluationConfig}
           value={testCase.evaluationParameters?.approach}
-          onValueChange={(e: CustomEvent<{ value: any }>) =>
+          onValueChange={(e) =>
             onUpdateApproach(testCase, e.detail.value as EvaluationApproach)
           }
         />

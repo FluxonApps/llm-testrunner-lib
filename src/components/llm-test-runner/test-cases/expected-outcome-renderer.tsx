@@ -50,7 +50,7 @@ export const ExpectedOutcomeRenderer: FunctionalComponent<ExpectedOutcomeRendere
             <app-textarea
               config={config}
               value={field.value}
-              onValueChange={(e: CustomEvent<{ value: string }>) =>
+              onValueChange={(e) =>
                 emit({
                   testCaseId,
                   index,
@@ -75,7 +75,7 @@ export const ExpectedOutcomeRenderer: FunctionalComponent<ExpectedOutcomeRendere
             <app-chips
               config={config}
               value={field.value}
-              onAddChip={(e: CustomEvent<{ value: string }>) =>
+              onAddChip={(e) =>
                 emit({
                   testCaseId,
                   index,
@@ -83,7 +83,7 @@ export const ExpectedOutcomeRenderer: FunctionalComponent<ExpectedOutcomeRendere
                   value: e.detail.value,
                 })
               }
-              onRemoveChip={(e: CustomEvent<{ value: string }>) =>
+              onRemoveChip={(e) =>
                 emit({
                   testCaseId,
                   index,
@@ -109,12 +109,12 @@ export const ExpectedOutcomeRenderer: FunctionalComponent<ExpectedOutcomeRendere
             <app-select
               config={config}
               value={field.value}
-              onValueChange={(e: CustomEvent<{ value: any }>) =>
+              onValueChange={(e) =>
                 emit({
                   testCaseId,
                   index,
                   operation: 'set-value',
-                  value: String(e.detail.value),
+                  value: e.detail.value,
                 })
               }
             />
@@ -128,7 +128,7 @@ export const ExpectedOutcomeRenderer: FunctionalComponent<ExpectedOutcomeRendere
               type="text"
               value={field.value}
               placeholder={field.placeholder}
-              onInput={(e: Event) =>
+              onInput={(e) =>
                 emit({
                   testCaseId,
                   index,

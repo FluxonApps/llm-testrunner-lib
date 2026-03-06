@@ -7,9 +7,9 @@ import { SelectConfig } from '../schema';
   shadow: true,
 })
 export class AppSelect {
-  @Prop() value: any;
+  @Prop() value: string;
   @Prop() config: SelectConfig;
-  @Event() valueChange: EventEmitter<{ value: any }>;
+  @Event() valueChange: EventEmitter<{ value: string }>;
 
   render() {
     const c = this.config;

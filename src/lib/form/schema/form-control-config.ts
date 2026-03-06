@@ -12,5 +12,5 @@ export interface ChipsConfig extends BaseInputFieldConfig {
 
 export interface SelectConfig extends BaseInputFieldConfig {
   fieldType: FormFieldType.SELECT;
-  optionList: any[];
+  optionList: string[];
 }

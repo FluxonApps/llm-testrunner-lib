@@ -19,6 +19,13 @@ jobs:
           registry-url: "https://registry.npmjs.org"
           token: ${{ secrets.NPM_TOKEN }}
 
+      - name: Configure npm auth
+        run: |
+          echo "//registry.npmjs.org/:_authToken=$NPM_TOKEN" > "$NPM_CONFIG_USERCONFIG"
+          echo "registry=https://registry.npmjs.org/" >> "$NPM_CONFIG_USERCONFIG"
+        env:
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+
       - name: Install dependencies
         run: npm ci
 

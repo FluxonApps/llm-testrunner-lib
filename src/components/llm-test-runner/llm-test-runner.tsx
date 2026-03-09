@@ -26,11 +26,11 @@ import {
   createTestCase,
   createTestCaseFromInput,
   DEFAULT_EXPECTED_OUTCOME_SCHEMA,
-  validateExpectedOutcomeSchema,
 } from '../../lib/test-cases/test-case-factory';
 import * as TestCaseMutations from '../../lib/test-cases/test-case-mutations';
 import { EvaluationService } from '../../lib/evaluation/evaluation-service';
 import { validateTestCaseInputArray } from '../../schemas/test-case';
+import { validateExpectedOutcomeSchema } from '../../schemas/expected-outcome';
 import { LLMTestRunnerHeader } from './header/llm-test-runner-header';
 import { LLMTestCases } from './test-cases/llm-test-cases';
 import { ExpectedOutcomeChangeDetail } from './test-cases/expected-outcome-renderer';
@@ -96,8 +96,6 @@ export class LLMTestRunner {
   componentWillLoad() {
     this.evaluationService = new EvaluationService();
     try {
-      const schema = this.getResolvedExpectedOutcomeSchema();
-
       // Initialize testCases from prop if provided
       if (this.initialTestCases !== undefined) {
         validateTestCaseInputArray(this.initialTestCases);
@@ -110,6 +108,7 @@ export class LLMTestRunner {
           }
         });
       } else {
+        const schema = this.getResolvedExpectedOutcomeSchema();
         this.testCases = [createTestCase(schema)];
       }
     } catch (err) {
@@ -140,8 +139,16 @@ export class LLMTestRunner {
   };
 
   private addNewTestCase() {
-    const newTestCase = createTestCase();
-    this.testCases = [...this.testCases, newTestCase];
+    try {
+      const schema = this.getResolvedExpectedOutcomeSchema();
+      const newTestCase = createTestCase(schema);
+      this.testCases = [...this.testCases, newTestCase];
+    } catch (err) {
+      this.error =
+        err instanceof Error
+          ? err.message
+          : 'Invalid defaultExpectedOutcomeSchema provided.';
+    }
   }
 
   private updateTestCase(id: string, updates: Partial<TestCase>) {

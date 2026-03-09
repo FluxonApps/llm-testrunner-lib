@@ -6,10 +6,6 @@ import {
   TestCase,
   TestCaseInput,
 } from '../../types/llm-test-runner';
-import {
-  validateExpectedOutcomeArray as validateExpectedOutcomeArrayFromSchema,
-  validateExpectedOutcomeSchema as validateExpectedOutcomeSchemaFromSchema,
-} from '../../schemas/expected-outcome';
 import { EvaluationApproach } from '../evaluation/constants';
 
 export const DEFAULT_EXPECTED_OUTCOME_SCHEMA: ExpectedOutcomeSchema = [
@@ -28,7 +24,6 @@ export const DEFAULT_EXPECTED_OUTCOME_SCHEMA: ExpectedOutcomeSchema = [
 export function createTestCase(
   expectedOutcomeSchema: ExpectedOutcomeSchema = DEFAULT_EXPECTED_OUTCOME_SCHEMA,
 ): TestCase {
-  validateExpectedOutcomeSchema(expectedOutcomeSchema);
   return {
     id: uuidv4(),
     question: '',
@@ -38,12 +33,6 @@ export function createTestCase(
     },
     isRunning: false,
   };
-}
-
-export function validateExpectedOutcomeSchema(
-  schema: unknown,
-): asserts schema is ExpectedOutcomeSchema {
-  validateExpectedOutcomeSchemaFromSchema(schema);
 }
 
 function createExpectedOutcomeFieldFromSchema(
@@ -98,7 +87,6 @@ function createExpectedOutcomeFieldFromSchema(
 export function createExpectedOutcomeFromSchema(
   expectedOutcomeSchema: ExpectedOutcomeSchema,
 ): ExpectedOutcomeField[] {
-  validateExpectedOutcomeSchema(expectedOutcomeSchema);
   return expectedOutcomeSchema.map(createExpectedOutcomeFieldFromSchema);
 }
 
@@ -112,12 +100,6 @@ export function migrateLegacyExpectedOutcomeString(
       value,
     },
   ];
-}
-
-export function validateExpectedOutcomeArray(
-  expectedOutcome: unknown,
-): asserts expectedOutcome is ExpectedOutcomeField[] {
-  validateExpectedOutcomeArrayFromSchema(expectedOutcome);
 }
 
 /**
@@ -136,5 +118,5 @@ export function createTestCaseFromInput(data: TestCaseInput): TestCase {
     expectedOutcome = data.expectedOutcome;
   }
 
-  return {...data, expectedOutcome };
+  return { ...data, expectedOutcome };
 }

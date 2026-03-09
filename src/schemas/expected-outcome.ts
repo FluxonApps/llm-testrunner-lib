@@ -75,9 +75,19 @@ export const expectedOutcomeFieldSchema = z.discriminatedUnion('type', [
       }
     }),
   }),
-  defaultFieldDefinitions.select.extend({
-    value: z.string(),
-  }),
+  defaultFieldDefinitions.select
+    .extend({
+      value: z.string(),
+    })
+    .superRefine((field, ctx) => {
+      if (!field.options.includes(field.value)) {
+        ctx.addIssue({
+          code: 'custom',
+          path: ['value'],
+          message: 'select value must be one of the provided options.',
+        });
+      }
+    }),
 ]);
 
 export const expectedOutcomeArraySchema = z.array(expectedOutcomeFieldSchema).min(1);

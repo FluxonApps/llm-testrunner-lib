@@ -9,7 +9,7 @@ import {
 import {
   validateExpectedOutcomeArray as validateExpectedOutcomeArrayFromSchema,
   validateExpectedOutcomeSchema as validateExpectedOutcomeSchemaFromSchema,
-} from '../../types/expected-outcome';
+} from '../../schemas/expected-outcome';
 import { EvaluationApproach } from '../evaluation/constants';
 
 export const DEFAULT_EXPECTED_OUTCOME_SCHEMA: ExpectedOutcomeSchema = [

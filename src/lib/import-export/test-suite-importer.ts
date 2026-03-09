@@ -1,6 +1,6 @@
-import { TestCase } from '../../types/llm-test-runner';
+import type { TestCase } from '../../types/llm-test-runner';
 import { createTestCaseFromInput } from '../test-cases/test-case-factory';
-import { validateTestCaseInputArray } from '../../types/test-case';
+import { validateTestCaseInputArray } from '../../schemas/test-case';
 
 export interface ImportValidationResult {
   success: boolean;

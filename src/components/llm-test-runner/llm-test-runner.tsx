@@ -30,7 +30,7 @@ import {
 } from '../../lib/test-cases/test-case-factory';
 import * as TestCaseMutations from '../../lib/test-cases/test-case-mutations';
 import { EvaluationService } from '../../lib/evaluation/evaluation-service';
-import { validateTestCaseInputArray } from '../../types/test-case';
+import { validateTestCaseInputArray } from '../../schemas/test-case';
 import { LLMTestRunnerHeader } from './header/llm-test-runner-header';
 import { LLMTestCases } from './test-cases/llm-test-cases';
 import { ExpectedOutcomeChangeDetail } from './test-cases/expected-outcome-renderer';

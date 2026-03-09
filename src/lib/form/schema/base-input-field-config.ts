@@ -26,7 +26,7 @@ export interface BaseInputFieldConfig {
   type?: string;
   label?: string;
   placeholder?: string;
-  defaultValue?: string;
+  defaultValue?: any;
   autocomplete?: string;
   required?: boolean;
   disabled?: boolean;

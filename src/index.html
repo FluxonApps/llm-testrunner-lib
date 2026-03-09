@@ -59,19 +59,6 @@
   <script>
     document.addEventListener('DOMContentLoaded', () => {
       const llmTestRunner = document.getElementById('llm-test-runner');
-      llmTestRunner.defaultExpectedOutcomeSchema = [
-        {
-          type: 'textarea',
-          label: 'Expected Outcome',
-          placeholder: 'Enter expected outcome...',
-          rows: 2,
-        },
-        {
-          type: 'chips-input',
-          label: 'Keywords',
-          placeholder: 'Add keyword...',
-        }
-      ];
       const llm = new window.GeminiAdapter(window.env.API_KEY);
 
       async function callGeminiAPI(event) {

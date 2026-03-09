@@ -1,6 +1,6 @@
 {
   "name": "llm-testrunner-components",
-  "version": "1.0.9",
+  "version": "2.0.0",
   "description": "A Stencil web component library for LLM test runner functionality",
   "main": "dist/index.cjs.js",
   "module": "dist/index.js",

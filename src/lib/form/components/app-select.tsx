@@ -1,4 +1,4 @@
-import { Component, Prop, h } from '@stencil/core';
+import { Component, Event, EventEmitter, Prop, h } from '@stencil/core';
 import { SelectConfig } from '../schema';
 
 @Component({
@@ -7,9 +7,9 @@ import { SelectConfig } from '../schema';
   shadow: true,
 })
 export class AppSelect {
-  @Prop() value: any;
-  @Prop() onChange: (value: any) => void;
+  @Prop() value: string;
   @Prop() config: SelectConfig;
+  @Event() valueChange: EventEmitter<{ value: string }>;
 
   render() {
     const c = this.config;
@@ -21,7 +21,6 @@ export class AppSelect {
       readOnly: c.readOnly,
       placeholder: c.placeholder,
       autocomplete: c.autocomplete,
-      optionList: c.optionList,
     };
     return (
       <div class="app-select">
@@ -38,7 +37,9 @@ export class AppSelect {
             onInput={(e: Event) => {
               const raw = (e.target as HTMLSelectElement).value;
               const matched = c.optionList.find(opt => String(opt) === raw);
-              this.onChange?.(matched !== undefined ? matched : raw);
+              this.valueChange.emit({
+                value: matched !== undefined ? matched : raw,
+              });
             }}
           >
             {c.optionList?.map(option => (

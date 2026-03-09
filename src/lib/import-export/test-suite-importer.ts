@@ -1,5 +1,6 @@
-import { TestCase } from '../../types/llm-test-runner';
-import { createTestCaseFromImport } from '../test-cases/test-case-factory';
+import type { TestCase } from '../../types/llm-test-runner';
+import { createTestCaseFromInput } from '../test-cases/test-case-factory';
+import { validateTestCaseInputArray } from '../../schemas/test-case';
 
 export interface ImportValidationResult {
   success: boolean;
@@ -15,28 +16,14 @@ export interface ImportValidationResult {
 export function importTestSuite(jsonContent: string): ImportValidationResult {
   try {
     const parsed = JSON.parse(jsonContent);
+    validateTestCaseInputArray(parsed);
 
-    if (!Array.isArray(parsed)) {
-      return {
-        success: false,
-        error: 'Invalid JSON structure. Expected a JSON array.',
-      };
-    }
-
-    if (parsed.length === 0) {
-      return {
-        success: false,
-        error: 'The test suite is empty. Please provide at least one test case.',
-      };
-    }
-
-    const testCases: TestCase[] = parsed.map((item, index) => {
+    const testCases = parsed.map((item, index) => {
       try {
-        return createTestCaseFromImport(item);
+        return createTestCaseFromInput(item);
       } catch (err) {
-        throw new Error(
-          `Invalid test case at index ${index}: ${err instanceof Error ? err.message : 'Unknown error'}`,
-        );
+        const message = err instanceof Error ? err.message : 'Unknown error';
+        throw new Error(`Invalid test case at index ${index}: ${message}`);
       }
     });
 

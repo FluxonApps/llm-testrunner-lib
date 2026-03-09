@@ -7,30 +7,29 @@
 
 ## Properties
 
-| Property     | Attribute      | Description | Type             | Default     |
-| ------------ | -------------- | ----------- | ---------------- | ----------- |
-| `config`     | --             |             | `TextAreaConfig` | `undefined` |
-| `testCaseId` | `test-case-id` |             | `string`         | `undefined` |
-| `value`      | `value`        |             | `string`         | `undefined` |
+| Property | Attribute | Description | Type             | Default     |
+| -------- | --------- | ----------- | ---------------- | ----------- |
+| `config` | --        |             | `TextAreaConfig` | `undefined` |
+| `value`  | `value`   |             | `string`         | `undefined` |
 
 
 ## Events
 
-| Event         | Description | Type                                                               |
-| ------------- | ----------- | ------------------------------------------------------------------ |
-| `valueChange` |             | `CustomEvent<{ key: string; value: string; testCaseId: string; }>` |
+| Event         | Description | Type                              |
+| ------------- | ----------- | --------------------------------- |
+| `valueChange` |             | `CustomEvent<{ value: string; }>` |
 
 
 ## Dependencies
 
 ### Used by
 
- - [form-builder](..)
+ - [llm-test-runner](../../../components/llm-test-runner)
 
 ### Graph
 ```mermaid
 graph TD;
-  form-builder --> app-textarea
+  llm-test-runner --> app-textarea
   style app-textarea fill:#f9f,stroke:#333,stroke-width:4px
 ```
 

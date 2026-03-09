@@ -1,6 +1,7 @@
 import { LLMEvaluationEngine } from './evaluation-engine';
 import { EvaluationRequest, EvaluationResult } from './types';
 import { TestCase } from '../../types/llm-test-runner';
+import { serializeExpectedOutcome } from '../expected-outcome-serializer';
 
 /**
  * Service for evaluating test case responses
@@ -29,7 +30,7 @@ export class EvaluationService {
     const evaluationRequest: EvaluationRequest = {
       testCaseId: testCase.id,
       question: testCase.question,
-      expectedOutcome: testCase.expectedOutcome,
+      expectedOutcome: serializeExpectedOutcome(testCase.expectedOutcome),
       actualResponse: testCase.output,
       evaluationParameters: testCase.evaluationParameters,
     };

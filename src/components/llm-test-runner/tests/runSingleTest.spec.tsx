@@ -19,7 +19,24 @@ describe('LLMTestRunner', () => {
   const mockTestCase: TestCase = {
     id: '1',
     question: 'What is Stencil?',
-    expectedOutcome: 'WebComponent',
+    expectedOutcome: [
+      {
+        type: 'textarea',
+        label: 'Expected Outcome',
+        value: 'WebComponent',
+      },
+      {
+        type: 'chips-input',
+        label: 'Keywords',
+        value: ['compiler', 'web component'],
+      },
+      {
+        type: 'select',
+        label: 'Tool calls',
+        options: ['getWeather', 'getAnalytics', 'getValidEntities'],
+        value: 'getAnalytics',
+      },
+    ],
     evaluationParameters: { approach: EvaluationApproach.EXACT },
     isRunning: false,
   };

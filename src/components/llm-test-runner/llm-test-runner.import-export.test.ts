@@ -11,9 +11,10 @@ jest.mock('../../lib/file/file-download');
 jest.mock('../../lib/import-export/test-suite-exporter');
 jest.mock('../../lib/import-export/test-suite-importer');
 
+import { h } from '@stencil/core';
 import { newSpecPage, SpecPage } from '@stencil/core/testing';
 import { LLMTestRunner } from './llm-test-runner';
-import { TestCase } from '../../types/llm-test-runner';
+import { TestCase, TestCaseInput } from '../../types/llm-test-runner';
 import { EvaluationApproach } from '../../lib/evaluation/constants';
 import { readFileAsync } from '../../lib/file/file-reader';
 import { downloadFile } from '../../lib/file/file-download';
@@ -23,12 +24,19 @@ import { importTestSuite } from '../../lib/import-export/test-suite-importer';
 describe('llm-test-runner import/export', () => {
   let page: SpecPage;
   let component: any;
+  const buildExpectedOutcome = (value: string) => [
+    {
+      type: 'textarea' as const,
+      label: 'Expected Outcome',
+      value,
+    },
+  ];
 
   const createMockTestCase = (overrides: Partial<TestCase> = {}): TestCase => {
     const defaults: TestCase = {
       id: '1',
       question: 'What is AI?',
-      expectedOutcome: 'artificial intelligence',
+      expectedOutcome: buildExpectedOutcome('artificial intelligence'),
       evaluationParameters: {
         approach: EvaluationApproach.EXACT,
         threshold: 0.6
@@ -68,7 +76,7 @@ describe('llm-test-runner import/export', () => {
         {
           id: '1',
           question: 'What is AI?',
-          expectedOutcome: 'artificial intelligence',
+          expectedOutcome: buildExpectedOutcome('artificial intelligence'),
           evaluationParameters: { approach: EvaluationApproach.EXACT, threshold: 0.6 },
           isRunning: false
         }
@@ -90,7 +98,7 @@ describe('llm-test-runner import/export', () => {
       expect(component.testCases[0]).toMatchObject({
         id: '1',
         question: 'What is AI?',
-        expectedOutcome: 'artificial intelligence',
+        expectedOutcome: buildExpectedOutcome('artificial intelligence'),
       });
     });
 
@@ -99,7 +107,7 @@ describe('llm-test-runner import/export', () => {
         {
           id: '1',
           question: 'Test question',
-          expectedOutcome: 'test',
+          expectedOutcome: buildExpectedOutcome('test'),
           evaluationParameters: { approach: EvaluationApproach.EXACT, threshold: 0.6 },
           isRunning: false
         }
@@ -129,14 +137,14 @@ describe('llm-test-runner import/export', () => {
         {
           id: '1',
           question: 'What is AI?',
-          expectedOutcome: 'artificial intelligence',
+          expectedOutcome: buildExpectedOutcome('artificial intelligence'),
           evaluationParameters: { approach: EvaluationApproach.EXACT },
           isRunning: false
         },
         {
           id: '2',
           question: 'What is ML?',
-          expectedOutcome: 'machine learning',
+          expectedOutcome: buildExpectedOutcome('machine learning'),
           evaluationParameters: { approach: EvaluationApproach.EXACT },
           isRunning: false
         }
@@ -163,21 +171,21 @@ describe('llm-test-runner import/export', () => {
         {
           id: '1',
           question: 'Q1',
-          expectedOutcome: 'answer1',
+          expectedOutcome: buildExpectedOutcome('answer1'),
           evaluationParameters: { approach: EvaluationApproach.EXACT },
           isRunning: false
         },
         {
           id: '2',
           question: 'Q2',
-          expectedOutcome: 'answer2',
+          expectedOutcome: buildExpectedOutcome('answer2'),
           evaluationParameters: { approach: EvaluationApproach.EXACT },
           isRunning: false
         },
         {
           id: '3',
           question: 'Q3',
-          expectedOutcome: 'answer3',
+          expectedOutcome: buildExpectedOutcome('answer3'),
           evaluationParameters: { approach: EvaluationApproach.EXACT },
           isRunning: false
         }
@@ -315,6 +323,40 @@ describe('llm-test-runner import/export', () => {
       await page.waitForChanges();
 
       expect(component.error).toBe('');
+    });
+  });
+
+  describe('Initial Test Cases', () => {
+    it('should normalize legacy string expectedOutcome from initialTestCases', async () => {
+      const legacyInitialCases = [
+        {
+          id: 'legacy-1',
+          question: 'Whats capital of India ?',
+          expectedOutcome: 'Delhi',
+          evaluationParameters: { approach: EvaluationApproach.EXACT },
+        },
+      ] as unknown as TestCase[];
+
+      const localPage = await newSpecPage({
+        components: [LLMTestRunner],
+        template: () =>
+          h('llm-test-runner', {
+            initialTestCases: legacyInitialCases as TestCaseInput[],
+          }),
+      });
+
+      const localComponent = localPage.rootInstance as LLMTestRunner;
+      await localPage.waitForChanges();
+
+      expect(localComponent.testCases).toHaveLength(1);
+      expect(localComponent.testCases[0].id).toBe('legacy-1');
+      expect(localComponent.testCases[0].expectedOutcome).toEqual([
+        {
+          type: 'textarea',
+          label: 'Expected Outcome',
+          value: 'Delhi',
+        },
+      ]);
     });
   });
 });

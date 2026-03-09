@@ -1,17 +1,26 @@
-import { EvaluationParameters } from './evaluation';
-import { EvaluationResult } from '../lib/evaluation/types';
+import type { TestCase } from './test-case';
 
-export interface TestCase {
-  id: string;
-  question: string;
-  expectedOutcome: string;
-  evaluationParameters?: EvaluationParameters;
-  output?: string;
-  isRunning?: boolean;
-  error?: string;
-  evaluationResult?: EvaluationResult;
-  responseTime?: number; // Time taken by the callback to execute in milliseconds
-}
+export type {
+  ExpectedOutcomeFieldType,
+  ExpectedOutcomeBase,
+  ExpectedOutcomeSchema,
+  ExpectedOutcomeSchemaField,
+  ExpectedOutcomeField,
+  TextExpectedOutcomeSchemaField,
+  TextareaExpectedOutcomeSchemaField,
+  ChipsExpectedOutcomeSchemaField,
+  SelectExpectedOutcomeSchemaField,
+  TextExpectedOutcomeField,
+  TextareaExpectedOutcomeField,
+  ChipsExpectedOutcomeField,
+  SelectExpectedOutcomeField,
+} from './expected-outcome';
+export type {
+  TestCase,
+  TestCaseInput,
+  LegacyTestCaseInput,
+  V2TestCaseInput,
+} from './test-case';
 
 export interface LLMRequestPayload {
   prompt: string;

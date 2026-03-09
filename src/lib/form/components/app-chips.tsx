@@ -9,34 +9,26 @@ import { ChipsConfig } from '../schema';
 export class AppChips {
   @Prop() value: string[] = [];
   @Prop() config: ChipsConfig;
-  @Prop() testCaseId: string;
 
-  @Event() addChip: EventEmitter<{
-    key: string;
-    value: string;
-    testCaseId: string;
-  }>;
+  @Event() addChip: EventEmitter<{ value: string }>;
 
-  @Event() removeChip: EventEmitter<{
-    key: string;
-    index: number;
-    testCaseId: string;
-  }>;
+  @Event() removeChip: EventEmitter<{ value: string }>;
 
   private emitAddChip(val: string) {
     this.addChip.emit({
-      key: this.config.name,
       value: val,
-      testCaseId: this.testCaseId,
     });
   }
 
-  private emitRemoveChip(index: number) {
+  private emitRemoveChip(value: string) {
     this.removeChip.emit({
-      key: this.config.name,
-      index,
-      testCaseId: this.testCaseId,
+      value,
     });
+  }
+
+  private hasDuplicateChip(value: string): boolean {
+    const normalized = value.trim().toLowerCase();
+    return this.value.some(chip => chip.trim().toLowerCase() === normalized);
   }
 
   render() {
@@ -61,8 +53,8 @@ export class AppChips {
         )}
 
         <div class="app-chips__container">
-          {this.value.map((chip, index) => (
-            <span class="app-chips__chip" key={index}>
+          {this.value.map((chip) => (
+            <span class="app-chips__chip" key={chip}>
               {c.type === 'url' ? (
                 <a
                   href={chip}
@@ -79,7 +71,7 @@ export class AppChips {
               <button
                 class="app-chips__remove"
                 type="button"
-                onClick={() => this.emitRemoveChip(index)}
+                onClick={() => this.emitRemoveChip(chip)}
               >
                 ×
               </button>
@@ -95,6 +87,10 @@ export class AppChips {
                 const input = e.target as HTMLInputElement;
                 const val = input.value.trim();
                 if (!val) return;
+                if (this.hasDuplicateChip(val)) {
+                  input.value = '';
+                  return;
+                }
 
                 this.emitAddChip(val);
                 input.value = '';

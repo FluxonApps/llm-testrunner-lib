@@ -1,0 +1,15 @@
+export type {
+  ExpectedOutcomeSchemaField,
+  ExpectedOutcomeSchema,
+  ExpectedOutcomeField,
+  ExpectedOutcomeFieldType,
+  ExpectedOutcomeBase,
+  TextExpectedOutcomeSchemaField,
+  TextareaExpectedOutcomeSchemaField,
+  ChipsExpectedOutcomeSchemaField,
+  SelectExpectedOutcomeSchemaField,
+  TextExpectedOutcomeField,
+  TextareaExpectedOutcomeField,
+  ChipsExpectedOutcomeField,
+  SelectExpectedOutcomeField,
+} from '../schemas/expected-outcome';

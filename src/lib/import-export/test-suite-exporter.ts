@@ -1,9 +1,9 @@
-import { TestCase } from '../../types/llm-test-runner';
+import { ExpectedOutcomeField, TestCase } from '../../types/llm-test-runner';
 
 export interface TestSuiteExportData {
   id: string;
   question: string;
-  expectedOutcome: string;
+  expectedOutcome: ExpectedOutcomeField[];
   evaluationParameters?: {
     approach: string;
     threshold?: number;

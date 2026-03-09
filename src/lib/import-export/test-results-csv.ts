@@ -1,4 +1,5 @@
 import { TestCase } from '../../types/llm-test-runner';
+import { serializeExpectedOutcome } from '../expected-outcome-serializer';
 
 /**
  * Escapes a CSV field by wrapping it in quotes if it contains special characters
@@ -34,7 +35,10 @@ export function exportTestResultsToCsv(testCases: TestCase[]): string {
 
   // Add data rows
   testCases.forEach(testCase => {
-    const expectedOutcome = testCase.expectedOutcome || '';
+    const expectedOutcome = serializeExpectedOutcome(
+      testCase.expectedOutcome || [],
+      ' | ',
+    );
 
     const evaluationApproach = testCase.evaluationParameters?.approach || '';
     const score = testCase.evaluationResult?.evaluationApproachResult?.score;

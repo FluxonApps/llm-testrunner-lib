@@ -4,6 +4,7 @@ import {
   ExpectedOutcomeSchema,
   ExpectedOutcomeSchemaField,
   TestCase,
+  TestCaseInput,
 } from '../../types/llm-test-runner';
 import {
   validateExpectedOutcomeArray as validateExpectedOutcomeArrayFromSchema,
@@ -37,10 +38,6 @@ export function createTestCase(
     },
     isRunning: false,
   };
-}
-
-function isValidApproach(value: unknown): value is EvaluationApproach {
-  return typeof value === 'string' && Object.values(EvaluationApproach).includes(value as EvaluationApproach);
 }
 
 export function validateExpectedOutcomeSchema(
@@ -124,48 +121,20 @@ export function validateExpectedOutcomeArray(
 }
 
 /**
- * Creates a test case from imported data with defaults
- * @param data - Partial test case data from import
- * @returns A new TestCase object with defaults applied
+ * Creates a runtime test case from validated input data.
+ * The input is expected to already satisfy `TestCaseInput` (legacy string or v2 shape),
+ * and this function only performs normalization/defaulting (including legacy migration).
+ *
+ * @param data - Validated test case input
+ * @returns A normalized TestCase object with runtime defaults applied
  */
-export function createTestCaseFromImport(data: unknown): TestCase {
-  if (!data || typeof data !== 'object') {
-    return createTestCase();
-  }
-  const dataRecord = data as Record<string, unknown>;
-
-  const evaluationParameters =
-    dataRecord.evaluationParameters && typeof dataRecord.evaluationParameters === 'object'
-      ? (dataRecord.evaluationParameters as Record<string, unknown>)
-    : undefined;
-
-  const approach =
-    evaluationParameters && isValidApproach(evaluationParameters.approach)
-      ? evaluationParameters.approach
-      : EvaluationApproach.EXACT;
-
-  const threshold =
-    evaluationParameters && typeof evaluationParameters.threshold === 'number'
-      ? evaluationParameters.threshold
-      : 0.6;
-
+export function createTestCaseFromInput(data: TestCaseInput): TestCase {
   let expectedOutcome: ExpectedOutcomeField[];
-  if (typeof dataRecord.expectedOutcome === 'string') {
-    expectedOutcome = migrateLegacyExpectedOutcomeString(dataRecord.expectedOutcome);
+  if (typeof data.expectedOutcome === 'string') {
+    expectedOutcome = migrateLegacyExpectedOutcomeString(data.expectedOutcome);
   } else {
-    validateExpectedOutcomeArray(dataRecord.expectedOutcome);
-    expectedOutcome = dataRecord.expectedOutcome;
+    expectedOutcome = data.expectedOutcome;
   }
 
-  return {
-    id: uuidv4(),
-    question: typeof dataRecord.question === 'string' ? dataRecord.question : '',
-    expectedOutcome,
-
-    evaluationParameters: {
-      approach,
-      threshold,
-    },
-    isRunning: false,
-  };
+  return {...data, expectedOutcome };
 }

@@ -24,11 +24,13 @@ import { exportTestResultsToCsv } from '../../lib/import-export/test-results-csv
 import { importTestSuite } from '../../lib/import-export/test-suite-importer';
 import {
   createTestCase,
+  createTestCaseFromInput,
   DEFAULT_EXPECTED_OUTCOME_SCHEMA,
   validateExpectedOutcomeSchema,
 } from '../../lib/test-cases/test-case-factory';
 import * as TestCaseMutations from '../../lib/test-cases/test-case-mutations';
 import { EvaluationService } from '../../lib/evaluation/evaluation-service';
+import { validateTestCaseInputArray } from '../../types/test-case';
 import { LLMTestRunnerHeader } from './header/llm-test-runner-header';
 import { LLMTestCases } from './test-cases/llm-test-cases';
 import { ExpectedOutcomeChangeDetail } from './test-cases/expected-outcome-renderer';
@@ -98,7 +100,15 @@ export class LLMTestRunner {
 
       // Initialize testCases from prop if provided
       if (this.initialTestCases !== undefined) {
-        this.testCases = this.initialTestCases;
+        validateTestCaseInputArray(this.initialTestCases);
+        this.testCases = this.initialTestCases.map((rawTestCase, index) => {
+          try {
+            return createTestCaseFromInput(rawTestCase);
+          } catch (err) {
+            const message = err instanceof Error ? err.message : 'Unknown error';
+            throw new Error(`Invalid initial test case at index ${index}: ${message}`);
+          }
+        });
       } else {
         this.testCases = [createTestCase(schema)];
       }

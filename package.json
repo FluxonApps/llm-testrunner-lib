@@ -40,7 +40,7 @@
     "url": "https://github.com/FluxonApps/llm-testrunner-lib/issues"
   },
   "homepage": "https://github.com/FluxonApps/llm-testrunner-lib#readme",
-  "author": "Fluxon",
+  "author": "Fluxon Apps LLC",
   "files": [
     "dist/",
     "loader/"

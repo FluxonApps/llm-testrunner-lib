@@ -296,3 +296,9 @@ interface LLMRequestPayload {
   reject: (err: Error | unknown) => void;
 }
 ```
+
+## License
+
+This project is licensed under the MIT License — see the [LICENSE](LICENSE) file for the full text.
+
+Third-party dependency licenses are not bundled; when you install this package, each dependency’s license is in `node_modules/<package>/`. To list dependency licenses, run `npx license-checker` in the project root.

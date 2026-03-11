@@ -296,3 +296,9 @@ interface LLMRequestPayload {
   reject: (err: Error | unknown) => void;
 }
 ```
+
+## License
+
+This project is licensed under the MIT License — see the [LICENSE](LICENSE) file for the full text.
+
+Third-party dependency licenses are not bundled; when you install this package, each dependency’s license is in `node_modules/<package>/`. License compliance is enforced with [licensee](https://github.com/jslicense/licensee.js) and the [Blue Oak Council](https://blueoakcouncil.org/list) permissive list (allowlist): only dependencies with a Blue Oak bronze-or-better rated license (or an explicitly allowed exception in [.licensee.json](.licensee.json)) are permitted. PRs that add a dependency with a non-permissive or unlisted license will fail CI. Run `npm run license-check` to verify locally.

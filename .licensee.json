@@ -1,0 +1,10 @@
+{
+  "licenses": {
+    "blueOak": "bronze",
+    "spdx": ["CC-BY-4.0", "CC-BY-3.0"]
+  },
+  "packages": {
+    "flatbuffers": "*"
+  },
+  "corrections": true
+}

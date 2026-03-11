@@ -1,6 +1,5 @@
 import { h, FunctionalComponent } from '@stencil/core';
 import { TestCase } from '../../../types/llm-test-runner';
-import { EvaluationApproach } from '../../../lib/evaluation/constants';
 import { LLMTestCaseRow } from './llm-test-case-row';
 import { Button } from '../../../lib/ui/button/index';
 import { ExpectedOutcomeChangeDetail } from './expected-outcome-renderer';
@@ -9,7 +8,6 @@ export interface LLMTestCasesProps {
   testCases: TestCase[];
   onRun: (testCase: TestCase) => void;
   onDelete: (id: string) => void;
-  onUpdateApproach: (testCase: TestCase, approach: EvaluationApproach) => void;
   onAddTestCase: () => void;
   handleTestCaseChange: (
     e: CustomEvent<{ testCaseId: string; key: string; value: string }>,
@@ -23,7 +21,6 @@ export const LLMTestCases: FunctionalComponent<LLMTestCasesProps> = ({
   testCases,
   onRun,
   onDelete,
-  onUpdateApproach,
   onAddTestCase,
   handleTestCaseChange,
   onExpectedOutcomeChange,
@@ -42,7 +39,6 @@ export const LLMTestCases: FunctionalComponent<LLMTestCasesProps> = ({
           testCase={testCase}
           onRun={onRun}
           onDelete={onDelete}
-          onUpdateApproach={onUpdateApproach}
           handleTestCaseChange={handleTestCaseChange}
           onExpectedOutcomeChange={onExpectedOutcomeChange}
         />

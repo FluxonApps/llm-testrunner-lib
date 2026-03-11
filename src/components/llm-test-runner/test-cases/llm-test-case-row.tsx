@@ -1,13 +1,9 @@
 import { h, FunctionalComponent } from '@stencil/core';
 import { TestCase } from '../../../types/llm-test-runner';
-import {
-  EvaluationApproach,
-  EvaluationApproachValues,
-} from '../../../lib/evaluation/constants';
 import { ResponseOutput } from './output/response-output';
 import { EvaluationSummary } from './evaluation/evaluation-summary';
 import { RowActions } from './actions/row-actions';
-import { FormFieldType, SelectConfig, TextAreaConfig } from '../../../lib/form/schema';
+import { FormFieldType, TextAreaConfig } from '../../../lib/form/schema';
 import {
   ExpectedOutcomeChangeDetail,
   ExpectedOutcomeRenderer,
@@ -17,7 +13,6 @@ export interface LLMTestCaseRowProps {
   testCase: TestCase;
   onRun: (testCase: TestCase) => void;
   onDelete: (id: string) => void;
-  onUpdateApproach: (testCase: TestCase, approach: EvaluationApproach) => void;
   handleTestCaseChange: (
     e: CustomEvent<{ testCaseId: string; key: string; value: string }>,
   ) => void;
@@ -30,7 +25,6 @@ export const LLMTestCaseRow: FunctionalComponent<LLMTestCaseRowProps> = ({
   testCase,
   onRun,
   onDelete,
-  onUpdateApproach,
   handleTestCaseChange,
   onExpectedOutcomeChange,
 }) => {
@@ -43,16 +37,6 @@ export const LLMTestCaseRow: FunctionalComponent<LLMTestCaseRowProps> = ({
     required: true,
     rows: 3,
   };
-  const evaluationConfig: SelectConfig = {
-    name: 'EvaluationApproach',
-    fieldType: FormFieldType.SELECT,
-    label: 'Evaluation',
-    placeholder: 'Select evaluation approach…',
-    required: true,
-    optionList: EvaluationApproachValues,
-    defaultValue: EvaluationApproach.EXACT,
-  };
-
   return (
     <div class="test-case-row" key={testCase.id}>
       <div class="test-case-row__input-column">
@@ -73,13 +57,6 @@ export const LLMTestCaseRow: FunctionalComponent<LLMTestCaseRowProps> = ({
           testCaseId={testCase.id}
           fields={testCase.expectedOutcome || []}
           onExpectedOutcomeChange={onExpectedOutcomeChange}
-        />
-        <app-select
-          config={evaluationConfig}
-          value={testCase.evaluationParameters?.approach}
-          onValueChange={(e) =>
-            onUpdateApproach(testCase, e.detail.value as EvaluationApproach)
-          }
         />
       </div>
 

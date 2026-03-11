@@ -18,6 +18,23 @@
   border-right: var(--border-width) solid var(--border);
 }
 
+.expected-outcome-renderer {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-4);
+  margin-top: var(--spacing-4);
+}
+
+.expected-outcome-renderer__group {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-2);
+  padding: var(--spacing-3);
+  border: var(--border-width) solid var(--border);
+  border-radius: var(--radius-md);
+  background: var(--background);
+}
+
 /* Responsive Design */
 @media (max-width: 1200px) {
   .test-case-row {

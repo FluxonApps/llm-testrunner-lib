@@ -1,10 +1,22 @@
 import { z } from 'zod';
+import { EvaluationApproach } from '../lib/evaluation/constants';
 
 const nonEmptyString = z.string().trim().min(1);
 const optionalPositiveInt = z.number().int().positive().optional();
 const optionalString = z.string().optional();
 const optionalBoolean = z.boolean().optional();
 const selectOptionsSchema = z.array(nonEmptyString).min(1);
+const optionalNumber = z.number().optional();
+
+const evaluationParametersSchema = z.object({
+  approach: z.enum(EvaluationApproach),
+  threshold: optionalNumber,
+});
+
+const selectEvaluationParametersSchema = z.object({
+  approach: z.literal(EvaluationApproach.EXACT),
+  threshold: optionalNumber,
+});
 
 const defaultExpectedOutcomeBaseSchema = z.object({
   label: nonEmptyString,
@@ -17,17 +29,21 @@ const createDefaultExpectedOutcomeFieldSchemas = (
 ) => ({
   text: baseSchema.extend({
     type: z.literal('text'),
+    evaluationParameters: evaluationParametersSchema.optional(),
   }),
   textarea: baseSchema.extend({
     type: z.literal('textarea'),
     rows: optionalPositiveInt,
+    evaluationParameters: evaluationParametersSchema.optional(),
   }),
   chipsInput: baseSchema.extend({
     type: z.literal('chips-input'),
+    evaluationParameters: evaluationParametersSchema.optional(),
   }),
   select: baseSchema.extend({
     type: z.literal('select'),
     options: selectOptionsSchema,
+    evaluationParameters: selectEvaluationParametersSchema.optional(),
   }),
 });
 

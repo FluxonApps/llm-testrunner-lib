@@ -28,57 +28,72 @@ export function exportTestResultsToCsv(testCases: TestCase[]): string {
     'Generated Keywords',
     'Keywords Match',
     'Response Time (s)',
-    'Evaluation Approach',
-    'Evaluation Score',
+    'Field Label',
+    'Field Strategy',
+    'Field Passed',
+    'Field Score',
+    'Field Matches',
   ];
   csvRows.push(headers.join(','));
 
-  // Add data rows
+  // Add data rows (one row per field evaluation)
   testCases.forEach(testCase => {
-    const expectedOutcome = serializeExpectedOutcome(
-      testCase.expectedOutcome || [],
-      ' | ',
-    );
-
-    const evaluationApproach = testCase.evaluationParameters?.approach || '';
-    const score = testCase.evaluationResult?.evaluationApproachResult?.score;
-    const evaluationScore = score !== undefined ? score.toString() : '';
-    
-    let generatedKeywords = '';
-    let keywordsMatch = '';
-
-    if (testCase.evaluationResult) {
-      const foundKeywords = testCase.evaluationResult.keywordMatches
-        .filter(match => match.found)
-        .map(match => match.keyword);
-
-      generatedKeywords = foundKeywords.join('; ');
-
-      // Calculate match percentages
-      const keywordMatchCount = testCase.evaluationResult.keywordMatches.filter(
-        m => m.found,
-      ).length;
-      const totalKeywords = testCase.evaluationResult.keywordMatches.length;
-
-      keywordsMatch =
-        totalKeywords > 0 ? `${keywordMatchCount}/${totalKeywords}` : 'N/A';
-    }
-
     const responseTime = testCase.responseTime
       ? (testCase.responseTime / 1000).toFixed(3)
       : 'N/A';
 
-    const row = [
-      escapeCsvField(testCase.question),
-      escapeCsvField(expectedOutcome),
-      escapeCsvField(generatedKeywords),
-      keywordsMatch,
-      responseTime,
-      escapeCsvField(evaluationApproach),
-      escapeCsvField(evaluationScore),
-    ];
+    const fieldResults = testCase.evaluationResult?.fieldResults || [];
 
-    csvRows.push(row.join(','));
+    if (fieldResults.length === 0) {
+      const expectedOutcome = serializeExpectedOutcome(
+        testCase.expectedOutcome || [],
+        ' | ',
+      );
+      csvRows.push(
+        [
+          escapeCsvField(testCase.question),
+          escapeCsvField(expectedOutcome),
+          '',
+          '',
+          responseTime,
+          '',
+          '',
+          '',
+          '',
+          '',
+        ].join(','),
+      );
+    } else {
+      fieldResults.forEach(fieldResult => {
+        const matchedCount = fieldResult.keywordMatches.filter(match => match.found).length;
+        const totalMatches = fieldResult.keywordMatches.length;
+        const fieldMatches =
+          totalMatches > 0 ? `${matchedCount}/${totalMatches}` : 'N/A';
+        const expectedKeywords = fieldResult.expectedValue;
+        const generatedKeywords = fieldResult.keywordMatches
+          .filter(match => match.found)
+          .map(match => match.keyword)
+          .join('; ');
+
+        csvRows.push(
+          [
+            escapeCsvField(testCase.question),
+            escapeCsvField(expectedKeywords),
+            escapeCsvField(generatedKeywords),
+            fieldMatches,
+            responseTime,
+            escapeCsvField(fieldResult.label),
+            escapeCsvField(fieldResult.evaluationParameters.approach),
+            fieldResult.passed ? 'true' : 'false',
+            escapeCsvField(fieldResult.evaluationApproachResult.score.toFixed(2)),
+            fieldMatches,
+          ].join(','),
+        );
+      });
+    }
+
+    // Empty separator row between test cases
+    csvRows.push('');
   });
 
   return csvRows.join('\n');

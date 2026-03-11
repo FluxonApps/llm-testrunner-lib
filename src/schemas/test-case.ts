@@ -1,17 +1,10 @@
 import { z } from 'zod';
-import { EvaluationApproach } from '../lib/evaluation/constants';
 import type { EvaluationResult } from '../lib/evaluation/types';
 import { expectedOutcomeArraySchema } from './expected-outcome';
-
-export const evaluationParametersSchema = z.object({
-  approach: z.enum(EvaluationApproach),
-  threshold: z.number().optional(),
-});
 
 const baseTestCaseInputSchema = z.object({
   id: z.string(),
   question: z.string(),
-  evaluationParameters: evaluationParametersSchema.optional(),
 });
 
 export const legacyTestCaseInputSchema = baseTestCaseInputSchema.extend({
@@ -35,7 +28,6 @@ export const testCaseSchema = z.object({
   id: z.string(),
   question: z.string(),
   expectedOutcome: expectedOutcomeArraySchema,
-  evaluationParameters: evaluationParametersSchema.optional(),
   output: z.string().optional(),
   isRunning: z.boolean().optional(),
   error: z.string().optional(),
@@ -43,7 +35,6 @@ export const testCaseSchema = z.object({
   responseTime: z.number().optional(),
 });
 
-export type EvaluationParameters = z.infer<typeof evaluationParametersSchema>;
 export type TestCaseInput = z.infer<typeof testCaseInputSchema>;
 export type LegacyTestCaseInput = z.infer<typeof legacyTestCaseInputSchema>;
 export type V2TestCaseInput = z.infer<typeof v2TestCaseInputSchema>;

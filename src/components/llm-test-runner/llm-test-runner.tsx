@@ -10,7 +10,6 @@ import {
 import { EvaluationResult } from '../../lib/evaluation/types';
 import { ErrorMessage } from '../error-message/error-message';
 import { RateLimitedFetcher } from '../../lib/rate-limited-fetcher/rate-limited-fetcher';
-import { EvaluationApproach } from '../../lib/evaluation/constants';
 import {
   ExpectedOutcomeSchema,
   TestCase,
@@ -29,6 +28,7 @@ import {
 } from '../../lib/test-cases/test-case-factory';
 import * as TestCaseMutations from '../../lib/test-cases/test-case-mutations';
 import { EvaluationService } from '../../lib/evaluation/evaluation-service';
+import { EvaluationApproach } from '../../lib/evaluation/constants';
 import { validateTestCaseInputArray } from '../../schemas/test-case';
 import { validateExpectedOutcomeSchema } from '../../schemas/expected-outcome';
 import { LLMTestRunnerHeader } from './header/llm-test-runner-header';
@@ -70,9 +70,6 @@ export class LLMTestRunner {
           value: '',
         },
       ],
-      evaluationParameters: {
-        approach: EvaluationApproach.EXACT,
-      },
       isRunning: false,
     },
   ];
@@ -196,15 +193,6 @@ export class LLMTestRunner {
     this.testCases = this.testCases.filter(tc => tc.id !== id);
   }
 
-  private updateApproach(testCase: TestCase, approach: EvaluationApproach) {
-    if (testCase) {
-      const updated = TestCaseMutations.updateApproach(testCase, approach);
-      this.updateTestCase(testCase.id, {
-        evaluationParameters: updated.evaluationParameters,
-      });
-    }
-  }
-
   private handleExpectedOutcomeChange = (
     event: CustomEvent<ExpectedOutcomeChangeDetail>,
   ) => {
@@ -248,6 +236,17 @@ export class LLMTestRunner {
           value: target.value.filter(chip => chip !== value),
         };
         return { ...tc, expectedOutcome };
+      }
+
+      if (operation === 'set-evaluation-approach') {
+        if (!value) {
+          return tc;
+        }
+        return TestCaseMutations.updateExpectedOutcomeFieldApproach(
+          tc,
+          index,
+          value as EvaluationApproach,
+        );
       }
 
       return tc;
@@ -387,9 +386,6 @@ export class LLMTestRunner {
             testCases={this.testCases}
             onRun={testCase => this.runSingleTest(testCase).catch(() => {})}
             onDelete={id => this.deleteTestCase(id)}
-            onUpdateApproach={(testCase, approach) =>
-              this.updateApproach(testCase, approach)
-            }
             onAddTestCase={() => this.addNewTestCase()}
             handleTestCaseChange={this.handleTestCaseChange}
             onExpectedOutcomeChange={this.handleExpectedOutcomeChange}

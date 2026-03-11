@@ -60,6 +60,22 @@
     document.addEventListener('DOMContentLoaded', () => {
       const llmTestRunner = document.getElementById('llm-test-runner');
       const llm = new window.GeminiAdapter(window.env.API_KEY);
+      llmTestRunner.defaultExpectedOutcomeSchema = [{
+        type: 'textarea',
+        label: 'Expected Outcome',
+        placeholder: 'Enter expected outcome...',
+        evaluationParameters: {
+          approach: 'semantic',
+          threshold: 0.5,
+        },
+        rows: 2,
+      },{
+        type:'chips-input',
+        label: 'Cities',
+        placeholder: 'Add cities',
+        options: ['New York', 'Los Angeles', 'Delhi', 'Houston', 'Miami'],
+      }];
+   
 
       async function callGeminiAPI(event) {
         try {

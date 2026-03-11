@@ -4,10 +4,6 @@ export interface TestSuiteExportData {
   id: string;
   question: string;
   expectedOutcome: ExpectedOutcomeField[];
-  evaluationParameters?: {
-    approach: string;
-    threshold?: number;
-  };
 }
 
 /**
@@ -20,8 +16,6 @@ export function formatTestSuiteAsJson(testCases: TestCase[]): string {
     id: testCase.id,
     question: testCase.question,
     expectedOutcome: testCase.expectedOutcome,
-
-    evaluationParameters: testCase.evaluationParameters,
   }));
 
   return JSON.stringify(exportData, null, 2);

@@ -5,8 +5,10 @@ import {
   ExpectedOutcomeSchemaField,
   TestCase,
   TestCaseInput,
+  TextareaExpectedOutcomeField,
 } from '../../types/llm-test-runner';
 import { EvaluationApproach } from '../evaluation/constants';
+import type { EvaluationParameters } from '../../types/evaluation';
 
 export const DEFAULT_EXPECTED_OUTCOME_SCHEMA: ExpectedOutcomeSchema = [
   {
@@ -16,6 +18,45 @@ export const DEFAULT_EXPECTED_OUTCOME_SCHEMA: ExpectedOutcomeSchema = [
     rows: 2,
   },
 ];
+
+function createNonSelectFieldEvaluationParameters(
+  fieldEvaluationParameters?: EvaluationParameters,
+): EvaluationParameters {
+  const approach =
+    fieldEvaluationParameters?.approach ?? EvaluationApproach.EXACT;
+  const threshold = fieldEvaluationParameters?.threshold;
+
+  return threshold === undefined ? { approach } : { approach, threshold };
+}
+
+function createSelectFieldEvaluationParameters(
+  fieldEvaluationParameters?: { approach: EvaluationApproach.EXACT; threshold?: number },
+): { approach: EvaluationApproach.EXACT; threshold?: number } {
+  return {
+    approach: EvaluationApproach.EXACT,
+    threshold: fieldEvaluationParameters?.threshold,
+  };
+}
+
+function normalizeExpectedOutcomeField(
+  field: ExpectedOutcomeField,
+): ExpectedOutcomeField {
+  if (field.type === 'select') {
+    return {
+      ...field,
+      evaluationParameters: createSelectFieldEvaluationParameters(
+        field.evaluationParameters,
+      ),
+    };
+  }
+
+  return {
+    ...field,
+    evaluationParameters: createNonSelectFieldEvaluationParameters(
+      field.evaluationParameters,
+    ),
+  };
+}
 
 /**
  * Creates a new test case with default values
@@ -28,9 +69,6 @@ export function createTestCase(
     id: uuidv4(),
     question: '',
     expectedOutcome: createExpectedOutcomeFromSchema(expectedOutcomeSchema),
-    evaluationParameters: {
-      approach: EvaluationApproach.EXACT,
-    },
     isRunning: false,
   };
 }
@@ -46,6 +84,9 @@ function createExpectedOutcomeFieldFromSchema(
         required: schemaField.required,
         placeholder: schemaField.placeholder,
         value: '',
+        evaluationParameters: createNonSelectFieldEvaluationParameters(
+          schemaField.evaluationParameters,
+        ),
       };
 
     case 'textarea':
@@ -56,6 +97,9 @@ function createExpectedOutcomeFieldFromSchema(
         placeholder: schemaField.placeholder,
         rows: schemaField.rows,
         value: '',
+        evaluationParameters: createNonSelectFieldEvaluationParameters(
+          schemaField.evaluationParameters,
+        ),
       };
 
     case 'chips-input':
@@ -65,6 +109,9 @@ function createExpectedOutcomeFieldFromSchema(
         required: schemaField.required,
         placeholder: schemaField.placeholder,
         value: [],
+        evaluationParameters: createNonSelectFieldEvaluationParameters(
+          schemaField.evaluationParameters,
+        ),
       };
 
     case 'select':
@@ -75,6 +122,9 @@ function createExpectedOutcomeFieldFromSchema(
         placeholder: schemaField.placeholder,
         value: '',
         options: schemaField.options,
+        evaluationParameters: createSelectFieldEvaluationParameters(
+          schemaField.evaluationParameters,
+        ),
       };
 
     default: {
@@ -92,7 +142,7 @@ export function createExpectedOutcomeFromSchema(
 
 export function migrateLegacyExpectedOutcomeString(
   value: string,
-): ExpectedOutcomeField[] {
+): TextareaExpectedOutcomeField[] {
   return [
     {
       type: 'textarea',
@@ -118,5 +168,8 @@ export function createTestCaseFromInput(data: TestCaseInput): TestCase {
     expectedOutcome = data.expectedOutcome;
   }
 
-  return { ...data, expectedOutcome };
+  return {
+    ...data,
+    expectedOutcome: expectedOutcome.map(normalizeExpectedOutcomeField),
+  };
 }

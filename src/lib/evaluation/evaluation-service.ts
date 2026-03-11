@@ -1,7 +1,11 @@
 import { LLMEvaluationEngine } from './evaluation-engine';
-import { EvaluationRequest, EvaluationResult } from './types';
-import { TestCase } from '../../types/llm-test-runner';
-import { serializeExpectedOutcome } from '../expected-outcome-serializer';
+import {
+  EvaluationResult,
+  FieldEvaluationInput,
+  TestCaseEvaluationRequest,
+} from './types';
+import { TestCase, ExpectedOutcomeField } from '../../types/llm-test-runner';
+import { EvaluationApproach } from './constants';
 
 /**
  * Service for evaluating test case responses
@@ -27,12 +31,23 @@ export class EvaluationService {
       return;
     }
 
-    const evaluationRequest: EvaluationRequest = {
+    const fields: FieldEvaluationInput[] = (testCase.expectedOutcome || []).map(
+      (field, index) => ({
+        index,
+        label: field.label,
+        type: field.type,
+        expectedValue: getFieldExpectedValue(field),
+        evaluationParameters: field.evaluationParameters || {
+          approach: EvaluationApproach.EXACT,
+        },
+      }),
+    );
+
+    const evaluationRequest: TestCaseEvaluationRequest = {
       testCaseId: testCase.id,
       question: testCase.question,
-      expectedOutcome: serializeExpectedOutcome(testCase.expectedOutcome),
       actualResponse: testCase.output,
-      evaluationParameters: testCase.evaluationParameters,
+      fields,
     };
 
     await this.engine.evaluateResponse(
@@ -43,4 +58,11 @@ export class EvaluationService {
       },
     );
   }
+}
+
+function getFieldExpectedValue(field: ExpectedOutcomeField): string {
+  if (field.type === 'chips-input') {
+    return field.value.join(', ');
+  }
+  return field.value;
 }

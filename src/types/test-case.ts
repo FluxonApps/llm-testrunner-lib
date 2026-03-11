@@ -1,5 +1,4 @@
 export type {
-  EvaluationParameters,
   TestCaseInput,
   LegacyTestCaseInput,
   V2TestCaseInput,

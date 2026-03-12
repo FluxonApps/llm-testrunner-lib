@@ -5,7 +5,6 @@ import {
   ExpectedOutcomeSchemaField,
   TestCase,
   TestCaseInput,
-  TextareaExpectedOutcomeField,
 } from '../../types/llm-test-runner';
 import { EvaluationApproach } from '../evaluation/constants';
 import { normalizeEvaluationParametersForField } from '../evaluation/field-evaluation-approach';
@@ -117,36 +116,17 @@ export function createExpectedOutcomeFromSchema(
   return expectedOutcomeSchema.map(createExpectedOutcomeFieldFromSchema);
 }
 
-export function migrateLegacyExpectedOutcomeString(
-  value: string,
-): TextareaExpectedOutcomeField[] {
-  return [
-    {
-      type: 'textarea',
-      label: 'Expected Outcome',
-      value,
-    },
-  ];
-}
-
 /**
  * Creates a runtime test case from validated input data.
- * The input is expected to already satisfy `TestCaseInput` (legacy string or v2 shape),
- * and this function only performs normalization/defaulting (including legacy migration).
+ * The input is expected to already satisfy `TestCaseInput`,
+ * and this function only performs normalization/defaulting.
  *
  * @param data - Validated test case input
  * @returns A normalized TestCase object with runtime defaults applied
  */
 export function createTestCaseFromInput(data: TestCaseInput): TestCase {
-  let expectedOutcome: ExpectedOutcomeField[];
-  if (typeof data.expectedOutcome === 'string') {
-    expectedOutcome = migrateLegacyExpectedOutcomeString(data.expectedOutcome);
-  } else {
-    expectedOutcome = data.expectedOutcome;
-  }
-
   return {
     ...data,
-    expectedOutcome: expectedOutcome.map(normalizeExpectedOutcomeField),
+    expectedOutcome: data.expectedOutcome.map(normalizeExpectedOutcomeField),
   };
 }

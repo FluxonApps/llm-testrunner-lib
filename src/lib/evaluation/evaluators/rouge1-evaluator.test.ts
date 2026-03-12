@@ -1,9 +1,9 @@
 import { describe, it, expect } from '@jest/globals';
-import { EvaluationRequest } from './types';
-import { DEFAULT_ROUGE_PASS_SCORE, EvaluationApproach } from './constants';
+import { EvaluationRequest } from '../types';
+import { DEFAULT_ROUGE_PASS_SCORE, EvaluationApproach } from '../constants';
 // Using integration tests with actual js-rouge library (no mocks).
 // This approach tests the real ROUGE-1 scoring behavior rather than just orchestration logic.
-import { performRouge1Evaluation } from './evaluators/rouge1-evaluator';
+import { performRouge1Evaluation } from './rouge1-evaluator';
 
 const mockRequest: EvaluationRequest = {
   testCaseId: 'test-000',

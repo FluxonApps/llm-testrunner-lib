@@ -11,10 +11,9 @@ jest.mock('../../lib/file/file-download');
 jest.mock('../../lib/import-export/test-suite-exporter');
 jest.mock('../../lib/import-export/test-suite-importer');
 
-import { h } from '@stencil/core';
 import { newSpecPage, SpecPage } from '@stencil/core/testing';
 import { LLMTestRunner } from './llm-test-runner';
-import { TestCase, TestCaseInput } from '../../types/llm-test-runner';
+import { TestCase } from '../../types/llm-test-runner';
 import { readFileAsync } from '../../lib/file/file-reader';
 import { downloadFile } from '../../lib/file/file-download';
 import { formatTestSuiteAsJson } from '../../lib/import-export/test-suite-exporter';
@@ -306,39 +305,6 @@ describe('llm-test-runner import/export', () => {
       await page.waitForChanges();
 
       expect(component.error).toBe('');
-    });
-  });
-
-  describe('Initial Test Cases', () => {
-    it('should normalize legacy string expectedOutcome from initialTestCases', async () => {
-      const legacyInitialCases = [
-        {
-          id: 'legacy-1',
-          question: 'Whats capital of India ?',
-          expectedOutcome: 'Delhi',
-        },
-      ] as unknown as TestCase[];
-
-      const localPage = await newSpecPage({
-        components: [LLMTestRunner],
-        template: () =>
-          h('llm-test-runner', {
-            initialTestCases: legacyInitialCases as TestCaseInput[],
-          }),
-      });
-
-      const localComponent = localPage.rootInstance as LLMTestRunner;
-      await localPage.waitForChanges();
-
-      expect(localComponent.testCases).toHaveLength(1);
-      expect(localComponent.testCases[0].id).toBe('legacy-1');
-      expect(localComponent.testCases[0].expectedOutcome).toEqual([
-        {
-          type: 'textarea',
-          label: 'Expected Outcome',
-          value: 'Delhi',
-        },
-      ]);
     });
   });
 });

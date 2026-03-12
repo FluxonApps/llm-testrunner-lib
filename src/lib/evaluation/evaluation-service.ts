@@ -5,7 +5,7 @@ import {
   TestCaseEvaluationRequest,
 } from './types';
 import { TestCase, ExpectedOutcomeField } from '../../types/llm-test-runner';
-import { EvaluationApproach } from './constants';
+import { normalizeEvaluationParametersForField } from './field-evaluation-approach';
 
 /**
  * Service for evaluating test case responses
@@ -37,9 +37,10 @@ export class EvaluationService {
         label: field.label,
         type: field.type,
         expectedValue: getFieldExpectedValue(field),
-        evaluationParameters: field.evaluationParameters || {
-          approach: EvaluationApproach.EXACT,
-        },
+        evaluationParameters: normalizeEvaluationParametersForField(
+          field.type,
+          field.evaluationParameters,
+        ),
       }),
     );
 

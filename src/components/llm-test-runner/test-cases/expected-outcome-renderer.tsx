@@ -5,8 +5,8 @@ import {
 import { ChipsConfig, FormFieldType, SelectConfig, TextAreaConfig } from '../../../lib/form/schema';
 import {
   EvaluationApproach,
-  EvaluationApproachValues,
 } from '../../../lib/evaluation/constants';
+import { getAllowedApproachesForFieldType } from '../../../lib/evaluation/field-evaluation-approach';
 
 export type ExpectedOutcomeOperation =
   | 'set-value'
@@ -56,10 +56,7 @@ export const ExpectedOutcomeRenderer: FunctionalComponent<ExpectedOutcomeRendere
     field: ExpectedOutcomeField,
     index: number,
   ) => {
-    const optionList =
-      field.type === 'select'
-        ? [EvaluationApproach.EXACT]
-        : EvaluationApproachValues;
+    const optionList = getAllowedApproachesForFieldType(field.type);
 
     return (
       <app-select

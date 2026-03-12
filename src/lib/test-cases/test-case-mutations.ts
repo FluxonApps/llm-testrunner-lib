@@ -1,5 +1,6 @@
 import { TestCase } from '../../types/llm-test-runner';
 import { EvaluationApproach } from '../evaluation/constants';
+import { normalizeEvaluationParametersForField } from '../evaluation/field-evaluation-approach';
 
 /**
  * Updates the evaluation approach for a specific expected outcome field.
@@ -18,24 +19,13 @@ export function updateExpectedOutcomeFieldApproach(
   }
 
   const currentEvaluationParameters = target.evaluationParameters;
-
-  if (target.type === 'select') {
-    expectedOutcome[fieldIndex] = {
-      ...target,
-      evaluationParameters: {
-        ...currentEvaluationParameters,
-        approach: EvaluationApproach.EXACT,
-      },
-    };
-  } else {
-    expectedOutcome[fieldIndex] = {
-      ...target,
-      evaluationParameters: {
-        ...currentEvaluationParameters,
-        approach,
-      },
-    };
-  }
+  expectedOutcome[fieldIndex] = {
+    ...target,
+    evaluationParameters: normalizeEvaluationParametersForField(target.type, {
+      ...currentEvaluationParameters,
+      approach,
+    }),
+  };
 
   return {
     ...testCase,

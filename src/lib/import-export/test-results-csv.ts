@@ -1,5 +1,4 @@
 import { TestCase } from '../../types/llm-test-runner';
-import { serializeExpectedOutcome } from '../expected-outcome-serializer';
 
 /**
  * Escapes a CSV field by wrapping it in quotes if it contains special characters
@@ -20,80 +19,78 @@ export function escapeCsvField(field: string): string {
  */
 export function exportTestResultsToCsv(testCases: TestCase[]): string {
   const csvRows: string[] = [];
+  const maxFieldCount = testCases.reduce(
+    (max, testCase) => Math.max(max, (testCase.expectedOutcome || []).length),
+    0,
+  );
 
   // Add header row
-  const headers = [
+  const headers: string[] = [
     'Question',
-    'Expected Keywords',
-    'Generated Keywords',
-    'Keywords Match',
     'Response Time (s)',
-    'Field Label',
-    'Field Strategy',
-    'Field Passed',
-    'Field Score',
-    'Field Matches',
   ];
+  for (let i = 1; i <= maxFieldCount; i++) {
+    headers.push('Field Name');
+    headers.push('Expected Keywords');
+    headers.push('Generated Keywords');
+    headers.push('Evaluation Strategy');
+    headers.push('Passed Evaluation');
+    headers.push('Keyword Match');
+    if (i < maxFieldCount) {
+      headers.push('');
+    }
+  }
   csvRows.push(headers.join(','));
 
-  // Add data rows (one row per field evaluation)
+  // Add data rows (one row per test case)
   testCases.forEach(testCase => {
     const responseTime = testCase.responseTime
       ? (testCase.responseTime / 1000).toFixed(3)
       : 'N/A';
+    const row: string[] = [escapeCsvField(testCase.question), responseTime];
 
-    const fieldResults = testCase.evaluationResult?.fieldResults || [];
-
-    if (fieldResults.length === 0) {
-      const expectedOutcome = serializeExpectedOutcome(
-        testCase.expectedOutcome || [],
-        ' | ',
+    for (let i = 0; i < maxFieldCount; i++) {
+      const field = testCase.expectedOutcome?.[i];
+      const fieldResult = testCase.evaluationResult?.fieldResults?.find(
+        result => result.index === i,
       );
-      csvRows.push(
-        [
-          escapeCsvField(testCase.question),
-          escapeCsvField(expectedOutcome),
-          '',
-          '',
-          responseTime,
-          '',
-          '',
-          '',
-          '',
-          '',
-        ].join(','),
-      );
-    } else {
-      fieldResults.forEach(fieldResult => {
-        const matchedCount = fieldResult.keywordMatches.filter(match => match.found).length;
-        const totalMatches = fieldResult.keywordMatches.length;
-        const fieldMatches =
-          totalMatches > 0 ? `${matchedCount}/${totalMatches}` : 'N/A';
-        const expectedKeywords = fieldResult.expectedValue;
-        const generatedKeywords = fieldResult.keywordMatches
-          .filter(match => match.found)
-          .map(match => match.keyword)
-          .join('; ');
 
-        csvRows.push(
-          [
-            escapeCsvField(testCase.question),
-            escapeCsvField(expectedKeywords),
-            escapeCsvField(generatedKeywords),
-            fieldMatches,
-            responseTime,
-            escapeCsvField(fieldResult.label),
-            escapeCsvField(fieldResult.evaluationParameters.approach),
-            fieldResult.passed ? 'true' : 'false',
-            escapeCsvField(fieldResult.evaluationApproachResult.score.toFixed(2)),
-            fieldMatches,
-          ].join(','),
-        );
-      });
+      const expectedKeywords =
+        fieldResult?.expectedValue ??
+        (field
+          ? field.type === 'chips-input'
+            ? field.value.join(', ')
+            : field.value
+          : '');
+      const generatedKeywords = (fieldResult?.keywordMatches || [])
+        .filter(match => match.found)
+        .map(match => match.keyword)
+        .join('; ');
+      const matchedCount = (fieldResult?.keywordMatches || []).filter(
+        match => match.found,
+      ).length;
+      const totalMatches = fieldResult?.keywordMatches?.length || 0;
+      const keywordMatch = totalMatches > 0 ? `${matchedCount}/${totalMatches}` : '';
+
+      row.push(escapeCsvField(field?.label || ''));
+      row.push(escapeCsvField(expectedKeywords || ''));
+      row.push(escapeCsvField(generatedKeywords));
+      row.push(
+        escapeCsvField(
+          fieldResult?.evaluationParameters.approach ||
+            field?.evaluationParameters?.approach ||
+            '',
+        ),
+      );
+      row.push(fieldResult ? (fieldResult.passed ? 'TRUE' : 'FALSE') : '');
+      row.push(keywordMatch);
+
+      if (i < maxFieldCount - 1) {
+        row.push('');
+      }
     }
 
-    // Empty separator row between test cases
-    csvRows.push('');
+    csvRows.push(row.join(','));
   });
 
   return csvRows.join('\n');

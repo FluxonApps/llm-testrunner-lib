@@ -16,11 +16,6 @@ export const EvaluationSummary: FunctionalComponent<EvaluationSummaryProps> = ({
     <div class="evaluation-summary">
       {result ? (
         <div class="evaluation-summary__result">
-          <div
-            class={`evaluation-summary__result-status evaluation-summary__result-status--${result.passed ? 'passed' : 'failed'}`}
-          >
-            {result.passed ? '✅ PASSED' : '❌ FAILED'}
-          </div>
           {fieldResults.length > 0 && (
             <div class="evaluation-summary__field-results">
               {fieldResults.map(fieldResult => (
@@ -40,7 +35,7 @@ export const EvaluationSummary: FunctionalComponent<EvaluationSummaryProps> = ({
                       {fieldResult.passed ? 'PASSED' : 'FAILED'}
                     </span>
                     <span>
-                      Score: {fieldResult.evaluationApproachResult.score.toFixed(3)}
+                      Score: {fieldResult.evaluationApproachResult.score.toFixed(2)}
                     </span>
                     <span>
                       Matches:{' '}

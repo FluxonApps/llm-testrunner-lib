@@ -1,5 +1,6 @@
 import { z } from 'zod';
 import { EvaluationApproach } from '../lib/evaluation/constants';
+import { isApproachAllowedForFieldType } from '../lib/evaluation/field-evaluation-approach';
 
 const nonEmptyString = z.string().trim().min(1);
 const optionalPositiveInt = z.number().int().positive().optional();
@@ -13,10 +14,17 @@ const evaluationParametersSchema = z.object({
   threshold: optionalNumber,
 });
 
-const selectEvaluationParametersSchema = z.object({
-  approach: z.literal(EvaluationApproach.EXACT),
-  threshold: optionalNumber,
-});
+const selectEvaluationParametersSchema = evaluationParametersSchema.superRefine(
+  (parameters, ctx) => {
+    if (!isApproachAllowedForFieldType('select', parameters.approach)) {
+      ctx.addIssue({
+        code: 'custom',
+        path: ['approach'],
+        message: `select fields only support "${EvaluationApproach.EXACT}" evaluation approach.`,
+      });
+    }
+  },
+);
 
 const defaultExpectedOutcomeBaseSchema = z.object({
   label: nonEmptyString,

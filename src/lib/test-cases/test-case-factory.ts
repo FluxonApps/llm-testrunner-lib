@@ -8,7 +8,7 @@ import {
   TextareaExpectedOutcomeField,
 } from '../../types/llm-test-runner';
 import { EvaluationApproach } from '../evaluation/constants';
-import type { EvaluationParameters } from '../../types/evaluation';
+import { normalizeEvaluationParametersForField } from '../evaluation/field-evaluation-approach';
 
 export const DEFAULT_EXPECTED_OUTCOME_SCHEMA: ExpectedOutcomeSchema = [
   {
@@ -19,40 +19,13 @@ export const DEFAULT_EXPECTED_OUTCOME_SCHEMA: ExpectedOutcomeSchema = [
   },
 ];
 
-function createNonSelectFieldEvaluationParameters(
-  fieldEvaluationParameters?: EvaluationParameters,
-): EvaluationParameters {
-  const approach =
-    fieldEvaluationParameters?.approach ?? EvaluationApproach.EXACT;
-  const threshold = fieldEvaluationParameters?.threshold;
-
-  return threshold === undefined ? { approach } : { approach, threshold };
-}
-
-function createSelectFieldEvaluationParameters(
-  fieldEvaluationParameters?: { approach: EvaluationApproach.EXACT; threshold?: number },
-): { approach: EvaluationApproach.EXACT; threshold?: number } {
-  return {
-    approach: EvaluationApproach.EXACT,
-    threshold: fieldEvaluationParameters?.threshold,
-  };
-}
-
 function normalizeExpectedOutcomeField(
   field: ExpectedOutcomeField,
 ): ExpectedOutcomeField {
-  if (field.type === 'select') {
-    return {
-      ...field,
-      evaluationParameters: createSelectFieldEvaluationParameters(
-        field.evaluationParameters,
-      ),
-    };
-  }
-
   return {
     ...field,
-    evaluationParameters: createNonSelectFieldEvaluationParameters(
+    evaluationParameters: normalizeEvaluationParametersForField(
+      field.type,
       field.evaluationParameters,
     ),
   };
@@ -84,7 +57,8 @@ function createExpectedOutcomeFieldFromSchema(
         required: schemaField.required,
         placeholder: schemaField.placeholder,
         value: '',
-        evaluationParameters: createNonSelectFieldEvaluationParameters(
+        evaluationParameters: normalizeEvaluationParametersForField(
+          schemaField.type,
           schemaField.evaluationParameters,
         ),
       };
@@ -97,7 +71,8 @@ function createExpectedOutcomeFieldFromSchema(
         placeholder: schemaField.placeholder,
         rows: schemaField.rows,
         value: '',
-        evaluationParameters: createNonSelectFieldEvaluationParameters(
+        evaluationParameters: normalizeEvaluationParametersForField(
+          schemaField.type,
           schemaField.evaluationParameters,
         ),
       };
@@ -109,7 +84,8 @@ function createExpectedOutcomeFieldFromSchema(
         required: schemaField.required,
         placeholder: schemaField.placeholder,
         value: [],
-        evaluationParameters: createNonSelectFieldEvaluationParameters(
+        evaluationParameters: normalizeEvaluationParametersForField(
+          schemaField.type,
           schemaField.evaluationParameters,
         ),
       };
@@ -122,9 +98,10 @@ function createExpectedOutcomeFieldFromSchema(
         placeholder: schemaField.placeholder,
         value: '',
         options: schemaField.options,
-        evaluationParameters: createSelectFieldEvaluationParameters(
+        evaluationParameters: normalizeEvaluationParametersForField(
+          schemaField.type,
           schemaField.evaluationParameters,
-        ),
+        ) as { approach: EvaluationApproach.EXACT; threshold?: number },
       };
 
     default: {

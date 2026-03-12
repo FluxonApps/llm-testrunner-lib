@@ -3,7 +3,7 @@ import {
   EvaluationResult,
   EvaluationCallback,
   FieldEvaluationResult,
-  TestCaseEvaluationRequest,
+  EvaluationRequestV2,
 } from './types';
 import { performEvaluation } from './evaluators/exact/exact';
 import { EvaluationApproach } from './constants';
@@ -14,15 +14,10 @@ import { performBleuEvaluation } from './evaluators/bleu/bleu-evaluator';
 
 export class LLMEvaluationEngine {
   async evaluateResponse(
-    request: TestCaseEvaluationRequest | EvaluationRequest,
+    request: EvaluationRequestV2,
     callback: EvaluationCallback,
   ): Promise<void> {
     try {
-      if (!('fields' in request)) {
-        const result = await this.evaluateField(request);
-        callback(result);
-        return;
-      }
 
       const fieldResults: FieldEvaluationResult[] = [];
       for (const field of request.fields) {

@@ -20,7 +20,7 @@ export interface FieldEvaluationInput {
   evaluationParameters: EvaluationParameters;
 }
 
-export interface TestCaseEvaluationRequest {
+export interface EvaluationRequestV2 {
   testCaseId: string;
   question: string;
   actualResponse: string;

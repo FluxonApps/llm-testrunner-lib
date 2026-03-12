@@ -2,7 +2,7 @@ import { LLMEvaluationEngine } from './evaluation-engine';
 import {
   EvaluationResult,
   FieldEvaluationInput,
-  TestCaseEvaluationRequest,
+  EvaluationRequestV2,
 } from './types';
 import { TestCase, ExpectedOutcomeField } from '../../types/llm-test-runner';
 import { normalizeEvaluationParametersForField } from './field-evaluation-approach';
@@ -44,7 +44,7 @@ export class EvaluationService {
       }),
     );
 
-    const evaluationRequest: TestCaseEvaluationRequest = {
+    const evaluationRequest: EvaluationRequestV2 = {
       testCaseId: testCase.id,
       question: testCase.question,
       actualResponse: testCase.output,

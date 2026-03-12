@@ -34,7 +34,7 @@ export interface EvaluationResult {
   fieldResults?: FieldEvaluationResult[];
   timestamp?: string;
   evaluationParameters?: EvaluationParameters;
-  evaluationApproachResult: EvaluationApproachResult;
+  evaluationApproachResult?: EvaluationApproachResult;
 }
 
 export interface FieldEvaluationResult {

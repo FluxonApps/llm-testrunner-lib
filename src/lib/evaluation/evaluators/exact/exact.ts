@@ -14,8 +14,6 @@ export async function performEvaluation(
         .filter(k => k.length > 0)
     : [];
 
-    console.log({actualResponse, expectedOutcome});
-
   const keywordMatches = evaluateKeywords(expectedKeywords, actualResponse);
 
   // Test passes only if ALL expected keywords are found

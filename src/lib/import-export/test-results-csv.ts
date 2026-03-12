@@ -36,6 +36,7 @@ export function exportTestResultsToCsv(testCases: TestCase[]): string {
     headers.push('Evaluation Strategy');
     headers.push('Passed Evaluation');
     headers.push('Keyword Match');
+    headers.push('Score');
     if (i < maxFieldCount) {
       headers.push('');
     }
@@ -71,6 +72,10 @@ export function exportTestResultsToCsv(testCases: TestCase[]): string {
       ).length;
       const totalMatches = fieldResult?.keywordMatches?.length || 0;
       const keywordMatch = totalMatches > 0 ? `${matchedCount}/${totalMatches}` : '';
+      const score =
+        fieldResult?.evaluationApproachResult?.score !== undefined
+          ? fieldResult.evaluationApproachResult.score.toFixed(2)
+          : '';
 
       row.push(escapeCsvField(field?.label || ''));
       row.push(escapeCsvField(expectedKeywords || ''));
@@ -84,6 +89,7 @@ export function exportTestResultsToCsv(testCases: TestCase[]): string {
       );
       row.push(fieldResult ? (fieldResult.passed ? 'TRUE' : 'FALSE') : '');
       row.push(keywordMatch);
+      row.push(score);
 
       if (i < maxFieldCount - 1) {
         row.push('');

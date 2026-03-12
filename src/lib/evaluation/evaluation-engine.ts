@@ -44,12 +44,6 @@ export class LLMEvaluationEngine {
 
       const keywordMatches = fieldResults.flatMap(field => field.keywordMatches);
       const passed = fieldResults.every(field => field.passed);
-      const totalScore = fieldResults.reduce(
-        (sum, field) => sum + field.evaluationApproachResult.score,
-        0,
-      );
-      const aggregateScore =
-        fieldResults.length > 0 ? totalScore / fieldResults.length : 0;
 
       callback({
         testCaseId: request.testCaseId,
@@ -57,13 +51,6 @@ export class LLMEvaluationEngine {
         keywordMatches,
         fieldResults,
         timestamp: new Date().toISOString(),
-        evaluationParameters: fieldResults[0]?.evaluationParameters,
-        evaluationApproachResult: {
-          score: aggregateScore,
-          approachUsed:
-            fieldResults[0]?.evaluationApproachResult.approachUsed ??
-            EvaluationApproach.EXACT,
-        },
       });
     } catch (error) {
       console.error('Evaluation failed:', error);
@@ -74,10 +61,6 @@ export class LLMEvaluationEngine {
         keywordMatches: [],
         fieldResults: [],
         timestamp: new Date().toISOString(),
-        evaluationApproachResult: {
-          score: 0,
-          approachUsed: EvaluationApproach.EXACT,
-        },
       };
 
       callback(errorResult);

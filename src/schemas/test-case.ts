@@ -2,13 +2,11 @@ import { z } from 'zod';
 import type { EvaluationResult } from '../lib/evaluation/types';
 import { expectedOutcomeArraySchema } from './expected-outcome';
 
-const baseTestCaseInputSchema = z.object({
+export const testCaseInputSchema = z.object({
   id: z.string(),
   question: z.string(),
   expectedOutcome: expectedOutcomeArraySchema,
 });
-
-export const testCaseInputSchema = baseTestCaseInputSchema;
 
 export const testCaseInputArraySchema = z.array(testCaseInputSchema).min(1, {
   message: 'The test suite is empty. Please provide at least one test case.',

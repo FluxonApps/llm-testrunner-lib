@@ -18,28 +18,29 @@ export class LLMEvaluationEngine {
     callback: EvaluationCallback,
   ): Promise<void> {
     try {
+      const fieldResults: FieldEvaluationResult[] = await Promise.all(
+        request.fields.map(async field => {
+          const fieldRequest: EvaluationRequest = {
+            testCaseId: request.testCaseId,
+            question: request.question,
+            actualResponse: request.actualResponse,
+            expectedOutcome: field.expectedValue,
+            evaluationParameters: field.evaluationParameters,
+          };
+          const result = await this.evaluateField(fieldRequest);
 
-      const fieldResults: FieldEvaluationResult[] = [];
-      for (const field of request.fields) {
-        const fieldRequest: EvaluationRequest = {
-          testCaseId: request.testCaseId,
-          question: request.question,
-          actualResponse: request.actualResponse,
-          expectedOutcome: field.expectedValue,
-          evaluationParameters: field.evaluationParameters,
-        };
-        const result = await this.evaluateField(fieldRequest);
-        fieldResults.push({
-          index: field.index,
-          label: field.label,
-          type: field.type,
-          expectedValue: field.expectedValue,
-          passed: result.passed,
-          keywordMatches: result.keywordMatches,
-          evaluationParameters: result.evaluationParameters!,
-          evaluationApproachResult: result.evaluationApproachResult,
-        });
-      }
+          return {
+            index: field.index,
+            label: field.label,
+            type: field.type,
+            expectedValue: field.expectedValue,
+            passed: result.passed,
+            keywordMatches: result.keywordMatches,
+            evaluationParameters: result.evaluationParameters!,
+            evaluationApproachResult: result.evaluationApproachResult,
+          };
+        }),
+      );
 
       const keywordMatches = fieldResults.flatMap(field => field.keywordMatches);
       const passed = fieldResults.every(field => field.passed);

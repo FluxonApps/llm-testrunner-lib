@@ -32,7 +32,6 @@ export interface EvaluationResult {
   passed: boolean;
   keywordMatches: KeywordMatch[];
   fieldResults?: FieldEvaluationResult[];
-  error?: string;
   timestamp?: string;
   evaluationParameters?: EvaluationParameters;
   evaluationApproachResult?: EvaluationApproachResult;

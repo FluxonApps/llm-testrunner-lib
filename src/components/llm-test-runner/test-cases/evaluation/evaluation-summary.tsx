@@ -11,12 +11,13 @@ export const EvaluationSummary: FunctionalComponent<EvaluationSummaryProps> = ({
   isRunning,
 }) => {
   const fieldResults = result?.fieldResults || [];
+  const hasFieldResults = fieldResults.length > 0;
 
   return (
     <div class="evaluation-summary">
       {result ? (
         <div class="evaluation-summary__result">
-          {fieldResults.length > 0 && (
+          {hasFieldResults ? (
             <div class="evaluation-summary__field-results">
               {fieldResults.map(fieldResult => (
                 <div class="evaluation-summary__field-result">
@@ -34,6 +35,11 @@ export const EvaluationSummary: FunctionalComponent<EvaluationSummaryProps> = ({
                     >
                       {fieldResult.passed ? 'PASSED' : 'FAILED'}
                     </span>
+                    {fieldResult.error && (
+                      <span class="evaluation-summary__error-message">
+                        {fieldResult.error}
+                      </span>
+                    )}
                     <span>
                       Score: {fieldResult.evaluationApproachResult.score.toFixed(2)}
                     </span>
@@ -46,7 +52,7 @@ export const EvaluationSummary: FunctionalComponent<EvaluationSummaryProps> = ({
                 </div>
               ))}
             </div>
-          )}
+          ) : null}
         </div>
       ) : (
         <div class="evaluation-summary__placeholder">

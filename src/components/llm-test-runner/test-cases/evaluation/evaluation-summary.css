@@ -67,6 +67,11 @@
   border-color: var(--destructive);
 }
 
+.evaluation-summary__error-message {
+  color: var(--destructive);
+  font-size: var(--font-size-xs);
+}
+
 .evaluation-summary__placeholder {
   display: flex;
   align-items: center;

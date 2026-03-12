@@ -18,7 +18,7 @@ export class LLMEvaluationEngine {
     callback: EvaluationCallback,
   ): Promise<void> {
     try {
-      const fieldResults: FieldEvaluationResult[] = await Promise.all(
+      const settledResults = await Promise.allSettled(
         request.fields.map(async field => {
           const fieldRequest: EvaluationRequest = {
             testCaseId: request.testCaseId,
@@ -29,7 +29,7 @@ export class LLMEvaluationEngine {
           };
           const result = await this.evaluateField(fieldRequest);
 
-          return {
+          const fieldResult: FieldEvaluationResult = {
             index: field.index,
             label: field.label,
             type: field.type,
@@ -39,11 +39,36 @@ export class LLMEvaluationEngine {
             evaluationParameters: result.evaluationParameters!,
             evaluationApproachResult: result.evaluationApproachResult,
           };
+          return fieldResult;
         }),
       );
 
+      const fieldResults: FieldEvaluationResult[] = settledResults.map(
+        (settledResult, index) => {
+          const field = request.fields[index];
+          if (settledResult.status === 'fulfilled') {
+            return settledResult.value;
+          }
+
+          return {
+            index: field.index,
+            label: field.label,
+            type: field.type,
+            expectedValue: field.expectedValue,
+            passed: false,
+            keywordMatches: [],
+            evaluationParameters: field.evaluationParameters,
+            evaluationApproachResult: {
+              score: 0,
+              approachUsed: field.evaluationParameters.approach,
+            },
+            error: this.getSafeErrorMessage(settledResult.reason),
+          };
+        },
+      );
+
       const keywordMatches = fieldResults.flatMap(field => field.keywordMatches);
-      const passed = fieldResults.every(field => field.passed);
+      const passed = fieldResults.every(field => field.passed && !field.error);
 
       callback({
         testCaseId: request.testCaseId,
@@ -60,6 +85,7 @@ export class LLMEvaluationEngine {
         passed: false,
         keywordMatches: [],
         fieldResults: [],
+        error: this.getSafeErrorMessage(error),
         timestamp: new Date().toISOString(),
       };
 
@@ -86,5 +112,9 @@ export class LLMEvaluationEngine {
         );
         return performEvaluation(request);
     }
+  }
+
+  private getSafeErrorMessage(error: unknown): string {
+    return error instanceof Error ? error.message : 'Field evaluation failed.';
   }
 }

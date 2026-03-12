@@ -18,6 +18,7 @@ import { readFileAsync } from '../../lib/file/file-reader';
 import { downloadFile } from '../../lib/file/file-download';
 import { formatTestSuiteAsJson } from '../../lib/import-export/test-suite-exporter';
 import { importTestSuite } from '../../lib/import-export/test-suite-importer';
+import { EvaluationApproach } from '../../lib/evaluation/constants';
 
 describe('llm-test-runner import/export', () => {
   let page: SpecPage;
@@ -91,8 +92,8 @@ describe('llm-test-runner import/export', () => {
       });
     });
 
-    it('should keep expectedOutcome values after import', async () => {
-      const mockTestData = [
+    it('should use default evaluation parameters when not provided', async () => {
+      const rawImportData = [
         {
           id: '1',
           question: 'Test question',
@@ -100,20 +101,41 @@ describe('llm-test-runner import/export', () => {
           isRunning: false
         }
       ];
+      const normalizedImportData = [
+        {
+          id: '1',
+          question: 'Test question',
+          expectedOutcome: [
+            {
+              type: 'textarea' as const,
+              label: 'Expected Outcome',
+              value: 'test',
+              evaluationParameters: {
+                approach: EvaluationApproach.EXACT,
+              },
+            },
+          ],
+          isRunning: false,
+        },
+      ];
 
-      const mockFile = createMockFile(JSON.stringify(mockTestData), 'test.json');
+      const mockFile = createMockFile(JSON.stringify(rawImportData), 'test.json');
 
-      (readFileAsync as jest.Mock).mockResolvedValue(JSON.stringify(mockTestData));
+      (readFileAsync as jest.Mock).mockResolvedValue(JSON.stringify(rawImportData));
       (importTestSuite as jest.Mock).mockReturnValue({
         success: true,
-        testCases: mockTestData
+        testCases: normalizedImportData,
       });
 
       await component.handleImport(mockFile);
       await page.waitForChanges();
 
-      expect(component.testCases[0].expectedOutcome).toEqual(
-        buildExpectedOutcome('test'),
+      expect(
+        component.testCases[0].expectedOutcome[0].evaluationParameters?.approach,
+      ).toBe(EvaluationApproach.EXACT);
+      expect(component.testCases[0].expectedOutcome[0].value).toBe('test');
+      expect(component.testCases[0].expectedOutcome[0].label).toBe(
+        'Expected Outcome',
       );
     });
   });

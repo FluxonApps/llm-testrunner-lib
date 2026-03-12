@@ -7,19 +7,11 @@ import {
   EvaluationApproach,
 } from '../../../lib/evaluation/constants';
 import { getAllowedApproachesForFieldType } from '../../../lib/evaluation/field-evaluation-approach';
+import { ExpectedOutcomeChange } from '../../../lib/test-cases/test-case-mutations';
 
-export type ExpectedOutcomeOperation =
-  | 'set-value'
-  | 'add-chip'
-  | 'remove-chip'
-  | 'set-evaluation-approach';
-
-export interface ExpectedOutcomeChangeDetail {
+export type ExpectedOutcomeChangeDetail = {
   testCaseId: string;
-  index: number;
-  operation: ExpectedOutcomeOperation;
-  value?: string;
-}
+} & ExpectedOutcomeChange;
 
 interface ExpectedOutcomeRendererProps {
   testCaseId: string;
@@ -67,7 +59,7 @@ export const ExpectedOutcomeRenderer: FunctionalComponent<ExpectedOutcomeRendere
             testCaseId,
             index,
             operation: 'set-evaluation-approach',
-            value: e.detail.value,
+            value: e.detail.value as EvaluationApproach,
           })
         }
       />

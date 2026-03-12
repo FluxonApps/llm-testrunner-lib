@@ -28,7 +28,6 @@ import {
 } from '../../lib/test-cases/test-case-factory';
 import * as TestCaseMutations from '../../lib/test-cases/test-case-mutations';
 import { EvaluationService } from '../../lib/evaluation/evaluation-service';
-import { EvaluationApproach } from '../../lib/evaluation/constants';
 import { validateTestCaseInputArray } from '../../schemas/test-case';
 import { validateExpectedOutcomeSchema } from '../../schemas/expected-outcome';
 import { LLMTestRunnerHeader } from './header/llm-test-runner-header';
@@ -196,60 +195,14 @@ export class LLMTestRunner {
   private handleExpectedOutcomeChange = (
     event: CustomEvent<ExpectedOutcomeChangeDetail>,
   ) => {
-    const { testCaseId, index, operation, value } = event.detail;
+    const { testCaseId, ...change } = event.detail;
 
     this.testCases = this.testCases.map(tc => {
-      if (tc.id !== testCaseId) return tc;
-
-      const expectedOutcome = [...(tc.expectedOutcome || [])];
-      const target = expectedOutcome[index];
-      if (!target) return tc;
-
-      if (operation === 'set-value') {
-        if (target.type === 'chips-input') {
-          return tc;
-        }
-        expectedOutcome[index] = { ...target, value: value || '' };
-        return { ...tc, expectedOutcome };
+      if (tc.id !== testCaseId) {
+        return tc;
       }
 
-      if (operation === 'add-chip') {
-        if (target.type !== 'chips-input' || !value) {
-          return tc;
-        }
-        expectedOutcome[index] = {
-          ...target,
-          value: [...target.value, value],
-        };
-        return { ...tc, expectedOutcome };
-      }
-
-      if (operation === 'remove-chip') {
-        if (
-          target.type !== 'chips-input' ||
-          !value
-        ) {
-          return tc;
-        }
-        expectedOutcome[index] = {
-          ...target,
-          value: target.value.filter(chip => chip !== value),
-        };
-        return { ...tc, expectedOutcome };
-      }
-
-      if (operation === 'set-evaluation-approach') {
-        if (!value) {
-          return tc;
-        }
-        return TestCaseMutations.updateExpectedOutcomeFieldApproach(
-          tc,
-          index,
-          value as EvaluationApproach,
-        );
-      }
-
-      return tc;
+      return TestCaseMutations.applyExpectedOutcomeChange(tc, change);
     });
   };
 

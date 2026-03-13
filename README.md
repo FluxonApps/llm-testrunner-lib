@@ -1,304 +1,221 @@
-# LLM TestRunner Web Components
+# LLM TestRunner Components
 
-A Stencil web component library that provides a comprehensive LLM testing solution with automated evaluation capabilities.
+**A ready-made UI for testing your LLM.** Add questions and expected outcomes, run tests one-by-one or in batch, and get pass/fail results using five evaluation strategies—while you keep full control over which LLM you call (OpenAI, Gemini, Claude, or your own).
 
-## Overview
+[![npm](https://img.shields.io/npm/v/llm-testrunner-components.svg)](https://www.npmjs.com/package/llm-testrunner-components) [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-The LLM TestRunner is a tool for testing Large Language Model (LLM) responses against expected criteria. It provides a complete interface for:
+---
 
-- **Question Management**: Add, edit, and organize test questions
-- **AI Integration**: Can be integrated with any LLM provider
-- **Automated Evaluation**: Built-in evaluation engine that checks responses against expected keywords and source links
-- **Batch Testing**: Run multiple tests sequentially
-- **Real-time Results**: Live evaluation results with pass/fail indicators, including details such as:
-  - Number of keywords matched.
-  - Presence of source links in the response.
+## Why use this
 
-> **Note:** Source-link checking uses _overlap/partial match_.  
-> A full URL match is **not required** — any overlapping portion of the expected link (for example, matching the domain or path segment) in the response counts as present.
+- **Test faster** — You get a complete test-runner UI (questions, expected outcomes, run one / run all, pass/fail, response times). No need to build tables, evaluation logic, or import/export from scratch.
+- **Stay in control** — The library never calls an LLM. You handle one event: we send you the prompt, you call your API and pass back the response (or an error). Works with any provider or local model.
+- **Match how you think** — Each test case can use a different evaluation: exact keywords, semantic similarity (meaning), ROUGE (word overlap / sequence), or BLEU (n-gram precision). Choose per test case.
+- **Fit your stack** — Load test cases from your backend or a JSON file. Optionally persist runs with a Save button that emits the current state so you can store it in Firebase, your API, or anywhere else.
 
-## Components
+---
 
-### `<llm-test-runner>`
+## What you get
 
-The main component that provides a complete LLM testing interface.
+- **Test case table** — Add, edit, delete test cases. Each test case has a question, configurable expected-outcome fields (single line, paragraph, keyword chips, dropdown), and evaluation approach (exact, semantic, ROUGE-1, ROUGE-L, BLEU).
+- **Run one or run all** — Run a single test or batch with a configurable delay between API calls (rate limiting).
+- **Live results** — Pass/fail, keyword match count (e.g. X/Y found), and response time per test.
+- **Import / export** — Import a test suite from JSON. Export the current suite as JSON or export run results as CSV.
+- **Optional save** — When enabled, a Save button emits the current test cases so your app can persist them (e.g. to your backend).
 
-**Features:**
+---
 
-- Question input with expected keywords and source links
-- Real-time AI response generation any LLM provider
-- Test case management (add, delete, run individual or all tests)
-- Built-in evaluation engine with keyword and source link matching
-- Error handling and loading states
-- Rate limiting for batch operations
-
-**Usage:**
-
-```html
-<llm-test-runner delay-ms="1000"></llm-test-runner>
-```
-
-## 🎯 Usage Modes
-
-### 1. Direct HTML Usage
-
-Simply include the component in your HTML:
-
-```html
-<!DOCTYPE html>
-<html>
-  <head>
-    <script type="module" src="/build/llm-testrunner.esm.js"></script>
-    <script nomodule src="/build/llm-testrunner.js"></script>
-  </head>
-  <body>
-    <llm-test-runner id="llm-test-runner" delay-ms="1000"></llm-test-runner>
-  </body>
-  <script>
-    const llmTestRunner = document.getElementById('llm-test-runner');
-    // Gemini API
-    async function handlellmRequest(event) {
-      try {
-        const requestBody = {
-          contents: [
-            {
-              parts: [
-                {
-                  text: event.detail.prompt,
-                },
-              ],
-            },
-          ],
-        };
-
-        const response = await fetch(
-          `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=your-gemini-api-key-here`,
-          {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-            },
-            body: JSON.stringify(requestBody),
-          },
-        );
-
-        if (!response.ok) {
-          const errorData = await response.json().catch(() => ({}));
-          throw new Error(
-            errorData.error?.message ||
-              `HTTP error! status: ${response.status}`,
-          );
-        }
-
-        const data = await response.json();
-
-        if (
-          data.candidates &&
-          data.candidates[0] &&
-          data.candidates[0].content
-        ) {
-          event.detail.resolve(data.candidates[0].content.parts[0].text);
-        } else {
-          throw new Error('Unexpected response format from Gemini API');
-        }
-      } catch (err) {
-        event.detail.reject(
-          err instanceof Error ? err : new Error(String(err)),
-        );
-      }
-    }
-    llmTestRunner.addEventListener('llmRequest', handlellmRequest);
-  </script>
-</html>
-```
-
-### 2. Library Integration
-
-Import as a module in your application:
-
-```javascript
-import { LLMTestRunner } from 'llm-testrunner-components';
-
-// The component is automatically registered and ready to use
-```
-
-## Configuration
-
-### 🧠 delayMs Prop — Controlling API Rate Limiting
-
-The `delayMs` prop allows you to control **how frequently API calls are made** when triggering multiple requests.  
-This helps prevent exceeding **API rate limits** by spacing out requests automatically.
-
-### ⚙️ Description
-
-| Prop Name | Type     | Default     | Description                                                                                                          |
-| --------- | -------- | ----------- | -------------------------------------------------------------------------------------------------------------------- |
-| `delayMs` | `number` | `undefined` | Optional delay (in milliseconds) between consecutive API calls. If not provided, all API calls are made in parallel. |
-
-```html
-<llm-test-runner delay-ms="2000"></llm-test-runner>
-```
-
-### React/JSX Usage
-
-```jsx
-function App() {
-  return (
-    <div>
-      <llm-test-runner delayMs="1000" />
-    </div>
-  );
-}
-```
-
-## Evaluation Engine
-
-The built-in evaluation engine provides:
-
-- **Keyword Matching**: Case-insensitive matching of expected keywords in AI responses
-- **Source Link Validation**: Checks for presence of expected URLs in responses
-- **Pass/Fail Logic**: Tests pass only when ALL expected items are found
-- **Detailed Results**: Shows which keywords and links were found/missing
-
-### Evaluation Criteria
-
-- **Keywords**: Must be present in the AI response (case-insensitive)
-- **Source Links**: Must be present as exact URL matches
-- **Pass Condition**: ALL expected keywords AND source links must be found
-
-## Using in React Applications
-
-### Installation
+## Installation
 
 ```bash
 npm install llm-testrunner-components
 ```
 
-### Integration
+---
+
+## Get started (React)
+
+**Step 1 — Register the custom elements once** (e.g. in your app entry):
 
 ```tsx
-import React, { useEffect } from 'react';
-import { defineCustomElements } from 'llm-testrunner-components/loader';
+// e.g. in main.tsx or App.tsx
+import { defineCustomElements } from "llm-testrunner-components/loader";
+
+defineCustomElements();
+```
+
+**Step 2 — Use the component and connect your LLM.** The runner fires an `llmRequest` event whenever it needs a response. You call your API, then either `resolve(responseText)` or `reject(error)`.
+
+```tsx
+import { useRef } from "react";
+import { LlmTestRunner } from "llm-testrunner-components/react";
 
 function App() {
-  useEffect(() => {
-    defineCustomElements();
-  }, []);
+  const runnerRef = useRef<any>(null);
 
-  const handlellmRequest = (event: CustomEvent<LLMRequestPayload>) => {
+  const handleLlmRequest = async (e) => {
     try {
-      console.log('🚀 callGeminiAPI called with prompt:', event.detail.prompt);
-      const requestBody = {
-        contents: [
-          {
-            parts: [
-              {
-                text: event.detail.prompt,
-              },
-            ],
-          },
-        ],
-      };
-
-      const response = await fetch(
-        `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=your-gemini-api-key-here`,
-        {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify(requestBody),
-        },
-      );
-
-      if (!response.ok) {
-        const errorData = await response.json().catch(() => ({}));
-        throw new Error(
-          errorData.error?.message || `HTTP error! status: ${response.status}`,
-        );
-      }
-
-      const data = await response.json();
-
-      if (data.candidates && data.candidates[0] && data.candidates[0].content) {
-        event.detail.resolve(data.candidates[0].content.parts[0].text);
-      } else {
-        throw new Error('Unexpected response format from Gemini API');
-      }
+      const response = await yourLLMApi(e.detail.prompt);
+      e.detail.resolve(response);
     } catch (err) {
-      event.detail.reject(err instanceof Error ? err : new Error(String(err)));
+      e.detail.reject(err);
     }
   };
 
+  const handleSave = async (e) => {
+    await yourSaveApi(e.detail);
+    await runnerRef.current?.resetSavingState();
+  };
+
   return (
-    <div>
-      <h1>LLM Test Runner</h1>
-      <llm-test-runner llmRequest={handlellmRequest}></llm-test-runner>
-    </div>
+    <LlmTestRunner
+      ref={runnerRef}
+      onLlmRequest={handleLlmRequest}
+      onSave={handleSave}
+      delayMs={500}
+      useSave={true}
+    />
   );
 }
 ```
 
-### TypeScript Support
+That’s enough for a working runner. Replace `yourLLMApi` and `yourSaveApi` with your real calls. If you don’t need persistence, omit `useSave`, `onSave`, and `ref` / `resetSavingState`.
 
-```tsx
-declare global {
-  namespace JSX {
-    interface IntrinsicElements {
-      'llm-test-runner': any;
+---
+
+## Get started (vanilla HTML)
+
+Load the loader and define the custom elements, then listen for `llmRequest` and call `resolve` or `reject`.
+
+```html
+<llm-test-runner id="runner" delay-ms="500"></llm-test-runner>
+
+<script type="module">
+  import { defineCustomElements } from "https://unpkg.com/llm-testrunner-components@1/loader/index.js";
+  defineCustomElements();
+
+  const runner = document.getElementById("runner");
+  runner.addEventListener("llmRequest", async (e) => {
+    try {
+      const response = await yourLLMFetch(e.detail.prompt);
+      e.detail.resolve(response);
+    } catch (err) {
+      e.detail.reject(err);
     }
-  }
-}
+  });
+</script>
 ```
 
-## API Reference
+---
 
-### Component Props
+## Connect your LLM
 
-```typescript
-interface LLMTestRunnerProps {
-  apiKey: string; // Required: Your Gemini API key
-}
+The library **never** sends requests to an LLM. You do. When a test runs, the component emits an `llmRequest` event with:
+
+- `prompt` — the question text for this test case  
+- `resolve(responseText)` — call this with the model’s reply (string)  
+- `reject(error)` — call this if the request fails  
+
+How you get the response is up to you: REST, SDK, or local inference. Same pattern for OpenAI, Gemini, Claude, or any other provider.
+
+---
+
+## Loading and saving test cases
+
+**Loading** — Pass `initialTestCases` with an array of test cases (e.g. from your backend or a file). You can use the full `TestCase` shape or a minimal one: `question`, `expectedOutcome`, and optional `evaluationParameters`. The runner will fill in `id` and run state.
+
+**Saving** — Set `useSave={true}` to show the Save button. When the user clicks it, the component emits a `save` event with `{ timestamp, testCases }`. Persist that in your backend (e.g. Firebase or your API). After the save completes, call `runnerRef.current.resetSavingState()` so the button leaves the loading state. If you don’t call it, a failsafe resets it after 10 seconds.
+
+---
+
+## Evaluation: pick the right approach
+
+Each test case can use a different evaluation method. All of them compare the **expected** text (from your expected-outcome fields) to the **actual** LLM response. A test **passes only if every** expected keyword (or segment) is considered “matched” by that method.
+
+| Approach   | What it measures              | Good for                                      | Paraphrasing / synonyms | Speed        |
+| --------- | ----------------------------- | --------------------------------------------- | ------------------------ | ------------ |
+| **Exact** | Literal keyword in response    | Strict wording, facts, templates              | No                       | Fast         |
+| **ROUGE-1** | Word overlap (unigram)       | Slight paraphrasing, same key words           | Moderate                 | Fast         |
+| **ROUGE-L** | Longest common subsequence   | Phrasing and word order matter                 | Moderate–high            | Slightly slower |
+| **Semantic** | Meaning (embeddings + cosine) | Different words, same meaning                 | Yes                      | First run loads model |
+| **BLEU**  | N-gram precision (1–4)         | Translation-like or n-gram overlap             | Moderate                 | Fast         |
+
+- Set **per test case** via the dropdown in the UI, or via `evaluationParameters.approach` when you pass `initialTestCases`.
+- **ROUGE, BLEU, and Semantic** use a fixed threshold (0.7).
+- **Semantic** uses in-browser embeddings ([Xenova/all-MiniLM-L6-v2](https://huggingface.co/Xenova/all-MiniLM-L6-v2)). The first time you use it, the model is downloaded; later runs are faster.
+
+---
+
+## Expected outcome fields
+
+Expected outcomes can be more than a single text block. You can define:
+
+- **text** — Single line  
+- **textarea** — Multi-line  
+- **chips-input** — List of keywords (each compared in evaluation)  
+- **select** — Dropdown (value must be one of the options)  
+
+When you pass `initialTestCases`, use an array of objects with `type`, `label`, and `value` (and for `select`, `options`). For **new** test cases, the runner uses `defaultExpectedOutcomeSchema` if you pass it; otherwise it uses a default single textarea.
+
+---
+
+## API reference
+
+### Props
+
+| Prop | Attribute | Type | Default | Description |
+|------|-----------|------|---------|-------------|
+| `delayMs` | `delay-ms` | `number` | `500` | Delay (ms) between API calls when running all tests (rate limiting). |
+| `useSave` | `use-save` | `boolean` | `false` | Show Save button and emit `save` events. |
+| `initialTestCases` | — | `TestCase[]` | `undefined` | Preload test cases. See [types](#types) below. |
+| `defaultExpectedOutcomeSchema` | — | `ExpectedOutcomeSchema` | built-in | Schema for new test cases (field types and labels). |
+
+### Events
+
+| Event | Payload | Description |
+|-------|---------|-------------|
+| `llmRequest` | `{ prompt, resolve, reject }` | Runner needs an LLM response. Call `resolve(responseText)` or `reject(error)`. |
+| `save` | `{ timestamp, testCases }` | User clicked Save (only when `useSave` is true). Persist then call `resetSavingState()`. |
+
+### Methods
+
+| Method | Description |
+|--------|-------------|
+| `resetSavingState()` | Call after you finish persisting a save so the Save button leaves loading state. Use a ref in React. |
+
+### Types
+
+Import from `llm-testrunner-components/react/types`:
+
+```ts
+import type {
+  TestCase,
+  LLMRequestPayload,
+  SavePayload,
+  ExpectedOutcomeSchema,
+  ExpectedOutcomeField,
+  EvaluationParameters,
+} from "llm-testrunner-components/react/types";
 ```
 
-### TestCase Interface
+---
 
-```typescript
-interface TestCase {
-  id: string;
-  question: string;
-  expectedOutcome: string;
-  output?: string;
-  isRunning?: boolean;
-  error?: string;
-  evaluationResult?: EvaluationResult;
-}
-```
+## Import and export
 
-### EvaluationResult Interface
+- **Import** — Use the UI to load a JSON file. It must be an array of test cases. Invalid or empty files show an error.
+- **Export test suite** — Downloads a JSON file with the current test cases.
+- **Export results** — Downloads a CSV of the latest run (includes evaluation score).
 
-```typescript
-interface EvaluationResult {
-  testCaseId: string;
-  passed: boolean;
-  keywordMatches: KeywordMatch[];
-  sourceLinkMatches: SourceLinkMatch[];
-  timestamp?: string;
-}
-```
+---
 
-### LLMRequestPayload Interface
+## Contributing
 
-```typescript
-interface LLMRequestPayload {
-  prompt: string;
-  resolve: (result: string) => void;
-  reject: (err: Error | unknown) => void;
-}
-```
+We welcome contributions. See [CONTRIBUTING.md](CONTRIBUTING.md) for how to get started (opening issues, pull request workflow, and code of conduct).
+
+---
 
 ## License
 
-This project is licensed under the MIT License — see the [LICENSE](LICENSE) file for the full text.
+The project is licensed under the [MIT License](LICENSE).
 
-Third-party dependency licenses are not bundled; when you install this package, each dependency’s license is in `node_modules/<package>/`. License compliance is enforced with [licensee](https://github.com/jslicense/licensee.js) and the [Blue Oak Council](https://blueoakcouncil.org/list) permissive list (allowlist): only dependencies with a Blue Oak bronze-or-better rated license (or an explicitly allowed exception in [.licensee.json](.licensee.json)) are permitted. PRs that add a dependency with a non-permissive or unlisted license will fail CI. Run `npm run license-check` to verify locally.
+Third-party licenses are in `node_modules/<package>/`. This project uses [licensee](https://github.com/jslicense/licensee.js) and the [Blue Oak Council](https://blueoakcouncil.org/list) permissive list; only dependencies with a Blue Oak bronze-or-better license (or an exception in [.licensee.json](.licensee.json)) are allowed. Run `npm run license-check` to verify locally.

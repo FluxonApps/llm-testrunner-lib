@@ -5,7 +5,6 @@ import { isApproachAllowedForFieldType } from '../lib/evaluation/field-evaluatio
 const nonEmptyString = z.string().trim().min(1);
 const optionalPositiveInt = z.number().int().positive().optional();
 const optionalString = z.string().optional();
-const optionalBoolean = z.boolean().optional();
 const selectOptionsSchema = z.array(nonEmptyString).min(1);
 const optionalNumber = z.number().optional();
 
@@ -28,7 +27,6 @@ const selectEvaluationParametersSchema = evaluationParametersSchema.superRefine(
 
 const defaultExpectedOutcomeBaseSchema = z.object({
   label: nonEmptyString,
-  required: optionalBoolean,
   placeholder: optionalString,
 });
 

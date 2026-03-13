@@ -53,7 +53,6 @@ function createExpectedOutcomeFieldFromSchema(
       return {
         type: 'text',
         label: schemaField.label,
-        required: schemaField.required,
         placeholder: schemaField.placeholder,
         value: '',
         evaluationParameters: normalizeEvaluationParametersForField(
@@ -66,7 +65,6 @@ function createExpectedOutcomeFieldFromSchema(
       return {
         type: 'textarea',
         label: schemaField.label,
-        required: schemaField.required,
         placeholder: schemaField.placeholder,
         rows: schemaField.rows,
         value: '',
@@ -80,7 +78,6 @@ function createExpectedOutcomeFieldFromSchema(
       return {
         type: 'chips-input',
         label: schemaField.label,
-        required: schemaField.required,
         placeholder: schemaField.placeholder,
         value: [],
         evaluationParameters: normalizeEvaluationParametersForField(
@@ -93,7 +90,6 @@ function createExpectedOutcomeFieldFromSchema(
       return {
         type: 'select',
         label: schemaField.label,
-        required: schemaField.required,
         placeholder: schemaField.placeholder,
         value: '',
         options: schemaField.options,

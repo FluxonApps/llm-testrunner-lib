@@ -8,9 +8,7 @@ export const testCaseInputSchema = z.object({
   expectedOutcome: expectedOutcomeArraySchema,
 });
 
-export const testCaseInputArraySchema = z.array(testCaseInputSchema).min(1, {
-  message: 'The test suite is empty. Please provide at least one test case.',
-});
+export const testCaseInputArraySchema = z.array(testCaseInputSchema);
 
 export const testCaseSchema = z.object({
   id: z.string(),

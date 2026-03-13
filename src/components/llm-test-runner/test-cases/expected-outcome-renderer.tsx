@@ -75,7 +75,6 @@ export const ExpectedOutcomeRenderer: FunctionalComponent<ExpectedOutcomeRendere
             fieldType: FormFieldType.TEXT_AREA,
             label: field.label,
             placeholder: field.placeholder,
-            required: field.required,
             rows: field.rows || 2,
           };
           return (
@@ -103,7 +102,6 @@ export const ExpectedOutcomeRenderer: FunctionalComponent<ExpectedOutcomeRendere
             fieldType: FormFieldType.CHIPS,
             label: field.label,
             placeholder: field.placeholder,
-            required: field.required,
           };
 
           return (
@@ -139,7 +137,6 @@ export const ExpectedOutcomeRenderer: FunctionalComponent<ExpectedOutcomeRendere
             fieldType: FormFieldType.SELECT,
             label: field.label,
             placeholder: field.placeholder,
-            required: field.required,
             optionList: field.options,
           };
 

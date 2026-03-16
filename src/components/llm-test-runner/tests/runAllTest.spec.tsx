@@ -25,7 +25,6 @@ jest.mock('../../../lib/rate-limited-fetcher/rate-limited-fetcher', () => ({
 
 import { newSpecPage } from '@stencil/core/testing';
 import { LLMTestRunner } from '../llm-test-runner';
-import { EvaluationApproach } from '../../../lib/evaluation/constants';
 import { TestCase, LLMRequestPayload } from '../../../types/llm-test-runner';
 import { EvaluationService } from '../../../lib/evaluation/evaluation-service';
 import { RateLimitedFetcher } from '../../../lib/rate-limited-fetcher/rate-limited-fetcher';
@@ -56,7 +55,6 @@ describe('LLMTestRunner - Run All', () => {
         value: 'getValidEntities',
       },
     ],
-    evaluationParameters: { approach: EvaluationApproach.EXACT },
     isRunning: false,
   };
 
@@ -81,7 +79,6 @@ describe('LLMTestRunner - Run All', () => {
         value: 'getAnalytics',
       },
     ],
-    evaluationParameters: { approach: EvaluationApproach.EXACT },
     isRunning: false,
   };
 

@@ -18,8 +18,6 @@ export type {
 export type {
   TestCase,
   TestCaseInput,
-  LegacyTestCaseInput,
-  V2TestCaseInput,
 } from './test-case';
 
 export interface LLMRequestPayload {

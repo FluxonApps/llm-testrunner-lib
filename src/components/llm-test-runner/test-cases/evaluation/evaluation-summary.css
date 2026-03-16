@@ -7,10 +7,69 @@
   flex-direction: column;
 }
 
-.evaluation-summary__details {
+.evaluation-summary__field-results {
   display: flex;
   flex-direction: column;
   gap: var(--spacing-2);
+  margin-top: var(--spacing-2);
+}
+
+.evaluation-summary__field-result {
+  border: var(--border-width) solid var(--border);
+  border-radius: var(--radius-md);
+  padding: var(--spacing-2);
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-1);
+}
+
+.evaluation-summary__field-header {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-1);
+}
+
+.evaluation-summary__field-label {
+  font-weight: var(--font-weight-semibold);
+  font-size: var(--font-size-xs);
+}
+
+.evaluation-summary__field-approach {
+  color: var(--muted-foreground);
+  font-size: 11px;
+}
+
+.evaluation-summary__field-details {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-1);
+  font-size: var(--font-size-xs);
+}
+
+.evaluation-summary__field-status {
+  width: fit-content;
+  padding: 2px var(--spacing-2);
+  border-radius: var(--radius-sm);
+  font-size: 11px;
+  font-weight: var(--font-weight-semibold);
+  border: var(--border-width) solid transparent;
+}
+
+.evaluation-summary__field-status--passed {
+  background: var(--success);
+  color: var(--success-foreground);
+  border-color: var(--success);
+}
+
+.evaluation-summary__field-status--failed {
+  background: var(--destructive);
+  color: var(--destructive-foreground);
+  border-color: var(--destructive);
+}
+
+.evaluation-summary__error-message {
+  color: var(--destructive);
+  font-size: var(--font-size-xs);
 }
 
 .evaluation-summary__placeholder {
@@ -30,26 +89,6 @@
   display: flex;
   flex-direction: column;
   gap: var(--spacing-2);
-}
-
-.evaluation-summary__result-status {
-  font-weight: var(--font-weight-semibold);
-  font-size: var(--font-size-sm);
-  padding: var(--spacing-2) var(--spacing-3);
-  border-radius: var(--radius-md);
-  text-align: center;
-}
-
-.evaluation-summary__result-status--passed {
-  background: var(--success);
-  color: var(--success-foreground);
-  border: var(--border-width) solid var(--success);
-}
-
-.evaluation-summary__result-status--failed {
-  background: var(--destructive);
-  color: var(--destructive-foreground);
-  border: var(--border-width) solid var(--destructive);
 }
 
 /* Responsive Design */

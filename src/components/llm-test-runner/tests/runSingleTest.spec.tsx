@@ -8,7 +8,6 @@ jest.mock('../../../lib/evaluation/evaluation-service', () => ({
 
 import { newSpecPage } from '@stencil/core/testing';
 import { LLMTestRunner } from '../llm-test-runner';
-import { EvaluationApproach } from '../../../lib/evaluation/constants';
 import { TestCase, LLMRequestPayload } from '../../../types/llm-test-runner';
 import { EvaluationService } from '../../../lib/evaluation/evaluation-service';
 
@@ -37,7 +36,6 @@ describe('LLMTestRunner', () => {
         value: 'getAnalytics',
       },
     ],
-    evaluationParameters: { approach: EvaluationApproach.EXACT },
     isRunning: false,
   };
   function getFirstEventFromSpy(

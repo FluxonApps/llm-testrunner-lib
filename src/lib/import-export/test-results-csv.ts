@@ -1,5 +1,4 @@
 import { TestCase } from '../../types/llm-test-runner';
-import { serializeExpectedOutcome } from '../expected-outcome-serializer';
 
 /**
  * Escapes a CSV field by wrapping it in quotes if it contains special characters
@@ -20,63 +19,82 @@ export function escapeCsvField(field: string): string {
  */
 export function exportTestResultsToCsv(testCases: TestCase[]): string {
   const csvRows: string[] = [];
+  const maxFieldCount = testCases.reduce(
+    (max, testCase) => Math.max(max, (testCase.expectedOutcome || []).length),
+    0,
+  );
 
   // Add header row
-  const headers = [
+  const headers: string[] = [
     'Question',
-    'Expected Keywords',
-    'Generated Keywords',
-    'Keywords Match',
     'Response Time (s)',
-    'Evaluation Approach',
-    'Evaluation Score',
   ];
+  for (let i = 1; i <= maxFieldCount; i++) {
+    headers.push('Field Name');
+    headers.push('Expected Keywords');
+    headers.push('Generated Keywords');
+    headers.push('Evaluation Strategy');
+    headers.push('Passed Evaluation');
+    headers.push('Keyword Match');
+    headers.push('Score');
+    if (i < maxFieldCount) {
+      headers.push('');
+    }
+  }
   csvRows.push(headers.join(','));
 
-  // Add data rows
+  // Add data rows (one row per test case)
   testCases.forEach(testCase => {
-    const expectedOutcome = serializeExpectedOutcome(
-      testCase.expectedOutcome || [],
-      ' | ',
-    );
-
-    const evaluationApproach = testCase.evaluationParameters?.approach || '';
-    const score = testCase.evaluationResult?.evaluationApproachResult?.score;
-    const evaluationScore = score !== undefined ? score.toString() : '';
-    
-    let generatedKeywords = '';
-    let keywordsMatch = '';
-
-    if (testCase.evaluationResult) {
-      const foundKeywords = testCase.evaluationResult.keywordMatches
-        .filter(match => match.found)
-        .map(match => match.keyword);
-
-      generatedKeywords = foundKeywords.join('; ');
-
-      // Calculate match percentages
-      const keywordMatchCount = testCase.evaluationResult.keywordMatches.filter(
-        m => m.found,
-      ).length;
-      const totalKeywords = testCase.evaluationResult.keywordMatches.length;
-
-      keywordsMatch =
-        totalKeywords > 0 ? `${keywordMatchCount}/${totalKeywords}` : 'N/A';
-    }
-
     const responseTime = testCase.responseTime
       ? (testCase.responseTime / 1000).toFixed(3)
       : 'N/A';
+    const row: string[] = [escapeCsvField(testCase.question), responseTime];
 
-    const row = [
-      escapeCsvField(testCase.question),
-      escapeCsvField(expectedOutcome),
-      escapeCsvField(generatedKeywords),
-      keywordsMatch,
-      responseTime,
-      escapeCsvField(evaluationApproach),
-      escapeCsvField(evaluationScore),
-    ];
+    for (let i = 0; i < maxFieldCount; i++) {
+      const field = testCase.expectedOutcome?.[i];
+      const fieldResult = testCase.evaluationResult?.fieldResults?.find(
+        result => result.index === i,
+      );
+
+      const expectedKeywords =
+        fieldResult?.expectedValue ??
+        (field
+          ? field.type === 'chips-input'
+            ? field.value.join(', ')
+            : field.value
+          : '');
+      const generatedKeywords = (fieldResult?.keywordMatches || [])
+        .filter(match => match.found)
+        .map(match => match.keyword)
+        .join('; ');
+      const matchedCount = (fieldResult?.keywordMatches || []).filter(
+        match => match.found,
+      ).length;
+      const totalMatches = fieldResult?.keywordMatches?.length || 0;
+      const keywordMatch = totalMatches > 0 ? `${matchedCount}/${totalMatches}` : '';
+      const score =
+        fieldResult?.evaluationApproachResult?.score !== undefined
+          ? fieldResult.evaluationApproachResult.score.toFixed(2)
+          : '';
+
+      row.push(escapeCsvField(field?.label || ''));
+      row.push(escapeCsvField(expectedKeywords || ''));
+      row.push(escapeCsvField(generatedKeywords));
+      row.push(
+        escapeCsvField(
+          fieldResult?.evaluationParameters.approach ||
+            field?.evaluationParameters?.approach ||
+            '',
+        ),
+      );
+      row.push(fieldResult ? (fieldResult.passed ? 'TRUE' : 'FALSE') : '');
+      row.push(keywordMatch);
+      row.push(score);
+
+      if (i < maxFieldCount - 1) {
+        row.push('');
+      }
+    }
 
     csvRows.push(row.join(','));
   });

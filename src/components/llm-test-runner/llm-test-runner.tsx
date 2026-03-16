@@ -10,7 +10,6 @@ import {
 import { EvaluationResult } from '../../lib/evaluation/types';
 import { ErrorMessage } from '../error-message/error-message';
 import { RateLimitedFetcher } from '../../lib/rate-limited-fetcher/rate-limited-fetcher';
-import { EvaluationApproach } from '../../lib/evaluation/constants';
 import {
   ExpectedOutcomeSchema,
   TestCase,
@@ -70,9 +69,6 @@ export class LLMTestRunner {
           value: '',
         },
       ],
-      evaluationParameters: {
-        approach: EvaluationApproach.EXACT,
-      },
       isRunning: false,
     },
   ];
@@ -196,61 +192,17 @@ export class LLMTestRunner {
     this.testCases = this.testCases.filter(tc => tc.id !== id);
   }
 
-  private updateApproach(testCase: TestCase, approach: EvaluationApproach) {
-    if (testCase) {
-      const updated = TestCaseMutations.updateApproach(testCase, approach);
-      this.updateTestCase(testCase.id, {
-        evaluationParameters: updated.evaluationParameters,
-      });
-    }
-  }
-
   private handleExpectedOutcomeChange = (
     event: CustomEvent<ExpectedOutcomeChangeDetail>,
   ) => {
-    const { testCaseId, index, operation, value } = event.detail;
+    const { testCaseId, ...change } = event.detail;
 
     this.testCases = this.testCases.map(tc => {
-      if (tc.id !== testCaseId) return tc;
-
-      const expectedOutcome = [...(tc.expectedOutcome || [])];
-      const target = expectedOutcome[index];
-      if (!target) return tc;
-
-      if (operation === 'set-value') {
-        if (target.type === 'chips-input') {
-          return tc;
-        }
-        expectedOutcome[index] = { ...target, value: value || '' };
-        return { ...tc, expectedOutcome };
+      if (tc.id !== testCaseId) {
+        return tc;
       }
 
-      if (operation === 'add-chip') {
-        if (target.type !== 'chips-input' || !value) {
-          return tc;
-        }
-        expectedOutcome[index] = {
-          ...target,
-          value: [...target.value, value],
-        };
-        return { ...tc, expectedOutcome };
-      }
-
-      if (operation === 'remove-chip') {
-        if (
-          target.type !== 'chips-input' ||
-          !value
-        ) {
-          return tc;
-        }
-        expectedOutcome[index] = {
-          ...target,
-          value: target.value.filter(chip => chip !== value),
-        };
-        return { ...tc, expectedOutcome };
-      }
-
-      return tc;
+      return TestCaseMutations.applyExpectedOutcomeChange(tc, change);
     });
   };
 
@@ -387,9 +339,6 @@ export class LLMTestRunner {
             testCases={this.testCases}
             onRun={testCase => this.runSingleTest(testCase).catch(() => {})}
             onDelete={id => this.deleteTestCase(id)}
-            onUpdateApproach={(testCase, approach) =>
-              this.updateApproach(testCase, approach)
-            }
             onAddTestCase={() => this.addNewTestCase()}
             handleTestCaseChange={this.handleTestCaseChange}
             onExpectedOutcomeChange={this.handleExpectedOutcomeChange}

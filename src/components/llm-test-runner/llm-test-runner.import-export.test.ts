@@ -11,15 +11,14 @@ jest.mock('../../lib/file/file-download');
 jest.mock('../../lib/import-export/test-suite-exporter');
 jest.mock('../../lib/import-export/test-suite-importer');
 
-import { h } from '@stencil/core';
 import { newSpecPage, SpecPage } from '@stencil/core/testing';
 import { LLMTestRunner } from './llm-test-runner';
-import { TestCase, TestCaseInput } from '../../types/llm-test-runner';
-import { EvaluationApproach } from '../../lib/evaluation/constants';
+import { TestCase } from '../../types/llm-test-runner';
 import { readFileAsync } from '../../lib/file/file-reader';
 import { downloadFile } from '../../lib/file/file-download';
 import { formatTestSuiteAsJson } from '../../lib/import-export/test-suite-exporter';
 import { importTestSuite } from '../../lib/import-export/test-suite-importer';
+import { EvaluationApproach } from '../../lib/evaluation/constants';
 
 describe('llm-test-runner import/export', () => {
   let page: SpecPage;
@@ -37,20 +36,12 @@ describe('llm-test-runner import/export', () => {
       id: '1',
       question: 'What is AI?',
       expectedOutcome: buildExpectedOutcome('artificial intelligence'),
-      evaluationParameters: {
-        approach: EvaluationApproach.EXACT,
-        threshold: 0.6
-      },
       isRunning: false
     };
 
     return {
       ...defaults,
       ...overrides,
-      evaluationParameters: {
-        ...defaults.evaluationParameters,
-        ...overrides.evaluationParameters,
-      },
     };
   };
 
@@ -77,7 +68,6 @@ describe('llm-test-runner import/export', () => {
           id: '1',
           question: 'What is AI?',
           expectedOutcome: buildExpectedOutcome('artificial intelligence'),
-          evaluationParameters: { approach: EvaluationApproach.EXACT, threshold: 0.6 },
           isRunning: false
         }
       ];
@@ -103,31 +93,50 @@ describe('llm-test-runner import/export', () => {
     });
 
     it('should use default evaluation parameters when not provided', async () => {
-      const mockTestData = [
+      const rawImportData = [
         {
           id: '1',
           question: 'Test question',
           expectedOutcome: buildExpectedOutcome('test'),
-          evaluationParameters: { approach: EvaluationApproach.EXACT, threshold: 0.6 },
           isRunning: false
         }
       ];
+      const normalizedImportData = [
+        {
+          id: '1',
+          question: 'Test question',
+          expectedOutcome: [
+            {
+              type: 'textarea' as const,
+              label: 'Expected Outcome',
+              value: 'test',
+              evaluationParameters: {
+                approach: EvaluationApproach.EXACT,
+              },
+            },
+          ],
+          isRunning: false,
+        },
+      ];
 
-      const mockFile = createMockFile(JSON.stringify(mockTestData), 'test.json');
+      const mockFile = createMockFile(JSON.stringify(rawImportData), 'test.json');
 
-      (readFileAsync as jest.Mock).mockResolvedValue(JSON.stringify(mockTestData));
+      (readFileAsync as jest.Mock).mockResolvedValue(JSON.stringify(rawImportData));
       (importTestSuite as jest.Mock).mockReturnValue({
         success: true,
-        testCases: mockTestData
+        testCases: normalizedImportData,
       });
 
       await component.handleImport(mockFile);
       await page.waitForChanges();
 
-      expect(component.testCases[0].evaluationParameters).toMatchObject({
-        approach: EvaluationApproach.EXACT,
-        threshold: 0.6
-      });
+      expect(
+        component.testCases[0].expectedOutcome[0].evaluationParameters?.approach,
+      ).toBe(EvaluationApproach.EXACT);
+      expect(component.testCases[0].expectedOutcome[0].value).toBe('test');
+      expect(component.testCases[0].expectedOutcome[0].label).toBe(
+        'Expected Outcome',
+      );
     });
   });
 
@@ -138,14 +147,12 @@ describe('llm-test-runner import/export', () => {
           id: '1',
           question: 'What is AI?',
           expectedOutcome: buildExpectedOutcome('artificial intelligence'),
-          evaluationParameters: { approach: EvaluationApproach.EXACT },
           isRunning: false
         },
         {
           id: '2',
           question: 'What is ML?',
           expectedOutcome: buildExpectedOutcome('machine learning'),
-          evaluationParameters: { approach: EvaluationApproach.EXACT },
           isRunning: false
         }
       ];
@@ -172,21 +179,18 @@ describe('llm-test-runner import/export', () => {
           id: '1',
           question: 'Q1',
           expectedOutcome: buildExpectedOutcome('answer1'),
-          evaluationParameters: { approach: EvaluationApproach.EXACT },
           isRunning: false
         },
         {
           id: '2',
           question: 'Q2',
           expectedOutcome: buildExpectedOutcome('answer2'),
-          evaluationParameters: { approach: EvaluationApproach.EXACT },
           isRunning: false
         },
         {
           id: '3',
           question: 'Q3',
           expectedOutcome: buildExpectedOutcome('answer3'),
-          evaluationParameters: { approach: EvaluationApproach.EXACT },
           isRunning: false
         }
       ];
@@ -323,40 +327,6 @@ describe('llm-test-runner import/export', () => {
       await page.waitForChanges();
 
       expect(component.error).toBe('');
-    });
-  });
-
-  describe('Initial Test Cases', () => {
-    it('should normalize legacy string expectedOutcome from initialTestCases', async () => {
-      const legacyInitialCases = [
-        {
-          id: 'legacy-1',
-          question: 'Whats capital of India ?',
-          expectedOutcome: 'Delhi',
-          evaluationParameters: { approach: EvaluationApproach.EXACT },
-        },
-      ] as unknown as TestCase[];
-
-      const localPage = await newSpecPage({
-        components: [LLMTestRunner],
-        template: () =>
-          h('llm-test-runner', {
-            initialTestCases: legacyInitialCases as TestCaseInput[],
-          }),
-      });
-
-      const localComponent = localPage.rootInstance as LLMTestRunner;
-      await localPage.waitForChanges();
-
-      expect(localComponent.testCases).toHaveLength(1);
-      expect(localComponent.testCases[0].id).toBe('legacy-1');
-      expect(localComponent.testCases[0].expectedOutcome).toEqual([
-        {
-          type: 'textarea',
-          label: 'Expected Outcome',
-          value: 'Delhi',
-        },
-      ]);
     });
   });
 });

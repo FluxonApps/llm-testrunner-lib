@@ -2,6 +2,7 @@ import {
   EvaluationParameters,
   EvaluationApproachResult,
 } from '../../types/evaluation';
+import type { ExpectedOutcomeFieldType } from '../../types/llm-test-runner';
 
 export interface EvaluationRequest {
   testCaseId: string;
@@ -11,13 +12,41 @@ export interface EvaluationRequest {
   evaluationParameters: EvaluationParameters;
 }
 
+export interface FieldEvaluationInput {
+  index: number;
+  label: string;
+  type: ExpectedOutcomeFieldType;
+  expectedValue: string;
+  evaluationParameters: EvaluationParameters;
+}
+
+export interface EvaluationRequestV2 {
+  testCaseId: string;
+  question: string;
+  actualResponse: string;
+  fields: FieldEvaluationInput[];
+}
+
 export interface EvaluationResult {
   testCaseId: string;
   passed: boolean;
   keywordMatches: KeywordMatch[];
+  fieldResults?: FieldEvaluationResult[];
   timestamp?: string;
+  evaluationParameters?: EvaluationParameters;
+  evaluationApproachResult?: EvaluationApproachResult;
+}
+
+export interface FieldEvaluationResult {
+  index: number;
+  label: string;
+  type: ExpectedOutcomeFieldType;
+  expectedValue: string;
+  passed: boolean;
+  keywordMatches: KeywordMatch[];
   evaluationParameters: EvaluationParameters;
   evaluationApproachResult: EvaluationApproachResult;
+  error?: string;
 }
 
 export interface KeywordMatch {

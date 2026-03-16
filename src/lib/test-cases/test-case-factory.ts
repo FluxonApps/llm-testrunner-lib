@@ -7,6 +7,7 @@ import {
   TestCaseInput,
 } from '../../types/llm-test-runner';
 import { EvaluationApproach } from '../evaluation/constants';
+import { normalizeEvaluationParametersForField } from '../evaluation/field-evaluation-approach';
 
 export const DEFAULT_EXPECTED_OUTCOME_SCHEMA: ExpectedOutcomeSchema = [
   {
@@ -16,6 +17,18 @@ export const DEFAULT_EXPECTED_OUTCOME_SCHEMA: ExpectedOutcomeSchema = [
     rows: 2,
   },
 ];
+
+function normalizeExpectedOutcomeField(
+  field: ExpectedOutcomeField,
+): ExpectedOutcomeField {
+  return {
+    ...field,
+    evaluationParameters: normalizeEvaluationParametersForField(
+      field.type,
+      field.evaluationParameters,
+    ),
+  };
+}
 
 /**
  * Creates a new test case with default values
@@ -28,9 +41,6 @@ export function createTestCase(
     id: uuidv4(),
     question: '',
     expectedOutcome: createExpectedOutcomeFromSchema(expectedOutcomeSchema),
-    evaluationParameters: {
-      approach: EvaluationApproach.EXACT,
-    },
     isRunning: false,
   };
 }
@@ -43,38 +53,50 @@ function createExpectedOutcomeFieldFromSchema(
       return {
         type: 'text',
         label: schemaField.label,
-        required: schemaField.required,
         placeholder: schemaField.placeholder,
         value: '',
+        evaluationParameters: normalizeEvaluationParametersForField(
+          schemaField.type,
+          schemaField.evaluationParameters,
+        ),
       };
 
     case 'textarea':
       return {
         type: 'textarea',
         label: schemaField.label,
-        required: schemaField.required,
         placeholder: schemaField.placeholder,
         rows: schemaField.rows,
         value: '',
+        evaluationParameters: normalizeEvaluationParametersForField(
+          schemaField.type,
+          schemaField.evaluationParameters,
+        ),
       };
 
     case 'chips-input':
       return {
         type: 'chips-input',
         label: schemaField.label,
-        required: schemaField.required,
         placeholder: schemaField.placeholder,
         value: [],
+        evaluationParameters: normalizeEvaluationParametersForField(
+          schemaField.type,
+          schemaField.evaluationParameters,
+        ),
       };
 
     case 'select':
       return {
         type: 'select',
         label: schemaField.label,
-        required: schemaField.required,
         placeholder: schemaField.placeholder,
         value: '',
         options: schemaField.options,
+        evaluationParameters: normalizeEvaluationParametersForField(
+          schemaField.type,
+          schemaField.evaluationParameters,
+        ) as { approach: EvaluationApproach.EXACT; threshold?: number },
       };
 
     default: {
@@ -90,33 +112,17 @@ export function createExpectedOutcomeFromSchema(
   return expectedOutcomeSchema.map(createExpectedOutcomeFieldFromSchema);
 }
 
-export function migrateLegacyExpectedOutcomeString(
-  value: string,
-): ExpectedOutcomeField[] {
-  return [
-    {
-      type: 'textarea',
-      label: 'Expected Outcome',
-      value,
-    },
-  ];
-}
-
 /**
  * Creates a runtime test case from validated input data.
- * The input is expected to already satisfy `TestCaseInput` (legacy string or v2 shape),
- * and this function only performs normalization/defaulting (including legacy migration).
+ * The input is expected to already satisfy `TestCaseInput`,
+ * and this function only performs normalization/defaulting.
  *
  * @param data - Validated test case input
  * @returns A normalized TestCase object with runtime defaults applied
  */
 export function createTestCaseFromInput(data: TestCaseInput): TestCase {
-  let expectedOutcome: ExpectedOutcomeField[];
-  if (typeof data.expectedOutcome === 'string') {
-    expectedOutcome = migrateLegacyExpectedOutcomeString(data.expectedOutcome);
-  } else {
-    expectedOutcome = data.expectedOutcome;
-  }
-
-  return { ...data, expectedOutcome };
+  return {
+    ...data,
+    expectedOutcome: data.expectedOutcome.map(normalizeExpectedOutcomeField),
+  };
 }

@@ -2,6 +2,8 @@ import {
   EvaluationRequest,
   EvaluationResult,
   EvaluationCallback,
+  FieldEvaluationResult,
+  EvaluationRequestV2,
 } from './types';
 import { performEvaluation } from './evaluators/exact/exact';
 import { EvaluationApproach } from './constants';
@@ -12,67 +14,92 @@ import { performBleuEvaluation } from './evaluators/bleu/bleu-evaluator';
 
 export class LLMEvaluationEngine {
   async evaluateResponse(
-    request: EvaluationRequest,
+    request: EvaluationRequestV2,
     callback: EvaluationCallback,
   ): Promise<void> {
-    try {
-      const approach: EvaluationApproach =
-        request.evaluationParameters.approach;
-      switch (approach) {
-        case EvaluationApproach.BLEU: {
-          const bleuResult = performBleuEvaluation(request);
-          callback(bleuResult);
-          break;
+    const settledResults = await Promise.allSettled(
+      request.fields.map(async field => {
+        const fieldRequest: EvaluationRequest = {
+          testCaseId: request.testCaseId,
+          question: request.question,
+          actualResponse: request.actualResponse,
+          expectedOutcome: field.expectedValue,
+          evaluationParameters: field.evaluationParameters,
+        };
+        const result = await this.evaluateField(fieldRequest);
+
+        const fieldResult: FieldEvaluationResult = {
+          index: field.index,
+          label: field.label,
+          type: field.type,
+          expectedValue: field.expectedValue,
+          passed: result.passed,
+          keywordMatches: result.keywordMatches,
+          evaluationParameters: result.evaluationParameters!,
+          evaluationApproachResult: result.evaluationApproachResult,
+        };
+        return fieldResult;
+      }),
+    );
+
+    const fieldResults: FieldEvaluationResult[] = settledResults.map(
+      (settledResult, index) => {
+        const field = request.fields[index];
+        if (settledResult.status === 'fulfilled') {
+          return settledResult.value;
         }
 
-        case EvaluationApproach.EXACT: {
-          const exactResult = await performEvaluation(request);
-          callback(exactResult);
-          break;
-        }
+        return {
+          index: field.index,
+          label: field.label,
+          type: field.type,
+          expectedValue: field.expectedValue,
+          passed: false,
+          keywordMatches: [],
+          evaluationParameters: field.evaluationParameters,
+          evaluationApproachResult: {
+            score: 0,
+            approachUsed: field.evaluationParameters.approach,
+          },
+          error: this.getSafeErrorMessage(settledResult.reason),
+        };
+      },
+    );
 
-        case EvaluationApproach.ROUGE_1: {
-          const rougeResult = await performRouge1Evaluation(request);
-          callback(rougeResult);
-          break;
-        }
+    const keywordMatches = fieldResults.flatMap(field => field.keywordMatches);
+    const passed = fieldResults.every(field => field.passed && !field.error);
 
-        case EvaluationApproach.ROUGE_L: {
-          const rougeLResult = await performRougeLEvaluation(request);
-          callback(rougeLResult);
-          break;
-        }
+    callback({
+      testCaseId: request.testCaseId,
+      passed,
+      keywordMatches,
+      fieldResults,
+      timestamp: new Date().toISOString(),
+    });
+  }
 
-        case EvaluationApproach.SEMANTIC: {
-          const semanticResult = await performSemanticEvaluation(request);
-          callback(semanticResult);
-          break;
-        }
-
-        default: {
-          console.warn(
-            `Unknown matching approach: ${request.evaluationParameters.approach}, falling back to exact matching`,
-          );
-          const fallbackResult = await performEvaluation(request);
-          callback(fallbackResult);
-        }
-      }
-    } catch (error) {
-      console.error('Evaluation failed:', error);
-
-      const errorResult: EvaluationResult = {
-        testCaseId: request.testCaseId,
-        passed: false,
-        keywordMatches: [],
-        timestamp: new Date().toISOString(),
-        evaluationParameters: request.evaluationParameters,
-        evaluationApproachResult: {
-          score: 0,
-          approachUsed: EvaluationApproach.EXACT,
-        },
-      };
-
-      callback(errorResult);
+  private async evaluateField(request: EvaluationRequest): Promise<EvaluationResult> {
+    const approach: EvaluationApproach = request.evaluationParameters.approach;
+    switch (approach) {
+      case EvaluationApproach.BLEU:
+        return performBleuEvaluation(request);
+      case EvaluationApproach.EXACT:
+        return performEvaluation(request);
+      case EvaluationApproach.ROUGE_1:
+        return performRouge1Evaluation(request);
+      case EvaluationApproach.ROUGE_L:
+        return performRougeLEvaluation(request);
+      case EvaluationApproach.SEMANTIC:
+        return performSemanticEvaluation(request);
+      default:
+        console.warn(
+          `Unknown matching approach: ${request.evaluationParameters.approach}, falling back to exact matching`,
+        );
+        return performEvaluation(request);
     }
+  }
+
+  private getSafeErrorMessage(error: unknown): string {
+    return error instanceof Error ? error.message : 'Field evaluation failed.';
   }
 }

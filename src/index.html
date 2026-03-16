@@ -60,7 +60,7 @@
     document.addEventListener('DOMContentLoaded', () => {
       const llmTestRunner = document.getElementById('llm-test-runner');
       const llm = new window.GeminiAdapter(window.env.API_KEY);
-
+    
       async function callGeminiAPI(event) {
         try {
           const response = await llm.invoke(event.detail.prompt);

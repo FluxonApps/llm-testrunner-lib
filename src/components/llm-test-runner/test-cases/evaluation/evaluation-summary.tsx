@@ -10,19 +10,49 @@ export const EvaluationSummary: FunctionalComponent<EvaluationSummaryProps> = ({
   result,
   isRunning,
 }) => {
+  const fieldResults = result?.fieldResults || [];
+  const hasFieldResults = fieldResults.length > 0;
+
   return (
     <div class="evaluation-summary">
       {result ? (
         <div class="evaluation-summary__result">
-          <div
-            class={`evaluation-summary__result-status evaluation-summary__result-status--${result.passed ? 'passed' : 'failed'}`}
-          >
-            {result.passed ? '✅ PASSED' : '❌ FAILED'}
-          </div>
-          <div class="evaluation-summary__details">
-            Keywords: {result.keywordMatches.filter(m => m.found).length}/
-            {result.keywordMatches.length} found
-          </div>
+          {hasFieldResults ? (
+            <div class="evaluation-summary__field-results">
+              {fieldResults.map(fieldResult => (
+                <div class="evaluation-summary__field-result">
+                  <div class="evaluation-summary__field-header">
+                    <span class="evaluation-summary__field-label">
+                      {fieldResult.label}
+                    </span>
+                    <span class="evaluation-summary__field-approach">
+                      Strategy: {fieldResult.evaluationParameters.approach}
+                    </span>
+                  </div>
+                  <div class="evaluation-summary__field-details">
+                    <span
+                      class={`evaluation-summary__field-status evaluation-summary__field-status--${fieldResult.passed ? 'passed' : 'failed'}`}
+                    >
+                      {fieldResult.passed ? 'PASSED' : 'FAILED'}
+                    </span>
+                    {fieldResult.error && (
+                      <span class="evaluation-summary__error-message">
+                        {fieldResult.error}
+                      </span>
+                    )}
+                    <span>
+                      Score: {fieldResult.evaluationApproachResult.score.toFixed(2)}
+                    </span>
+                    <span>
+                      Matches:{' '}
+                      {fieldResult.keywordMatches.filter(match => match.found).length}/
+                      {fieldResult.keywordMatches.length}
+                    </span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : null}
         </div>
       ) : (
         <div class="evaluation-summary__placeholder">

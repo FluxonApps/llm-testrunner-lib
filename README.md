@@ -122,7 +122,7 @@ How you get the response is up to you: REST, SDK, or local inference. Same patte
 
 ## Loading and saving test cases
 
-**Loading** — Pass `initialTestCases` with an array of test cases (e.g. from your backend or a file). You can use the full `TestCase` shape or a minimal one: `question`, `expectedOutcome`, and optional `evaluationParameters`. The runner will fill in `id` and run state.
+**Loading** — Pass `initialTestCases` with an array of test cases (e.g. from your backend or a file). You can use the full `TestCase` shape or a minimal one: `question` and `expectedOutcome`. The runner will fill in `id` and run state.
 
 **Saving** — Set `useSave={true}` to show the Save button. When the user clicks it, the component emits a `save` event with `{ timestamp, testCases }`. Persist that in your backend (e.g. Firebase or your API). After the save completes, call `runnerRef.current.resetSavingState()` so the button leaves the loading state. If you don’t call it, a failsafe resets it after 10 seconds.
 

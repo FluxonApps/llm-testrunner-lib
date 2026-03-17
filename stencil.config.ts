@@ -25,9 +25,6 @@ export const config: Config = {
       stencilPackageName: 'llm-testrunner-components',
     }),
     {
-      type: 'docs-readme',
-    },
-    {
       type: 'www',
       serviceWorker: null,
     },

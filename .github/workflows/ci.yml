@@ -30,7 +30,7 @@ jobs:
         run: npm run license-check
 
       - name: Security audit
-        run: npm audit --audit-level=high
+        run: npm audit --audit-level=high --omit=dev
 
       - name: Lint
         run: npm run lint

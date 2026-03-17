@@ -10,14 +10,14 @@
 
 - **Test faster** — You get a complete test-runner UI (questions, expected outcomes, run one / run all, pass/fail, response times). No need to build tables, evaluation logic, or import/export from scratch.
 - **Stay in control** — The library never calls an LLM. You handle one event: we send you the prompt, you call your API and pass back the response (or an error). Works with any provider or local model.
-- **Match how you think** — Each test case can use a different evaluation: exact keywords, semantic similarity (meaning), ROUGE (word overlap / sequence), or BLEU (n-gram precision). Choose per test case.
+- **Match how you think** — Each expected-outcome field can use a different evaluation: exact keywords, semantic similarity (meaning), ROUGE (word overlap / sequence), or BLEU (n-gram precision). Choose per field.
 - **Fit your stack** — Load test cases from your backend or a JSON file. Optionally persist runs with a Save button that emits the current state so you can store it in Firebase, your API, or anywhere else.
 
 ---
 
 ## What you get
 
-- **Test case table** — Add, edit, delete test cases. Each test case has a question, configurable expected-outcome fields (single line, paragraph, keyword chips, dropdown), and evaluation approach (exact, semantic, ROUGE-1, ROUGE-L, BLEU).
+- **Test case table** — Add, edit, delete test cases. Each test case has a question, configurable expected-outcome fields (single line, paragraph, keyword chips, dropdown), and a per-field evaluation approach (exact, semantic, ROUGE-1, ROUGE-L, BLEU).
 - **Run one or run all** — Run a single test or batch with a configurable delay between API calls (rate limiting).
 - **Live results** — Pass/fail, keyword match count (e.g. X/Y found), and response time per test.
 - **Import / export** — Import a test suite from JSON. Export the current suite as JSON or export run results as CSV.
@@ -122,7 +122,7 @@ How you get the response is up to you: REST, SDK, or local inference. Same patte
 
 ## Loading and saving test cases
 
-**Loading** — Pass `initialTestCases` with an array of test cases (e.g. from your backend or a file). You can use the full `TestCase` shape or a minimal one: `question`, `expectedOutcome`, and optional `evaluationParameters`. The runner will fill in `id` and run state.
+**Loading** — Pass `initialTestCases` with an array of test cases (e.g. from your backend or a file). You can use the full `TestCase` shape or a minimal one: `question` and `expectedOutcome`. The runner will fill in `id` and run state.
 
 **Saving** — Set `useSave={true}` to show the Save button. When the user clicks it, the component emits a `save` event with `{ timestamp, testCases }`. Persist that in your backend (e.g. Firebase or your API). After the save completes, call `runnerRef.current.resetSavingState()` so the button leaves the loading state. If you don’t call it, a failsafe resets it after 10 seconds.
 
@@ -130,7 +130,7 @@ How you get the response is up to you: REST, SDK, or local inference. Same patte
 
 ## Evaluation: pick the right approach
 
-Each test case can use a different evaluation method. All of them compare the **expected** text (from your expected-outcome fields) to the **actual** LLM response. A test **passes only if every** expected keyword (or segment) is considered “matched” by that method.
+Each expected-outcome field can use a different evaluation method. All of them compare the **expected** text for that field to the **actual** LLM response. A test **passes only if every field** passes with its selected method.
 
 | Approach   | What it measures              | Good for                                      | Paraphrasing / synonyms | Speed        |
 | --------- | ----------------------------- | --------------------------------------------- | ------------------------ | ------------ |
@@ -140,7 +140,7 @@ Each test case can use a different evaluation method. All of them compare the **
 | **Semantic** | Meaning (embeddings + cosine) | Different words, same meaning                 | Yes                      | First run loads model |
 | **BLEU**  | N-gram precision (1–4)         | Translation-like or n-gram overlap             | Moderate                 | Fast         |
 
-- Set **per test case** via the dropdown in the UI, or via `evaluationParameters.approach` when you pass `initialTestCases`.
+- Set **per expected-outcome field** via the dropdown in the UI, or via each field’s `evaluationParameters.approach` when you pass `initialTestCases`.
 - **ROUGE, BLEU, and Semantic** use a fixed threshold (0.7).
 - **Semantic** uses in-browser embeddings ([Xenova/all-MiniLM-L6-v2](https://huggingface.co/Xenova/all-MiniLM-L6-v2)). The first time you use it, the model is downloaded; later runs are faster.
 

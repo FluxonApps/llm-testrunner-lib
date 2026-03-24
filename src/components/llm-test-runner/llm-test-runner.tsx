@@ -56,6 +56,7 @@ export class LLMTestRunner {
   @Event() save: EventEmitter<SavePayload>;
   @Prop() delayMs?: number = 500;
   @Prop() useSave?: boolean = false;
+  @Prop() usePromptEditor?: boolean = false;
   @Prop() initialTestCases?: TestCase[];
   @Prop() defaultExpectedOutcomeSchema?: ExpectedOutcomeSchema;
   @State() testCases: TestCase[] = [
@@ -327,6 +328,7 @@ export class LLMTestRunner {
           isRunningAll={this.isRunningAll}
           useSave={this.useSave}
           isSaving={this.isSaving}
+          usePromptEditor={this.usePromptEditor}
           onImport={file => this.handleImport(file)}
           onExportSuite={() => this.handleExportTestSuite()}
           onExportResults={() => this.handleExportTestResults()}

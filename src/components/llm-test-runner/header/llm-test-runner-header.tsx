@@ -7,6 +7,7 @@ export interface LLMTestRunnerHeaderProps {
   isRunningAll: boolean;
   useSave?: boolean;
   isSaving?: boolean;
+  usePromptEditor?: boolean;
   onImport: (file: File) => void;
   onExportSuite: () => void;
   onExportResults: () => void;
@@ -22,6 +23,7 @@ export const LLMTestRunnerHeader: FunctionalComponent<
   isRunningAll,
   useSave = false,
   isSaving = false,
+  usePromptEditor = false,
   onImport,
   onExportSuite,
   onExportResults,
@@ -74,9 +76,11 @@ export const LLMTestRunnerHeader: FunctionalComponent<
       </div>
 
       <div class="test-runner-header__right">
-        <Button variant="secondary" size="md" icon="⚙️">
-          Prompt Editor
-        </Button>
+        {usePromptEditor && (
+          <Button variant="secondary" size="md" icon="⚙️">
+            Prompt Editor
+          </Button>
+        )}
         <Button
           variant="secondary"
           size="md"

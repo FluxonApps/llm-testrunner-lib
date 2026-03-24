@@ -25,6 +25,9 @@ export class SemanticEvaluator {
   async performEvaluation(
     request: EvaluationRequest,
   ): Promise<EvaluationResult> {
+    const threshold =
+      request.evaluationParameters?.threshold ?? DEFAULT_SEMANTIC_PASS_SCORE;
+
     try {
       await this.initialize();
 
@@ -40,7 +43,7 @@ export class SemanticEvaluator {
         SemanticEvaluator.extractor,
         request.actualResponse,
         expectedKeywords,
-        DEFAULT_SEMANTIC_PASS_SCORE,
+        threshold,
       );
 
       const totalItems = keywordMatches.length;
@@ -54,7 +57,7 @@ export class SemanticEvaluator {
 
       const evaluationParameters = {
         approach: EvaluationApproach.SEMANTIC,
-        threshold: DEFAULT_SEMANTIC_PASS_SCORE,
+        threshold,
       } as EvaluationParameters;
 
       return {
@@ -76,7 +79,7 @@ export class SemanticEvaluator {
         keywordMatches: [],
         evaluationParameters: {
           approach: EvaluationApproach.SEMANTIC,
-          threshold: DEFAULT_SEMANTIC_PASS_SCORE,
+          threshold,
         },
         evaluationApproachResult: {
           score: 0,

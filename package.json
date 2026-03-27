@@ -17,6 +17,10 @@
     "./react/types": {
       "types": "./dist/types/index.d.ts"
     },
+    "./schema": {
+      "import": "./dist/collection/schemas/expected-outcome.js",
+      "types": "./dist/types/schemas/expected-outcome.d.ts"
+    },
     "././dist/components/*": {
       "import": "./dist/components/*",
       "require": "./dist/components/*",

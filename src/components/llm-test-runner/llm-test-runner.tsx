@@ -126,6 +126,11 @@ export class LLMTestRunner {
     this.isSaving = false;
   }
 
+  @Method()
+  async getTestCases(): Promise<TestCase[]> {
+    return this.testCases;
+  }
+
   private handleTestCaseChange = (
     event: CustomEvent<{ testCaseId: string; key: string; value: string }>,
   ) => {

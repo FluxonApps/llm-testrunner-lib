@@ -91,7 +91,7 @@ function createExpectedOutcomeFieldFromSchema(
         type: 'select',
         label: schemaField.label,
         placeholder: schemaField.placeholder,
-        value: '',
+        value: schemaField.options[0],
         options: schemaField.options,
         evaluationParameters: normalizeEvaluationParametersForField(
           schemaField.type,

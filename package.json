@@ -1,6 +1,6 @@
 {
   "name": "llm-testrunner-components",
-  "version": "1.2.1",
+  "version": "1.2.2",
   "description": "A Stencil web component library for LLM test runner functionality",
   "main": "dist/index.cjs.js",
   "module": "dist/index.js",
@@ -16,6 +16,10 @@
     },
     "./react/types": {
       "types": "./dist/types/index.d.ts"
+    },
+    "./schema": {
+      "import": "./dist/collection/schemas/expected-outcome.js",
+      "types": "./dist/types/schemas/expected-outcome.d.ts"
     },
     "././dist/components/*": {
       "import": "./dist/components/*",

@@ -1,6 +1,7 @@
 import type { TestCase } from './test-case';
 
 export type {
+  ExpectedOutcomeMode,
   ExpectedOutcomeFieldType,
   ExpectedOutcomeBase,
   ExpectedOutcomeSchema,

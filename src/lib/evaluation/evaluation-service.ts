@@ -31,17 +31,25 @@ export class EvaluationService {
       return;
     }
 
-    const fields: FieldEvaluationInput[] = (testCase.expectedOutcome || []).map(
-      (field, index) => ({
-        index,
-        label: field.label,
-        type: field.type,
-        expectedValue: getFieldExpectedValue(field),
-        evaluationParameters: normalizeEvaluationParametersForField(
-          field.type,
-          field.evaluationParameters,
-        ),
-      }),
+    const fields: FieldEvaluationInput[] = (testCase.expectedOutcome || []).flatMap(
+      (field, index) => {
+        if (field.type === 'textarea' && field.outcomeMode === 'dynamic') {
+          return [];
+        }
+
+        return [
+          {
+            index,
+            label: field.label,
+            type: field.type,
+            expectedValue: getFieldExpectedValue(field),
+            evaluationParameters: normalizeEvaluationParametersForField(
+              field.type,
+              field.evaluationParameters,
+            ),
+          },
+        ];
+      },
     );
 
     const evaluationRequest: EvaluationRequestV2 = {

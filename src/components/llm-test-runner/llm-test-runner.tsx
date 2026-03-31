@@ -26,6 +26,10 @@ import {
   createTestCaseFromInput,
   DEFAULT_EXPECTED_OUTCOME_SCHEMA,
 } from '../../lib/test-cases/test-case-factory';
+import {
+  type ResolveExpectedOutcomeFn,
+  resolveDynamicExpectedOutcomesForRun,
+} from '../../lib/test-cases/dynamic-expected-outcome-resolver';
 import * as TestCaseMutations from '../../lib/test-cases/test-case-mutations';
 import { EvaluationService } from '../../lib/evaluation/evaluation-service';
 import { validateTestCaseInputArray } from '../../schemas/test-case';
@@ -57,6 +61,7 @@ export class LLMTestRunner {
   @Prop() delayMs?: number = 500;
   @Prop() useSave?: boolean = false;
   @Prop() usePromptEditor?: boolean = false;
+  @Prop() resolveExpectedOutcome?: ResolveExpectedOutcomeFn;
   @Prop() initialTestCases?: TestCase[];
   @Prop() defaultExpectedOutcomeSchema?: ExpectedOutcomeSchema;
   @State() testCases: TestCase[] = [
@@ -159,6 +164,22 @@ export class LLMTestRunner {
     );
   }
 
+  private buildBaseRunTestCase(
+    testCase: TestCase,
+    aiResponse: string,
+    startTime: number,
+  ): { baseTestCase: TestCase; responseTime: number } {
+    const responseTime = Date.now() - startTime;
+    return {
+      baseTestCase: {
+        ...testCase,
+        output: aiResponse,
+        responseTime,
+      },
+      responseTime,
+    };
+  }
+
   private async runSingleTest(testCase: TestCase): Promise<void> {
     const startTime = Date.now();
     this.updateTestCase(testCase.id, { isRunning: true });
@@ -166,21 +187,40 @@ export class LLMTestRunner {
       this.llmRequest.emit({
         prompt: testCase.question,
         resolve: async (aiResponse: string) => {
-          const endTime = Date.now();
-          const responseTime = endTime - startTime;
-          this.updateTestCase(testCase.id, {
-            isRunning: false,
-            output: aiResponse,
-            error: null,
-            responseTime: responseTime,
-          });
+          const { baseTestCase, responseTime } = this.buildBaseRunTestCase(
+            testCase,
+            aiResponse,
+            startTime,
+          );
+          try {
+            const resolvedTestCase = await resolveDynamicExpectedOutcomesForRun(
+              baseTestCase,
+              this.resolveExpectedOutcome,
+            );
 
-          await this.evaluateResponse({
-            ...testCase,
-            output: aiResponse,
-            responseTime: responseTime,
-          });
-          resolve();
+            this.updateTestCase(testCase.id, {
+              isRunning: false,
+              output: aiResponse,
+              error: null,
+              responseTime,
+              expectedOutcome: resolvedTestCase.expectedOutcome,
+            });
+
+            await this.evaluateResponse(resolvedTestCase);
+            resolve();
+          } catch (error) {
+            this.updateTestCase(testCase.id, {
+              isRunning: false,
+              output: aiResponse,
+              error:
+                error instanceof Error
+                  ? error.message
+                  : 'Failed to resolve dynamic expected outcome.',
+              responseTime,
+            });
+            reject(error);
+            return;
+          }
         },
         reject: (error: Error | unknown) => {
           this.updateTestCase(testCase.id, {

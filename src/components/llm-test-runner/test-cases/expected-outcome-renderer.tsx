@@ -1,6 +1,7 @@
 import { h, FunctionalComponent } from '@stencil/core';
 import {
   ExpectedOutcomeField,
+  type ExpectedOutcomeMode,
 } from '../../../types/llm-test-runner';
 import { ChipsConfig, FormFieldType, SelectConfig, TextAreaConfig } from '../../../lib/form/schema';
 import {
@@ -44,6 +45,25 @@ export const ExpectedOutcomeRenderer: FunctionalComponent<ExpectedOutcomeRendere
     defaultValue: EvaluationApproach.EXACT,
   });
 
+  const buildOutcomeModeConfig = (index: number): SelectConfig => ({
+    name: `expectedOutcomeMode-${index}`,
+    fieldType: FormFieldType.SELECT,
+    label: 'Outcome Mode',
+    placeholder: 'Select outcome mode',
+    required: true,
+    optionList: ['static', 'dynamic'],
+    defaultValue: 'static',
+  });
+
+  const buildResolutionQueryConfig = (index: number): TextAreaConfig => ({
+    name: `expectedOutcomeResolutionQuery-${index}`,
+    fieldType: FormFieldType.TEXT_AREA,
+    label: 'Resolution Query',
+    placeholder: 'Query used to resolve expected value',
+    required: false,
+    rows: 2,
+  });
+
   const renderEvaluationSelector = (
     field: ExpectedOutcomeField,
     index: number,
@@ -70,12 +90,14 @@ export const ExpectedOutcomeRenderer: FunctionalComponent<ExpectedOutcomeRendere
     <div class="expected-outcome-renderer">
       {(fields || []).map((field, index) => {
         if (field.type === 'textarea') {
+          const isDynamic = field.outcomeMode === 'dynamic';
           const config: TextAreaConfig = {
             name: `expectedOutcome-${index}`,
             fieldType: FormFieldType.TEXT_AREA,
             label: field.label,
-            placeholder: field.placeholder,
-            required: true,
+            placeholder: isDynamic ? 'Resolved on run' : field.placeholder,
+            required: !isDynamic,
+            readOnly: isDynamic,
             rows: field.rows || 2,
           };
           return (
@@ -92,6 +114,32 @@ export const ExpectedOutcomeRenderer: FunctionalComponent<ExpectedOutcomeRendere
                   })
                 }
               />
+              <app-select
+                config={buildOutcomeModeConfig(index)}
+                value={field.outcomeMode || 'static'}
+                onValueChange={(e) =>
+                  emit({
+                    testCaseId,
+                    index,
+                    operation: 'set-outcome-mode',
+                    value: e.detail.value as ExpectedOutcomeMode,
+                  })
+                }
+              />
+              {field.outcomeMode === 'dynamic' && (
+                <app-textarea
+                  config={buildResolutionQueryConfig(index)}
+                  value={field.resolutionQuery || ''}
+                  onValueChange={(e) =>
+                    emit({
+                      testCaseId,
+                      index,
+                      operation: 'set-resolution-query',
+                      value: e.detail.value,
+                    })
+                  }
+                />
+              )}
               {renderEvaluationSelector(field, index)}
             </div>
           );

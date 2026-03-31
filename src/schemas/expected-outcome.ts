@@ -8,6 +8,9 @@ const optionalString = z.string().optional();
 const selectOptionsSchema = z.array(nonEmptyString).min(1);
 const optionalNumber = z.number().optional();
 
+export const expectedOutcomeModeSchema = z.enum(['static', 'dynamic']);
+export type ExpectedOutcomeMode = z.infer<typeof expectedOutcomeModeSchema>;
+
 const evaluationParametersSchema = z.object({
   approach: z.enum(EvaluationApproach),
   threshold: optionalNumber,
@@ -85,6 +88,8 @@ export const expectedOutcomeFieldSchema = z.discriminatedUnion('type', [
   }),
   defaultFieldDefinitions.textarea.extend({
     value: z.string(),
+    outcomeMode: expectedOutcomeModeSchema.default('static'),
+    resolutionQuery: z.string().optional(),
   }),
   defaultFieldDefinitions.chipsInput.extend({
     value: z.array(z.string()).superRefine((values, ctx) => {
@@ -118,7 +123,7 @@ export type ExpectedOutcomeSchemaField = z.infer<
   typeof expectedOutcomeSchemaFieldSchema
 >;
 export type ExpectedOutcomeSchema = z.infer<typeof expectedOutcomeSchemaSchema>;
-export type ExpectedOutcomeField = z.infer<typeof expectedOutcomeFieldSchema>;
+export type ExpectedOutcomeField = z.input<typeof expectedOutcomeFieldSchema>;
 export type ExpectedOutcomeFieldType = ExpectedOutcomeField['type'];
 export type ExpectedOutcomeBase = z.infer<typeof defaultExpectedOutcomeBaseSchema>;
 

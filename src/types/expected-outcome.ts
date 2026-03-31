@@ -1,4 +1,5 @@
 export type {
+  ExpectedOutcomeMode,
   ExpectedOutcomeSchemaField,
   ExpectedOutcomeSchema,
   ExpectedOutcomeField,

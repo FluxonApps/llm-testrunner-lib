@@ -21,8 +21,8 @@ export const testCaseSchema = z.object({
   responseTime: z.number().optional(),
 });
 
-export type TestCaseInput = z.infer<typeof testCaseInputSchema>;
-export type TestCase = z.infer<typeof testCaseSchema>;
+export type TestCaseInput = z.input<typeof testCaseInputSchema>;
+export type TestCase = z.input<typeof testCaseSchema>;
 
 export function validateTestCaseInput(
   data: unknown,

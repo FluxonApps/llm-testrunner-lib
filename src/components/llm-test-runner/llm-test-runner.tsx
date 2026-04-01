@@ -27,8 +27,8 @@ import {
   DEFAULT_EXPECTED_OUTCOME_SCHEMA,
 } from '../../lib/test-cases/test-case-factory';
 import {
-  type ResolveExpectedOutcomeFn,
-  resolveDynamicExpectedOutcomesForRun,
+  type ExpectedOutcomeResolver,
+  resolveDynamicExpectedOutcomes,
 } from '../../lib/test-cases/dynamic-expected-outcome-resolver';
 import * as TestCaseMutations from '../../lib/test-cases/test-case-mutations';
 import { EvaluationService } from '../../lib/evaluation/evaluation-service';
@@ -61,7 +61,7 @@ export class LLMTestRunner {
   @Prop() delayMs?: number = 500;
   @Prop() useSave?: boolean = false;
   @Prop() usePromptEditor?: boolean = false;
-  @Prop() resolveExpectedOutcome?: ResolveExpectedOutcomeFn;
+  @Prop() resolveExpectedOutcome?: ExpectedOutcomeResolver;
   @Prop() initialTestCases?: TestCase[];
   @Prop() defaultExpectedOutcomeSchema?: ExpectedOutcomeSchema;
   @State() testCases: TestCase[] = [
@@ -187,7 +187,7 @@ export class LLMTestRunner {
     this.updateTestCase(testCase.id, { isRunning: true });
     const [llmSettled, resolutionSettled] = await Promise.allSettled([
       this.requestLlmText(testCase),
-      resolveDynamicExpectedOutcomesForRun(testCase, this.resolveExpectedOutcome),
+      resolveDynamicExpectedOutcomes(testCase, this.resolveExpectedOutcome),
     ]);
 
     const responseTime = Date.now() - startTime;

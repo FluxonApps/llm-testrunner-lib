@@ -4,7 +4,7 @@ import {
   TextareaExpectedOutcomeField,
 } from '../../types/llm-test-runner';
 
-export type ResolveExpectedOutcomeFn = (
+export type ExpectedOutcomeResolver = (
   resolutionQuery: string,
   context: { testCase: TestCase; fieldIndex: number },
 ) => Promise<string>;
@@ -48,7 +48,7 @@ function applyResolvedDynamicValues(
 
 export async function resolveDynamicExpectedOutcomes(
   testCase: TestCase,
-  resolver?: ResolveExpectedOutcomeFn,
+  resolver?: ExpectedOutcomeResolver,
 ): Promise<TestCase> {
   const dynamicFields = (testCase.expectedOutcome || []).flatMap((field, index) => {
     if (!isDynamicTextareaField(field)) {
@@ -76,11 +76,4 @@ export async function resolveDynamicExpectedOutcomes(
   );
 
   return applyResolvedDynamicValues(testCase, resolvedValues);
-}
-
-export async function resolveDynamicExpectedOutcomesForRun(
-  baseTestCase: TestCase,
-  resolveExpectedOutcome?: ResolveExpectedOutcomeFn,
-): Promise<TestCase> {
-  return resolveDynamicExpectedOutcomes(baseTestCase, resolveExpectedOutcome);
 }

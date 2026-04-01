@@ -86,11 +86,24 @@ export const expectedOutcomeFieldSchema = z.discriminatedUnion('type', [
   defaultFieldDefinitions.text.extend({
     value: z.string(),
   }),
-  defaultFieldDefinitions.textarea.extend({
-    value: z.string(),
-    outcomeMode: expectedOutcomeModeSchema.default('static'),
-    resolutionQuery: z.string().optional(),
-  }),
+  defaultFieldDefinitions.textarea
+    .extend({
+      value: z.string(),
+      outcomeMode: expectedOutcomeModeSchema.default('static'),
+      resolutionQuery: z.string().optional(),
+    })
+    .superRefine((field, ctx) => {
+      if (
+        field.outcomeMode === 'dynamic' &&
+        (!field.resolutionQuery || field.resolutionQuery.trim().length === 0)
+      ) {
+        ctx.addIssue({
+          code: 'custom',
+          path: ['resolutionQuery'],
+          message: 'resolutionQuery is required when outcomeMode is dynamic.',
+        });
+      }
+    }),
   defaultFieldDefinitions.chipsInput.extend({
     value: z.array(z.string()).superRefine((values, ctx) => {
       if (hasDuplicateChips(values)) {

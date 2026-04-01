@@ -384,6 +384,7 @@ export class LLMTestRunner {
         <div class="test-runner-container__content">
           <LLMTestCases
             testCases={this.testCases}
+            dynamicResolutionSupported={!!this.resolveExpectedOutcome}
             onRun={testCase => this.runSingleTest(testCase).catch(() => {})}
             onDelete={id => this.deleteTestCase(id)}
             onAddTestCase={() => this.addNewTestCase()}

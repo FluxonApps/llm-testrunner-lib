@@ -35,7 +35,12 @@ export class AppTextarea {
     };
 
     return (
-      <div class="textarea-wrapper">
+      <div
+        class={{
+          'textarea-wrapper': true,
+          'textarea-wrapper--read-only': !!c.readOnly,
+        }}
+      >
         {c.label && (
           <label class="textarea-label" htmlFor={c.name}>
             {c.label}

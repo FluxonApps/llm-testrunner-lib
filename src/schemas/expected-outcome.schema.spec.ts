@@ -33,4 +33,17 @@ describe('expected outcome schemas', () => {
       'SELECT name FROM students WHERE student_id = 1',
     );
   });
+
+  it('rejects dynamic textarea with empty resolutionQuery', () => {
+    const parsed = expectedOutcomeFieldSchema.safeParse({
+      type: 'textarea' as const,
+      label: 'Expected Outcome',
+      value: '',
+      outcomeMode: 'dynamic',
+      resolutionQuery: '   ',
+    });
+
+    expect(parsed.success).toBe(false);
+    expect(parsed.error.issues[0].path).toEqual(['resolutionQuery']);
+  });
 });

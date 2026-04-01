@@ -9,6 +9,9 @@ export type ResolveExpectedOutcomeFn = (
   context: { testCase: TestCase; fieldIndex: number },
 ) => Promise<string>;
 
+export const MISSING_RESOLVER_MESSAGE =
+  'resolveExpectedOutcome is required when a test case has dynamic expected outcomes.';
+
 type ResolvedDynamicValue = { index: number; value: string };
 
 function isDynamicTextareaField(
@@ -47,10 +50,6 @@ export async function resolveDynamicExpectedOutcomes(
   testCase: TestCase,
   resolver?: ResolveExpectedOutcomeFn,
 ): Promise<TestCase> {
-  if (!resolver) {
-    return testCase;
-  }
-
   const dynamicFields = (testCase.expectedOutcome || []).flatMap((field, index) => {
     if (!isDynamicTextareaField(field)) {
       return [];
@@ -60,6 +59,10 @@ export async function resolveDynamicExpectedOutcomes(
 
   if (dynamicFields.length === 0) {
     return testCase;
+  }
+
+  if (!resolver) {
+    throw new Error(MISSING_RESOLVER_MESSAGE);
   }
 
   const resolvedValues = await Promise.all(

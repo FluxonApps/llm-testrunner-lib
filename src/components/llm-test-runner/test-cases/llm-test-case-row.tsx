@@ -11,6 +11,7 @@ import {
 
 export interface LLMTestCaseRowProps {
   testCase: TestCase;
+  dynamicResolutionSupported?: boolean;
   onRun: (testCase: TestCase) => void;
   onDelete: (id: string) => void;
   handleTestCaseChange: (
@@ -23,6 +24,7 @@ export interface LLMTestCaseRowProps {
 
 export const LLMTestCaseRow: FunctionalComponent<LLMTestCaseRowProps> = ({
   testCase,
+  dynamicResolutionSupported = false,
   onRun,
   onDelete,
   handleTestCaseChange,
@@ -56,6 +58,7 @@ export const LLMTestCaseRow: FunctionalComponent<LLMTestCaseRowProps> = ({
         <ExpectedOutcomeRenderer
           testCaseId={testCase.id}
           fields={testCase.expectedOutcome || []}
+          dynamicResolutionSupported={dynamicResolutionSupported}
           onExpectedOutcomeChange={onExpectedOutcomeChange}
         />
       </div>

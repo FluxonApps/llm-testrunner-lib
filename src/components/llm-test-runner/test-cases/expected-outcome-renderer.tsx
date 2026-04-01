@@ -149,7 +149,7 @@ export const ExpectedOutcomeRenderer: FunctionalComponent<ExpectedOutcomeRendere
                     }
                   />
                 )}
-              {renderEvaluationSelector(field, index)}
+              {!isDynamic && renderEvaluationSelector(field, index)}
             </div>
           );
         }

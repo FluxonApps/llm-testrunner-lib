@@ -91,7 +91,7 @@ export function applyExpectedOutcomeChange(
       }
       const mode = change.value;
       if (mode === 'static') {
-        const { resolutionQuery: _removed, ...rest } = target;
+        const { resolutionQuery: _, ...rest } = target;
         expectedOutcome[index] = {
           ...rest,
           outcomeMode: 'static',

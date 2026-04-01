@@ -128,7 +128,7 @@ describe('LLMTestRunner', () => {
     expect(mockEvaluateTestCase).not.toHaveBeenCalled();
   });
 
-  it('resolves dynamic expected outcome before evaluation', async () => {
+  it('resolves dynamic expected outcome in parallel with LLM, then evaluates', async () => {
     const dynamicCase: TestCase = {
       ...mockTestCase,
       expectedOutcome: [
@@ -158,13 +158,14 @@ describe('LLMTestRunner', () => {
     await page.waitForChanges();
 
     const eventPayload = getFirstEventFromSpy(llmRequestSpy).detail;
+    expect(resolveExpectedOutcome).toHaveBeenCalled();
     await eventPayload.resolve('Model response');
     await page.waitForChanges();
 
     expect(resolveExpectedOutcome).toHaveBeenCalledWith('$.expected.answer', {
       testCase: expect.objectContaining({
         id: dynamicCase.id,
-        output: 'Model response',
+        question: dynamicCase.question,
       }),
       fieldIndex: 0,
     });

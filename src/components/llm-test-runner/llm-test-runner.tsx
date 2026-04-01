@@ -164,74 +164,74 @@ export class LLMTestRunner {
     );
   }
 
-  private buildBaseRunTestCase(
-    testCase: TestCase,
-    aiResponse: string,
-    startTime: number,
-  ): { baseTestCase: TestCase; responseTime: number } {
-    const responseTime = Date.now() - startTime;
-    return {
-      baseTestCase: {
-        ...testCase,
-        output: aiResponse,
-        responseTime,
-      },
-      responseTime,
-    };
+  private requestLlmText(testCase: TestCase): Promise<string> {
+    return new Promise((resolve, reject) => {
+      this.llmRequest.emit({
+        prompt: testCase.question,
+        resolve,
+        reject,
+      });
+    });
+  }
+
+  private throwError(reason: unknown): never {
+    throw reason instanceof Error ? reason : new Error(String(reason));
+  }
+
+  private addErrorMessage(reason: unknown, fallback: string): string {
+    return reason instanceof Error ? reason.message : fallback;
   }
 
   private async runSingleTest(testCase: TestCase): Promise<void> {
     const startTime = Date.now();
     this.updateTestCase(testCase.id, { isRunning: true });
-    return new Promise<void>((resolve, reject) => {
-      this.llmRequest.emit({
-        prompt: testCase.question,
-        resolve: async (aiResponse: string) => {
-          const { baseTestCase, responseTime } = this.buildBaseRunTestCase(
-            testCase,
-            aiResponse,
-            startTime,
-          );
-          try {
-            const resolvedTestCase = await resolveDynamicExpectedOutcomesForRun(
-              baseTestCase,
-              this.resolveExpectedOutcome,
-            );
+    const [llmSettled, resolutionSettled] = await Promise.allSettled([
+      this.requestLlmText(testCase),
+      resolveDynamicExpectedOutcomesForRun(testCase, this.resolveExpectedOutcome),
+    ]);
 
-            this.updateTestCase(testCase.id, {
-              isRunning: false,
-              output: aiResponse,
-              error: null,
-              responseTime,
-              expectedOutcome: resolvedTestCase.expectedOutcome,
-            });
+    const responseTime = Date.now() - startTime;
 
-            await this.evaluateResponse(resolvedTestCase);
-            resolve();
-          } catch (error) {
-            this.updateTestCase(testCase.id, {
-              isRunning: false,
-              output: aiResponse,
-              error:
-                error instanceof Error
-                  ? error.message
-                  : 'Failed to resolve dynamic expected outcome.',
-              responseTime,
-            });
-            reject(error);
-            return;
-          }
-        },
-        reject: (error: Error | unknown) => {
-          this.updateTestCase(testCase.id, {
-            isRunning: false,
-            output: null,
-            error: error instanceof Error ? error.message : 'Unknown error',
-          });
-          reject(error);
-        },
+    if (llmSettled.status === 'rejected') {
+      this.updateTestCase(testCase.id, {
+        isRunning: false,
+        output: null,
+        error: this.addErrorMessage(llmSettled.reason, 'Unknown error'),
+        responseTime,
       });
+      this.throwError(llmSettled.reason);
+    }
+    const aiResponse = llmSettled.value;
+
+    if (resolutionSettled.status === 'rejected') {
+      this.updateTestCase(testCase.id, {
+        isRunning: false,
+        output: aiResponse,
+        error: this.addErrorMessage(
+          resolutionSettled.reason,
+          'Failed to resolve dynamic expected outcome.',
+        ),
+        responseTime,
+      });
+      this.throwError(resolutionSettled.reason);
+    }
+    const resolvedTestCase = resolutionSettled.value;
+
+    const forEvaluationTestCase: TestCase = {
+      ...resolvedTestCase,
+      output: aiResponse,
+      responseTime,
+    };
+
+    this.updateTestCase(testCase.id, {
+      isRunning: false,
+      output: aiResponse,
+      error: null,
+      responseTime,
+      expectedOutcome: forEvaluationTestCase.expectedOutcome,
     });
+
+    await this.evaluateResponse(forEvaluationTestCase);
   }
 
   private deleteTestCase(id: string) {

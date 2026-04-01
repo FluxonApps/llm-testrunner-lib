@@ -22,7 +22,8 @@ module.exports = {
       "error",
       {
         argsIgnorePattern: "^_",
-        varsIgnorePattern: "^h$", // Allow unused 'h' import for Stencil JSX
+        // Stencil JSX import `h`; omit bindings like `_` / `_removed` in destructuring
+        varsIgnorePattern: "^(_.*|h)$",
       },
     ],
     "@typescript-eslint/no-explicit-any": "warn",
@@ -61,7 +62,7 @@ module.exports = {
           "error",
           {
             argsIgnorePattern: "^_",
-            varsIgnorePattern: "^h$",
+            varsIgnorePattern: "^(_.*|h)$", // Stencil `h`; `_` / `_foo` omit bindings
           },
         ],
       },

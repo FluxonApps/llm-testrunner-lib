@@ -26,6 +26,10 @@ import {
   createTestCaseFromInput,
   DEFAULT_EXPECTED_OUTCOME_SCHEMA,
 } from '../../lib/test-cases/test-case-factory';
+import {
+  type ExpectedOutcomeResolver,
+  resolveDynamicExpectedOutcomes,
+} from '../../lib/test-cases/dynamic-expected-outcome-resolver';
 import * as TestCaseMutations from '../../lib/test-cases/test-case-mutations';
 import { EvaluationService } from '../../lib/evaluation/evaluation-service';
 import { validateTestCaseInputArray } from '../../schemas/test-case';
@@ -57,6 +61,7 @@ export class LLMTestRunner {
   @Prop() delayMs?: number = 500;
   @Prop() useSave?: boolean = false;
   @Prop() usePromptEditor?: boolean = false;
+  @Prop() resolveExpectedOutcome?: ExpectedOutcomeResolver;
   @Prop() initialTestCases?: TestCase[];
   @Prop() defaultExpectedOutcomeSchema?: ExpectedOutcomeSchema;
   @State() testCases: TestCase[] = [
@@ -159,39 +164,74 @@ export class LLMTestRunner {
     );
   }
 
+  private requestLlmText(testCase: TestCase): Promise<string> {
+    return new Promise((resolve, reject) => {
+      this.llmRequest.emit({
+        prompt: testCase.question,
+        resolve,
+        reject,
+      });
+    });
+  }
+
+  private throwError(reason: unknown): never {
+    throw reason instanceof Error ? reason : new Error(String(reason));
+  }
+
+  private addErrorMessage(reason: unknown, fallback: string): string {
+    return reason instanceof Error ? reason.message : fallback;
+  }
+
   private async runSingleTest(testCase: TestCase): Promise<void> {
     const startTime = Date.now();
     this.updateTestCase(testCase.id, { isRunning: true });
-    return new Promise<void>((resolve, reject) => {
-      this.llmRequest.emit({
-        prompt: testCase.question,
-        resolve: async (aiResponse: string) => {
-          const endTime = Date.now();
-          const responseTime = endTime - startTime;
-          this.updateTestCase(testCase.id, {
-            isRunning: false,
-            output: aiResponse,
-            error: null,
-            responseTime: responseTime,
-          });
+    const [llmSettled, resolutionSettled] = await Promise.allSettled([
+      this.requestLlmText(testCase),
+      resolveDynamicExpectedOutcomes(testCase, this.resolveExpectedOutcome),
+    ]);
 
-          await this.evaluateResponse({
-            ...testCase,
-            output: aiResponse,
-            responseTime: responseTime,
-          });
-          resolve();
-        },
-        reject: (error: Error | unknown) => {
-          this.updateTestCase(testCase.id, {
-            isRunning: false,
-            output: null,
-            error: error instanceof Error ? error.message : 'Unknown error',
-          });
-          reject(error);
-        },
+    const responseTime = Date.now() - startTime;
+
+    if (llmSettled.status === 'rejected') {
+      this.updateTestCase(testCase.id, {
+        isRunning: false,
+        output: null,
+        error: this.addErrorMessage(llmSettled.reason, 'Unknown error'),
+        responseTime,
       });
+      this.throwError(llmSettled.reason);
+    }
+    const aiResponse = llmSettled.value;
+
+    if (resolutionSettled.status === 'rejected') {
+      this.updateTestCase(testCase.id, {
+        isRunning: false,
+        output: aiResponse,
+        error: this.addErrorMessage(
+          resolutionSettled.reason,
+          'Failed to resolve dynamic expected outcome.',
+        ),
+        responseTime,
+      });
+      this.throwError(resolutionSettled.reason);
+    }
+    const resolvedTestCase = resolutionSettled.value;
+
+    const forEvaluationTestCase: TestCase = {
+      ...resolvedTestCase,
+      output: aiResponse,
+      responseTime,
+    };
+
+    this.updateTestCase(testCase.id, {
+      isRunning: false,
+      output: aiResponse,
+      error: null,
+      responseTime,
+      expectedOutcome: forEvaluationTestCase.expectedOutcome,
     });
+
+    await this.evaluateResponse(forEvaluationTestCase);
   }
 
   private deleteTestCase(id: string) {
@@ -344,6 +384,7 @@ export class LLMTestRunner {
         <div class="test-runner-container__content">
           <LLMTestCases
             testCases={this.testCases}
+            dynamicResolutionSupported={!!this.resolveExpectedOutcome}
             onRun={testCase => this.runSingleTest(testCase).catch(() => {})}
             onDelete={id => this.deleteTestCase(id)}
             onAddTestCase={() => this.addNewTestCase()}

@@ -6,6 +6,7 @@ import { ExpectedOutcomeChangeDetail } from './expected-outcome-renderer';
 
 export interface LLMTestCasesProps {
   testCases: TestCase[];
+  dynamicResolutionSupported?: boolean;
   onRun: (testCase: TestCase) => void;
   onDelete: (id: string) => void;
   onAddTestCase: () => void;
@@ -19,6 +20,7 @@ export interface LLMTestCasesProps {
 
 export const LLMTestCases: FunctionalComponent<LLMTestCasesProps> = ({
   testCases,
+  dynamicResolutionSupported = false,
   onRun,
   onDelete,
   onAddTestCase,
@@ -37,6 +39,7 @@ export const LLMTestCases: FunctionalComponent<LLMTestCasesProps> = ({
       {testCases.map(testCase => (
         <LLMTestCaseRow
           testCase={testCase}
+          dynamicResolutionSupported={dynamicResolutionSupported}
           onRun={onRun}
           onDelete={onDelete}
           handleTestCaseChange={handleTestCaseChange}

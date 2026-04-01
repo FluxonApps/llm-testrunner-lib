@@ -10,6 +10,7 @@ import { newSpecPage } from '@stencil/core/testing';
 import { LLMTestRunner } from '../llm-test-runner';
 import { TestCase, LLMRequestPayload } from '../../../types/llm-test-runner';
 import { EvaluationService } from '../../../lib/evaluation/evaluation-service';
+import { MISSING_RESOLVER_MESSAGE } from '../../../lib/test-cases/dynamic-expected-outcome-resolver';
 
 describe('LLMTestRunner', () => {
   let page: Awaited<ReturnType<typeof newSpecPage>>;
@@ -124,6 +125,93 @@ describe('LLMTestRunner', () => {
 
     expect(page.rootInstance.testCases[0].isRunning).toBe(false);
     expect(page.rootInstance.testCases[0].error).toBe('API Error');
+    expect(mockEvaluateTestCase).not.toHaveBeenCalled();
+  });
+
+  it('resolves dynamic expected outcome in parallel with LLM, then evaluates', async () => {
+    const dynamicCase: TestCase = {
+      ...mockTestCase,
+      expectedOutcome: [
+        {
+          type: 'textarea',
+          label: 'Expected Outcome',
+          value: '',
+          outcomeMode: 'dynamic',
+          resolutionQuery: '$.expected.answer',
+        },
+      ],
+    };
+    page.rootInstance.testCases = [dynamicCase];
+    const resolveExpectedOutcome = jest
+      .fn()
+      .mockImplementation(async () => 'Resolved Expected Value');
+    page.rootInstance.resolveExpectedOutcome = resolveExpectedOutcome;
+    await page.waitForChanges();
+
+    const llmRequestSpy = jest.fn();
+    page.root.addEventListener('llmRequest', llmRequestSpy);
+
+    const runButton = page.root.shadowRoot.querySelector(
+      'button[title="Run this test"]',
+    ) as HTMLButtonElement;
+    runButton.click();
+    await page.waitForChanges();
+
+    const eventPayload = getFirstEventFromSpy(llmRequestSpy).detail;
+    expect(resolveExpectedOutcome).toHaveBeenCalled();
+    await eventPayload.resolve('Model response');
+    await page.waitForChanges();
+
+    expect(resolveExpectedOutcome).toHaveBeenCalledWith('$.expected.answer', {
+      testCase: expect.objectContaining({
+        id: dynamicCase.id,
+        question: dynamicCase.question,
+      }),
+      fieldIndex: 0,
+    });
+    expect(mockEvaluateTestCase).toHaveBeenCalledWith(
+      expect.objectContaining({
+        expectedOutcome: [
+          expect.objectContaining({
+            value: 'Resolved Expected Value',
+          }),
+        ],
+      }),
+      expect.any(Function),
+    );
+  });
+
+  it('fails run when dynamic expected outcome has no resolveExpectedOutcome prop', async () => {
+    const dynamicCase: TestCase = {
+      ...mockTestCase,
+      expectedOutcome: [
+        {
+          type: 'textarea',
+          label: 'Expected Outcome',
+          value: '',
+          outcomeMode: 'dynamic',
+          resolutionQuery: '$.expected.answer',
+        },
+      ],
+    };
+    page.rootInstance.testCases = [dynamicCase];
+    page.rootInstance.resolveExpectedOutcome = undefined;
+    await page.waitForChanges();
+
+    const llmRequestSpy = jest.fn();
+    page.root.addEventListener('llmRequest', llmRequestSpy);
+
+    const runButton = page.root.shadowRoot.querySelector(
+      'button[title="Run this test"]',
+    ) as HTMLButtonElement;
+    runButton.click();
+    await page.waitForChanges();
+
+    const eventPayload = getFirstEventFromSpy(llmRequestSpy).detail;
+    await eventPayload.resolve('Model response');
+    await page.waitForChanges();
+
+    expect(page.rootInstance.testCases[0].error).toBe(MISSING_RESOLVER_MESSAGE);
     expect(mockEvaluateTestCase).not.toHaveBeenCalled();
   });
 });

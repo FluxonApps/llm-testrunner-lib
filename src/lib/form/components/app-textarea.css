@@ -30,6 +30,23 @@
   box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
 }
 
+.textarea-wrapper--read-only .textarea-label {
+  color: var(--muted-foreground);
+}
+
+.textarea-element:read-only {
+  background: var(--muted);
+  color: var(--muted-foreground);
+  border-color: var(--border);
+  cursor: not-allowed;
+  resize: none;
+}
+
+.textarea-element:read-only:focus {
+  border-color: var(--border);
+  box-shadow: none;
+}
+
 .help-text {
   margin-top: var(--spacing-1);
   font-size: var(--font-size-xs);

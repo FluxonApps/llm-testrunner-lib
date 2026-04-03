@@ -176,11 +176,15 @@ export class LLMTestRunner {
 
   private requestLlmText(testCase: TestCase): Promise<string> {
     return new Promise((resolve, reject) => {
-      this.llmRequest.emit({
+      const payload: LLMRequestPayload = {
         prompt: testCase.question,
         resolve,
         reject,
-      });
+      };
+      if (testCase.chatHistory !== undefined) {
+        payload.chatHistory = testCase.chatHistory;
+      }
+      this.llmRequest.emit(payload);
     });
   }
 

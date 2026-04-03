@@ -23,6 +23,7 @@ export type {
 
 export interface LLMRequestPayload {
   prompt: string;
+  chatHistory?: string;
   resolve: (result: string) => void;
   reject: (err: Error | unknown) => void;
 }

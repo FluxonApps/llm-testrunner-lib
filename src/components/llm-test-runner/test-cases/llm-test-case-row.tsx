@@ -8,6 +8,11 @@ import {
   ExpectedOutcomeChangeDetail,
   ExpectedOutcomeRenderer,
 } from './expected-outcome-renderer';
+import type { ChatHistoryChangeDetail } from './chat-history';
+
+export type ChatHistoryRowChangeDetail = {
+  testCaseId: string;
+} & ChatHistoryChangeDetail;
 
 export interface LLMTestCaseRowProps {
   testCase: TestCase;
@@ -20,6 +25,7 @@ export interface LLMTestCaseRowProps {
   onExpectedOutcomeChange: (
     e: CustomEvent<ExpectedOutcomeChangeDetail>,
   ) => void;
+  onChatHistoryChange: (e: CustomEvent<ChatHistoryRowChangeDetail>) => void;
 }
 
 export const LLMTestCaseRow: FunctionalComponent<LLMTestCaseRowProps> = ({
@@ -29,6 +35,7 @@ export const LLMTestCaseRow: FunctionalComponent<LLMTestCaseRowProps> = ({
   onDelete,
   handleTestCaseChange,
   onExpectedOutcomeChange,
+  onChatHistoryChange,
 }) => {
   const questionConfig: TextAreaConfig = {
     name: 'question',
@@ -54,6 +61,19 @@ export const LLMTestCaseRow: FunctionalComponent<LLMTestCaseRowProps> = ({
               },
             } as CustomEvent<{ testCaseId: string; key: string; value: string }>)
           }
+        />
+        <chat-history
+          onChatHistoryChange={(e: Event) => {
+            const { enabled, value } = (e as CustomEvent<ChatHistoryChangeDetail>)
+              .detail;
+            onChatHistoryChange({
+              detail: {
+                testCaseId: testCase.id,
+                enabled,
+                value,
+              },
+            } as CustomEvent<ChatHistoryRowChangeDetail>);
+          }}
         />
         <ExpectedOutcomeRenderer
           testCaseId={testCase.id}

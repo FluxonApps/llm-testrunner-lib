@@ -37,6 +37,7 @@ import { validateExpectedOutcomeSchema } from '../../schemas/expected-outcome';
 import { LLMTestRunnerHeader } from './header/llm-test-runner-header';
 import { LLMTestCases } from './test-cases/llm-test-cases';
 import { ExpectedOutcomeChangeDetail } from './test-cases/expected-outcome-renderer';
+import type { ChatHistoryRowChangeDetail } from './test-cases/llm-test-case-row';
 
 @Component({
   tag: 'llm-test-runner',
@@ -143,6 +144,15 @@ export class LLMTestRunner {
     this.testCases = this.testCases.map(tc =>
       tc.id === testCaseId ? { ...tc, [key]: value } : tc,
     );
+  };
+
+  private handleChatHistoryChange = (
+    event: CustomEvent<ChatHistoryRowChangeDetail>,
+  ) => {
+    const { testCaseId, enabled, value } = event.detail;
+    this.updateTestCase(testCaseId, {
+      chatHistory: enabled ? value : undefined,
+    });
   };
 
   private addNewTestCase() {
@@ -390,6 +400,7 @@ export class LLMTestRunner {
             onAddTestCase={() => this.addNewTestCase()}
             handleTestCaseChange={this.handleTestCaseChange}
             onExpectedOutcomeChange={this.handleExpectedOutcomeChange}
+            onChatHistoryChange={this.handleChatHistoryChange}
           />
         </div>
       </div>

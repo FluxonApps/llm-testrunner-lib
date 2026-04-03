@@ -2,7 +2,6 @@ import {
   Component,
   Event,
   EventEmitter,
-  Prop,
   State,
   h,
 } from '@stencil/core';
@@ -18,19 +17,11 @@ export type ChatHistoryChangeDetail = {
   shadow: true,
 })
 export class ChatHistory {
-  @Prop() initialEnabled = false;
-  @Prop() initialValue = '';
-
-  @State() private enabled: boolean;
-  @State() private value: string;
+  @State() private enabled = false;
+  @State() private value = '';
 
   @Event({ bubbles: true, composed: true })
   chatHistoryChange: EventEmitter<ChatHistoryChangeDetail>;
-
-  componentWillLoad() {
-    this.enabled = this.initialEnabled;
-    this.value = this.initialValue;
-  }
 
   private emit() {
     this.chatHistoryChange.emit({

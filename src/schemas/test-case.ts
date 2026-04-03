@@ -14,6 +14,7 @@ export const testCaseSchema = z.object({
   id: z.string(),
   question: z.string(),
   expectedOutcome: expectedOutcomeArraySchema,
+  chatHistory: z.string().optional(),
   output: z.string().optional(),
   isRunning: z.boolean().optional(),
   error: z.string().optional(),

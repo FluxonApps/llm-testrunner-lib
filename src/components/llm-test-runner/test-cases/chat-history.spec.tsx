@@ -29,27 +29,42 @@ describe('ChatHistory', () => {
     expect(page.root.shadowRoot.querySelector('.chat-history__textarea')).toBeNull();
   });
 
-  it('renders the textarea when initialEnabled is true', async () => {
+  it('renders the textarea after the switch is turned on', async () => {
     const page = await newSpecPage({
       components: [ChatHistory],
-      html: '<chat-history initial-enabled></chat-history>',
+      html: '<chat-history></chat-history>',
     });
 
-    const textarea = page.root.shadowRoot.querySelector(
-      '.chat-history__textarea',
-    ) as HTMLTextAreaElement | null;
-    expect(textarea).not.toBeNull();
+    const input = page.root.shadowRoot.querySelector(
+      '.chat-history__switch-input',
+    ) as HTMLInputElement;
+    setCheckboxChecked(input, true);
+    await page.waitForChanges();
+
+    expect(
+      page.root.shadowRoot.querySelector('.chat-history__textarea'),
+    ).not.toBeNull();
   });
 
-  it('reflects initialValue in the textarea when enabled', async () => {
+  it('keeps typed value in the textarea while enabled', async () => {
     const page = await newSpecPage({
       components: [ChatHistory],
-      html: '<chat-history initial-enabled initial-value="paste-json-here"></chat-history>',
+      html: '<chat-history></chat-history>',
     });
+
+    const toggle = page.root.shadowRoot.querySelector(
+      '.chat-history__switch-input',
+    ) as HTMLInputElement;
+    setCheckboxChecked(toggle, true);
+    await page.waitForChanges();
 
     const textarea = page.root.shadowRoot.querySelector(
       '.chat-history__textarea',
     ) as HTMLTextAreaElement;
+    textarea.value = 'paste-json-here';
+    textarea.dispatchEvent(new Event('input', { bubbles: true }));
+    await page.waitForChanges();
+
     expect(getTextareaValue(textarea)).toBe('paste-json-here');
   });
 
@@ -76,8 +91,14 @@ describe('ChatHistory', () => {
   it('emits chatHistoryChange when the user types in the textarea', async () => {
     const page = await newSpecPage({
       components: [ChatHistory],
-      html: '<chat-history initial-enabled></chat-history>',
+      html: '<chat-history></chat-history>',
     });
+
+    const toggle = page.root.shadowRoot.querySelector(
+      '.chat-history__switch-input',
+    ) as HTMLInputElement;
+    setCheckboxChecked(toggle, true);
+    await page.waitForChanges();
 
     const spy = jest.fn();
     page.root.addEventListener('chatHistoryChange', (e: Event) =>
@@ -98,10 +119,21 @@ describe('ChatHistory', () => {
   it('hides the textarea after toggling off and emits disabled state', async () => {
     const page = await newSpecPage({
       components: [ChatHistory],
-      html: '<chat-history initial-enabled initial-value="keep"></chat-history>',
+      html: '<chat-history></chat-history>',
     });
 
-    expect(page.root.shadowRoot.querySelector('.chat-history__textarea')).not.toBeNull();
+    const toggle = page.root.shadowRoot.querySelector(
+      '.chat-history__switch-input',
+    ) as HTMLInputElement;
+    setCheckboxChecked(toggle, true);
+    await page.waitForChanges();
+
+    const textarea = page.root.shadowRoot.querySelector(
+      '.chat-history__textarea',
+    ) as HTMLTextAreaElement;
+    textarea.value = 'keep';
+    textarea.dispatchEvent(new Event('input', { bubbles: true }));
+    await page.waitForChanges();
 
     const spy = jest.fn();
     page.root.addEventListener('chatHistoryChange', (e: Event) =>
@@ -109,9 +141,6 @@ describe('ChatHistory', () => {
     );
     spy.mockClear();
 
-    const toggle = page.root.shadowRoot.querySelector(
-      '.chat-history__switch-input',
-    ) as HTMLInputElement;
     setCheckboxChecked(toggle, false);
     await page.waitForChanges();
 

@@ -6,6 +6,7 @@ export const testCaseInputSchema = z.object({
   id: z.string(),
   question: z.string(),
   expectedOutcome: expectedOutcomeArraySchema,
+  chatHistory: z.string().optional(),
 });
 
 export const testCaseInputArraySchema = z.array(testCaseInputSchema);

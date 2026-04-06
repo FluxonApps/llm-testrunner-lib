@@ -4,6 +4,7 @@ export interface TestSuiteExportData {
   id: string;
   question: string;
   expectedOutcome: ExpectedOutcomeField[];
+  chatHistory?: string;
 }
 
 /**
@@ -16,6 +17,7 @@ export function formatTestSuiteAsJson(testCases: TestCase[]): string {
     id: testCase.id,
     question: testCase.question,
     expectedOutcome: testCase.expectedOutcome,
+    chatHistory: testCase.chatHistory,
   }));
 
   return JSON.stringify(exportData, null, 2);

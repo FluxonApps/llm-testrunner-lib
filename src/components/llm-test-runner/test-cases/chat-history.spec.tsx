@@ -20,6 +20,25 @@ describe('ChatHistory', () => {
     jest.clearAllMocks();
   });
 
+  it('shows toggle on and textarea value from props', async () => {
+    const page = await newSpecPage({
+      components: [ChatHistory],
+      html: '<chat-history chat-history-enabled chat-history-value="[imported]"></chat-history>',
+    });
+
+    await page.waitForChanges();
+
+    const textarea = page.root.shadowRoot.querySelector(
+      '.chat-history__textarea',
+    ) as HTMLTextAreaElement;
+    expect(textarea).not.toBeNull();
+    expect(getTextareaValue(textarea)).toBe('[imported]');
+    const toggle = page.root.shadowRoot.querySelector(
+      '.chat-history__switch-input',
+    ) as HTMLInputElement;
+    expect(toggle.checked).toBe(true);
+  });
+
   it('does not render the textarea when disabled', async () => {
     const page = await newSpecPage({
       components: [ChatHistory],

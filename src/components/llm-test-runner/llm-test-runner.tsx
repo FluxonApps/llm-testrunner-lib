@@ -31,7 +31,6 @@ import {
   resolveDynamicExpectedOutcomes,
 } from '../../lib/test-cases/dynamic-expected-outcome-resolver';
 import * as TestCaseMutations from '../../lib/test-cases/test-case-mutations';
-import { omitChatHistory } from '../../lib/test-cases/omit-chat-history';
 import { EvaluationService } from '../../lib/evaluation/evaluation-service';
 import { validateTestCaseInputArray } from '../../schemas/test-case';
 import { validateExpectedOutcomeSchema } from '../../schemas/expected-outcome';
@@ -362,7 +361,7 @@ export class LLMTestRunner {
     try {
       const testRun = {
         timestamp: new Date().toISOString(),
-        testCases: this.testCases.map(omitChatHistory),
+        testCases: this.testCases,
       };
       this.save.emit(testRun);
 

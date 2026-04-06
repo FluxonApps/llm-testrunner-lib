@@ -64,7 +64,7 @@ export class ChatHistory {
             class="chat-history__textarea"
             value={this.value}
             rows={4}
-            placeholder='Paste chat messages as JSON (e.g. [{"role":"user","content":"..."}])...'
+            placeholder='Provide chat history as JSON'
             aria-label="Chat history"
             onInput={(e) =>
               this.setValue((e.target as HTMLTextAreaElement).value)

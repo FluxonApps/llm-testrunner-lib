@@ -128,6 +128,82 @@ describe('LLMTestRunner', () => {
     expect(mockEvaluateTestCase).not.toHaveBeenCalled();
   });
 
+  it('forwards evaluationSourceExtractors to evaluation service', async () => {
+    const mockAiResponse = 'Tool call executed.';
+    const calledToolExtractor = jest.fn().mockReturnValue('getWeather');
+    page.rootInstance.evaluationSourceExtractors = {
+      calledToolName: calledToolExtractor,
+    };
+    await page.waitForChanges();
+
+    const llmRequestSpy = jest.fn();
+    page.root.addEventListener('llmRequest', llmRequestSpy);
+
+    const runButton = page.root.shadowRoot.querySelector(
+      'button[title="Run this test"]',
+    ) as HTMLButtonElement;
+    runButton.click();
+    await page.waitForChanges();
+
+    const eventPayload = getFirstEventFromSpy(llmRequestSpy).detail;
+    await eventPayload.resolve({ text: mockAiResponse });
+    await page.waitForChanges();
+
+    expect(mockEvaluateTestCase).toHaveBeenCalledTimes(1);
+    expect(mockEvaluateTestCase.mock.calls[0][2]).toEqual(
+      page.rootInstance.evaluationSourceExtractors,
+    );
+  });
+
+  it('preserves metadata in model response output', async () => {
+    const llmRequestSpy = jest.fn();
+    page.root.addEventListener('llmRequest', llmRequestSpy);
+
+    const runButton = page.root.shadowRoot.querySelector(
+      'button[title="Run this test"]',
+    ) as HTMLButtonElement;
+    runButton.click();
+    await page.waitForChanges();
+
+    const eventPayload = getFirstEventFromSpy(llmRequestSpy).detail;
+    await eventPayload.resolve({
+      text: 'Function calling response.',
+      metadata: { calledToolName: 'getWeather' },
+    });
+    await page.waitForChanges();
+
+    expect(page.rootInstance.testCases[0].output).toEqual(
+      expect.objectContaining({
+        text: 'Function calling response.',
+        metadata: expect.objectContaining({
+          calledToolName: 'getWeather',
+        }),
+      }),
+    );
+  });
+
+  it('evaluates successfully when evaluationSourceExtractors are undefined', async () => {
+    const mockAiResponse = 'Default text response.';
+    page.rootInstance.evaluationSourceExtractors = undefined;
+    await page.waitForChanges();
+
+    const llmRequestSpy = jest.fn();
+    page.root.addEventListener('llmRequest', llmRequestSpy);
+
+    const runButton = page.root.shadowRoot.querySelector(
+      'button[title="Run this test"]',
+    ) as HTMLButtonElement;
+    runButton.click();
+    await page.waitForChanges();
+
+    const eventPayload = getFirstEventFromSpy(llmRequestSpy).detail;
+    await eventPayload.resolve({ text: mockAiResponse });
+    await page.waitForChanges();
+
+    expect(mockEvaluateTestCase).toHaveBeenCalledTimes(1);
+    expect(mockEvaluateTestCase.mock.calls[0][2]).toBeUndefined();
+  });
+
   it('resolves dynamic expected outcome in parallel with LLM, then evaluates', async () => {
     const dynamicCase: TestCase = {
       ...mockTestCase,

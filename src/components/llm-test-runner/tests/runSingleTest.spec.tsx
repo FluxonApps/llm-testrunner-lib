@@ -37,6 +37,7 @@ describe('LLMTestRunner', () => {
         value: 'getAnalytics',
       },
     ],
+    chatHistory: { enabled: false, value: '' },
     isRunning: false,
   };
   function getFirstEventFromSpy(
@@ -99,6 +100,44 @@ describe('LLMTestRunner', () => {
       }),
       expect.any(Function),
     );
+  });
+
+  it('omits chatHistory on llmRequest when test case has no chat history', async () => {
+    const llmRequestSpy = jest.fn();
+    page.root.addEventListener('llmRequest', llmRequestSpy);
+
+    const runButton = page.root.shadowRoot.querySelector(
+      'button[title="Run this test"]',
+    ) as HTMLButtonElement;
+    runButton.click();
+    await page.waitForChanges();
+
+    const detail = getFirstEventFromSpy(llmRequestSpy).detail;
+    expect(detail).not.toHaveProperty('chatHistory');
+    await detail.resolve('x');
+    await page.waitForChanges();
+  });
+
+  it('includes non-empty chatHistory on llmRequest', async () => {
+    const raw = '[{"role":"user","content":"hi"}]';
+    page.rootInstance.testCases = [
+      { ...mockTestCase, chatHistory: { enabled: true, value: raw } },
+    ];
+    await page.waitForChanges();
+
+    const llmRequestSpy = jest.fn();
+    page.root.addEventListener('llmRequest', llmRequestSpy);
+
+    const runButton = page.root.shadowRoot.querySelector(
+      'button[title="Run this test"]',
+    ) as HTMLButtonElement;
+    runButton.click();
+    await page.waitForChanges();
+
+    const ev = getFirstEventFromSpy(llmRequestSpy);
+    expect(ev.detail.chatHistory).toBe(raw);
+    await ev.detail.resolve('ok');
+    await page.waitForChanges();
   });
 
   it('should handle errors when the LLM request fails', async () => {

@@ -41,6 +41,7 @@ export function createTestCase(
     id: uuidv4(),
     question: '',
     expectedOutcome: createExpectedOutcomeFromSchema(expectedOutcomeSchema),
+    chatHistory: { enabled: false, value: '' },
     isRunning: false,
   };
 }
@@ -123,6 +124,7 @@ export function createExpectedOutcomeFromSchema(
 export function createTestCaseFromInput(data: TestCaseInput): TestCase {
   return {
     ...data,
+    chatHistory: data.chatHistory ?? { enabled: false, value: '' },
     expectedOutcome: data.expectedOutcome.map(normalizeExpectedOutcomeField),
   };
 }

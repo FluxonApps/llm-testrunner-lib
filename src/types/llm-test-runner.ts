@@ -17,12 +17,14 @@ export type {
   SelectExpectedOutcomeField,
 } from './expected-outcome';
 export type {
+  TestCaseChatHistory,
   TestCase,
   TestCaseInput,
 } from './test-case';
 
 export interface LLMRequestPayload {
   prompt: string;
+  chatHistory?: string;
   resolve: (result: string) => void;
   reject: (err: Error | unknown) => void;
 }

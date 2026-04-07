@@ -55,6 +55,7 @@ describe('LLMTestRunner - Run All', () => {
         value: 'getValidEntities',
       },
     ],
+    chatHistory: { enabled: false, value: '' },
     isRunning: false,
   };
 
@@ -79,6 +80,7 @@ describe('LLMTestRunner - Run All', () => {
         value: 'getAnalytics',
       },
     ],
+    chatHistory: { enabled: false, value: '' },
     isRunning: false,
   };
 
@@ -151,6 +153,8 @@ describe('LLMTestRunner - Run All', () => {
     // Note: Order depends on how the tasks were pushed, usually index 0 is case 1
     expect(event1.prompt).toBe('What is Stencil?');
     expect(event2.prompt).toBe('What is JSX?');
+    expect(event1).not.toHaveProperty('chatHistory');
+    expect(event2).not.toHaveProperty('chatHistory');
 
     event1.resolve('Stencil Answer');
     event2.resolve('JSX Answer');
@@ -171,6 +175,33 @@ describe('LLMTestRunner - Run All', () => {
 
     // 8. Verify Evaluation was called for both
     expect(mockEvaluateTestCase).toHaveBeenCalledTimes(2);
+  });
+
+  it('includes chatHistory on llmRequest only for cases that have it', async () => {
+    page.rootInstance.testCases = [
+      { ...testCase1, chatHistory: { enabled: true, value: 'ctx-a' } },
+      { ...testCase2 },
+    ];
+    await page.waitForChanges();
+
+    const llmRequestSpy = jest.fn();
+    page.root.addEventListener('llmRequest', llmRequestSpy);
+
+    const runButtonAll = page.root.shadowRoot.querySelector(
+      'button[aria-label="Run All"]',
+    ) as HTMLButtonElement;
+    runButtonAll.click();
+    await page.waitForChanges();
+
+    const d0 = getPayloadFromEvent(llmRequestSpy, 0).detail;
+    const d1 = getPayloadFromEvent(llmRequestSpy, 1).detail;
+
+    expect(d0.chatHistory).toBe('ctx-a');
+    expect(d1).not.toHaveProperty('chatHistory');
+
+    d0.resolve('Stencil Answer');
+    d1.resolve('JSX Answer');
+    await page.waitForChanges();
   });
 
   it('should skip test cases that are empty or already running', async () => {

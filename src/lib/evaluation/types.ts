@@ -17,13 +17,13 @@ export interface FieldEvaluationInput {
   label: string;
   type: ExpectedOutcomeFieldType;
   expectedValue: string;
+  actualResponse: string;
   evaluationParameters: EvaluationParameters;
 }
 
 export interface EvaluationRequestV2 {
   testCaseId: string;
   question: string;
-  actualResponse: string;
   fields: FieldEvaluationInput[];
 }
 

@@ -3,9 +3,15 @@ import {
   EvaluationResult,
   FieldEvaluationInput,
   EvaluationRequestV2,
+  FieldEvaluationResult,
 } from './types';
-import { TestCase, ExpectedOutcomeField } from '../../types/llm-test-runner';
+import {
+  TestCase,
+  ExpectedOutcomeField,
+  EvaluationSourceExtractors,
+} from '../../types/llm-test-runner';
 import { normalizeEvaluationParametersForField } from './field-evaluation-approach';
+import { resolveActualValue } from './actual-value-resolver';
 
 /**
  * Service for evaluating test case responses
@@ -25,47 +31,89 @@ export class EvaluationService {
   async evaluateTestCase(
     testCase: TestCase,
     onResult: (result: EvaluationResult) => void,
+    extractors?: EvaluationSourceExtractors,
   ): Promise<void> {
-    if (!testCase.output) {
-      console.warn('⚠️ No output to evaluate for test case:', testCase.id);
-      return;
+    const fields: FieldEvaluationInput[] = [];
+    const failedFields: FieldEvaluationResult[] = [];
+
+    for (const [index, field] of (testCase.expectedOutcome || []).entries()) {
+      if (field.type === 'textarea' && field.outcomeMode === 'dynamic') {
+        continue;
+      }
+
+      const evaluationParameters = normalizeEvaluationParametersForField(
+        field.type,
+        field.evaluationParameters,
+      );
+      const expectedValue = getFieldExpectedValue(field);
+      const resolvedActualValue = await resolveActualValue(
+        field,
+        testCase.output,
+        extractors,
+      );
+
+      if (resolvedActualValue.success) {
+        fields.push({
+          index,
+          label: field.label,
+          type: field.type,
+          expectedValue,
+          actualResponse: resolvedActualValue.value,
+          evaluationParameters,
+        });
+      } else {
+        failedFields.push({
+          index,
+          label: field.label,
+          type: field.type,
+          expectedValue,
+          passed: false,
+          keywordMatches: [],
+          evaluationParameters,
+          evaluationApproachResult: {
+            score: 0,
+            approachUsed: evaluationParameters.approach,
+          },
+          error:
+            'error' in resolvedActualValue
+              ? resolvedActualValue.error
+              : 'Failed to resolve actual value.',
+        });
+      }
     }
 
-    const fields: FieldEvaluationInput[] = (testCase.expectedOutcome || []).flatMap(
-      (field, index) => {
-        if (field.type === 'textarea' && field.outcomeMode === 'dynamic') {
-          return [];
-        }
+    if (fields.length === 0) {
+      if (failedFields.length === 0) {
+        console.warn('⚠️ No evaluable fields for test case:', testCase.id);
+        return;
+      }
 
-        return [
-          {
-            index,
-            label: field.label,
-            type: field.type,
-            expectedValue: getFieldExpectedValue(field),
-            evaluationParameters: normalizeEvaluationParametersForField(
-              field.type,
-              field.evaluationParameters,
-            ),
-          },
-        ];
-      },
-    );
+      onResult({
+        testCaseId: testCase.id,
+        passed: false,
+        keywordMatches: [],
+        fieldResults: failedFields,
+        timestamp: new Date().toISOString(),
+      });
+      return;
+    }
 
     const evaluationRequest: EvaluationRequestV2 = {
       testCaseId: testCase.id,
       question: testCase.question,
-      actualResponse: testCase.output,
       fields,
     };
 
-    await this.engine.evaluateResponse(
-      evaluationRequest,
-      (result: EvaluationResult) => {
-        console.log('📊 Evaluation result received:', result);
-        onResult(result);
-      },
-    );
+    await this.engine.evaluateResponse(evaluationRequest, (result: EvaluationResult) => {
+      const combinedResults = [...(result.fieldResults || []), ...failedFields].sort(
+        (a, b) => a.index - b.index,
+      );
+      onResult({
+        ...result,
+        passed: combinedResults.every(field => field.passed && !field.error),
+        fieldResults: combinedResults,
+      });
+    });
   }
 }
 

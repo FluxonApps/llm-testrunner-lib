@@ -44,7 +44,7 @@ import { defineCustomElements } from "llm-testrunner-components/loader";
 defineCustomElements();
 ```
 
-**Step 2 — Use the component and connect your LLM.** The runner fires an `llmRequest` event whenever it needs a response. You call your API, then either `resolve(responseText)` or `reject(error)`.
+**Step 2 — Use the component and connect your LLM.** The runner fires an `llmRequest` event whenever it needs a response. You call your API, then either `resolve({ text, metadata? })` or `reject(error)`.
 
 ```tsx
 import { useRef } from "react";
@@ -56,7 +56,7 @@ function App() {
   const handleLlmRequest = async (e) => {
     try {
       const response = await yourLLMApi(e.detail.prompt);
-      e.detail.resolve(response);
+      e.detail.resolve({ text: response });
     } catch (err) {
       e.detail.reject(err);
     }
@@ -98,7 +98,7 @@ Load the loader and define the custom elements, then listen for `llmRequest` and
   runner.addEventListener("llmRequest", async (e) => {
     try {
       const response = await yourLLMFetch(e.detail.prompt);
-      e.detail.resolve(response);
+      e.detail.resolve({ text: response });
     } catch (err) {
       e.detail.reject(err);
     }
@@ -113,7 +113,7 @@ Load the loader and define the custom elements, then listen for `llmRequest` and
 The library **never** sends requests to an LLM. You do. When a test runs, the component emits an `llmRequest` event with:
 
 - `prompt` — the question text for this test case  
-- `resolve(responseText)` — call this with the model’s reply (string)  
+- `resolve({ text, metadata? })` — call this with the model’s reply payload  
 - `reject(error)` — call this if the request fails  
 
 How you get the response is up to you: REST, SDK, or local inference. Same pattern for OpenAI, Gemini, Claude, or any other provider.
@@ -169,12 +169,13 @@ When you pass `initialTestCases`, use an array of objects with `type`, `label`, 
 | `useSave` | `use-save` | `boolean` | `false` | Show Save button and emit `save` events. |
 | `initialTestCases` | — | `TestCase[]` | `undefined` | Preload test cases. See [types](#types) below. |
 | `defaultExpectedOutcomeSchema` | — | `ExpectedOutcomeSchema` | built-in | Schema for new test cases (field types and labels). |
+| `evaluationSourceExtractors` | — | `EvaluationSourceExtractors` | `undefined` | Registry of named extractors used by per-field `evaluationSource: { type: 'custom', extractorId }`. |
 
 ### Events
 
 | Event | Payload | Description |
 |-------|---------|-------------|
-| `llmRequest` | `{ prompt, resolve, reject }` | Runner needs an LLM response. Call `resolve(responseText)` or `reject(error)`. |
+| `llmRequest` | `{ prompt, resolve, reject }` | Runner needs an LLM response. Call `resolve({ text, metadata? })` or `reject(error)`. |
 | `save` | `{ timestamp, testCases }` | User clicked Save (only when `useSave` is true). Persist then call `resetSavingState()`. |
 
 ### Methods
@@ -191,6 +192,8 @@ Import from `llm-testrunner-components/react/types`:
 import type {
   TestCase,
   LLMRequestPayload,
+  ModelResponsePayload,
+  EvaluationSourceExtractors,
   SavePayload,
   ExpectedOutcomeSchema,
   ExpectedOutcomeField,

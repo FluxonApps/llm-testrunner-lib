@@ -1,6 +1,8 @@
 import type { TestCase } from './test-case';
+import type { ModelResponsePayload } from '../schemas/model-response';
 
 export type {
+  EvaluationSource,
   ExpectedOutcomeMode,
   ExpectedOutcomeFieldType,
   ExpectedOutcomeBase,
@@ -17,13 +19,18 @@ export type {
   SelectExpectedOutcomeField,
 } from './expected-outcome';
 export type {
+  ModelResponsePayload,
+  EvaluationSourceExtractor,
+  EvaluationSourceExtractors,
+} from '../schemas/model-response';
+export type {
   TestCase,
   TestCaseInput,
 } from './test-case';
 
 export interface LLMRequestPayload {
   prompt: string;
-  resolve: (result: string) => void;
+  resolve: (result: ModelResponsePayload) => void;
   reject: (err: Error | unknown) => void;
 }
 

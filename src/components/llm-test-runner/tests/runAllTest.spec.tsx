@@ -152,8 +152,8 @@ describe('LLMTestRunner - Run All', () => {
     expect(event1.prompt).toBe('What is Stencil?');
     expect(event2.prompt).toBe('What is JSX?');
 
-    event1.resolve('Stencil Answer');
-    event2.resolve('JSX Answer');
+    event1.resolve({ text: 'Stencil Answer' });
+    event2.resolve({ text: 'JSX Answer' });
 
     await page.waitForChanges();
 
@@ -163,10 +163,10 @@ describe('LLMTestRunner - Run All', () => {
     // 7. Verify Individual Test States
     const finalCases = page.rootInstance.testCases;
 
-    expect(finalCases[0].output).toBe('Stencil Answer');
+    expect(finalCases[0].output?.text).toBe('Stencil Answer');
     expect(finalCases[0].isRunning).toBe(false);
 
-    expect(finalCases[1].output).toBe('JSX Answer');
+    expect(finalCases[1].output?.text).toBe('JSX Answer');
     expect(finalCases[1].isRunning).toBe(false);
 
     // 8. Verify Evaluation was called for both

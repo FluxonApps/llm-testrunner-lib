@@ -15,6 +15,8 @@ import {
   TestCase,
   LLMRequestPayload,
   SavePayload,
+  ModelResponsePayload,
+  EvaluationSourceExtractors,
 } from '../../types/llm-test-runner';
 import { readFileAsync } from '../../lib/file/file-reader';
 import { downloadFile } from '../../lib/file/file-download';
@@ -33,7 +35,11 @@ import {
 import * as TestCaseMutations from '../../lib/test-cases/test-case-mutations';
 import { EvaluationService } from '../../lib/evaluation/evaluation-service';
 import { validateTestCaseInputArray } from '../../schemas/test-case';
-import { validateExpectedOutcomeSchema } from '../../schemas/expected-outcome';
+import {
+  getExtractorIds,
+  validateExpectedOutcomeArrayWithExtractors,
+  validateExpectedOutcomeSchema,
+} from '../../schemas/expected-outcome';
 import { LLMTestRunnerHeader } from './header/llm-test-runner-header';
 import { LLMTestCases } from './test-cases/llm-test-cases';
 import { ExpectedOutcomeChangeDetail } from './test-cases/expected-outcome-renderer';
@@ -62,6 +68,7 @@ export class LLMTestRunner {
   @Prop() useSave?: boolean = false;
   @Prop() usePromptEditor?: boolean = false;
   @Prop() resolveExpectedOutcome?: ExpectedOutcomeResolver;
+  @Prop() evaluationSourceExtractors?: EvaluationSourceExtractors;
   @Prop() initialTestCases?: TestCase[];
   @Prop() defaultExpectedOutcomeSchema?: ExpectedOutcomeSchema;
   @State() testCases: TestCase[] = [
@@ -101,6 +108,15 @@ export class LLMTestRunner {
       // Initialize testCases from prop if provided
       if (this.initialTestCases !== undefined) {
         validateTestCaseInputArray(this.initialTestCases);
+        const extractorIds = getExtractorIds(this.evaluationSourceExtractors);
+        if (extractorIds.length > 0) {
+          this.initialTestCases.forEach(testCase => {
+            validateExpectedOutcomeArrayWithExtractors(
+              testCase.expectedOutcome,
+              extractorIds,
+            );
+          });
+        }
         this.testCases = this.initialTestCases.map((rawTestCase, index) => {
           try {
             return createTestCaseFromInput(rawTestCase);
@@ -164,14 +180,21 @@ export class LLMTestRunner {
     );
   }
 
-  private requestLlmText(testCase: TestCase): Promise<string> {
+  private requestLlmResponse(testCase: TestCase): Promise<ModelResponsePayload> {
     return new Promise((resolve, reject) => {
       this.llmRequest.emit({
         prompt: testCase.question,
-        resolve,
+        resolve: result => resolve(this.normalizeModelResponse(result)),
         reject,
       });
     });
+  }
+
+  private normalizeModelResponse(result: ModelResponsePayload): ModelResponsePayload {
+    return {
+      text: result.text,
+      metadata: result.metadata,
+    };
   }
 
   private throwError(reason: unknown): never {
@@ -186,7 +209,7 @@ export class LLMTestRunner {
     const startTime = Date.now();
     this.updateTestCase(testCase.id, { isRunning: true });
     const [llmSettled, resolutionSettled] = await Promise.allSettled([
-      this.requestLlmText(testCase),
+      this.requestLlmResponse(testCase),
       resolveDynamicExpectedOutcomes(testCase, this.resolveExpectedOutcome),
     ]);
 
@@ -195,7 +218,7 @@ export class LLMTestRunner {
     if (llmSettled.status === 'rejected') {
       this.updateTestCase(testCase.id, {
         isRunning: false,
-        output: null,
+        output: undefined,
         error: this.addErrorMessage(llmSettled.reason, 'Unknown error'),
         responseTime,
       });
@@ -260,6 +283,7 @@ export class LLMTestRunner {
           evaluationResult: result,
         });
       },
+      this.evaluationSourceExtractors,
     );
   }
 
@@ -297,7 +321,10 @@ export class LLMTestRunner {
 
     try {
       const content = await readFileAsync(file);
-      const result = importTestSuite(content);
+      const result = importTestSuite(
+        content,
+        getExtractorIds(this.evaluationSourceExtractors),
+      );
 
       if (!result.success) {
         this.error = result.error || 'Unknown error occurred during import.';
@@ -385,6 +412,7 @@ export class LLMTestRunner {
           <LLMTestCases
             testCases={this.testCases}
             dynamicResolutionSupported={!!this.resolveExpectedOutcome}
+            extractorIds={getExtractorIds(this.evaluationSourceExtractors)}
             onRun={testCase => this.runSingleTest(testCase).catch(() => {})}
             onDelete={id => this.deleteTestCase(id)}
             onAddTestCase={() => this.addNewTestCase()}

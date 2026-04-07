@@ -83,21 +83,21 @@ describe('LLMTestRunner', () => {
 
     const eventPayload = getFirstEventFromSpy(llmRequestSpy).detail;
 
-    await eventPayload.resolve(mockAiResponse);
+    await eventPayload.resolve({ text: mockAiResponse });
 
     await page.waitForChanges();
 
     const finalTestCase = page.rootInstance.testCases[0];
 
     expect(finalTestCase.isRunning).toBe(false);
-    expect(finalTestCase.output).toBe(mockAiResponse);
+    expect(finalTestCase.output?.text).toBe(mockAiResponse);
 
-    expect(mockEvaluateTestCase).toHaveBeenCalledWith(
+    expect(mockEvaluateTestCase).toHaveBeenCalledTimes(1);
+    expect(mockEvaluateTestCase.mock.calls[0][0]).toEqual(
       expect.objectContaining({
         id: mockTestCase.id,
-        output: mockAiResponse,
+        output: expect.objectContaining({ text: mockAiResponse }),
       }),
-      expect.any(Function),
     );
   });
 
@@ -159,7 +159,7 @@ describe('LLMTestRunner', () => {
 
     const eventPayload = getFirstEventFromSpy(llmRequestSpy).detail;
     expect(resolveExpectedOutcome).toHaveBeenCalled();
-    await eventPayload.resolve('Model response');
+    await eventPayload.resolve({ text: 'Model response' });
     await page.waitForChanges();
 
     expect(resolveExpectedOutcome).toHaveBeenCalledWith('$.expected.answer', {
@@ -169,7 +169,8 @@ describe('LLMTestRunner', () => {
       }),
       fieldIndex: 0,
     });
-    expect(mockEvaluateTestCase).toHaveBeenCalledWith(
+    expect(mockEvaluateTestCase).toHaveBeenCalledTimes(1);
+    expect(mockEvaluateTestCase.mock.calls[0][0]).toEqual(
       expect.objectContaining({
         expectedOutcome: [
           expect.objectContaining({
@@ -177,7 +178,6 @@ describe('LLMTestRunner', () => {
           }),
         ],
       }),
-      expect.any(Function),
     );
   });
 
@@ -208,7 +208,7 @@ describe('LLMTestRunner', () => {
     await page.waitForChanges();
 
     const eventPayload = getFirstEventFromSpy(llmRequestSpy).detail;
-    await eventPayload.resolve('Model response');
+    await eventPayload.resolve({ text: 'Model response' });
     await page.waitForChanges();
 
     expect(page.rootInstance.testCases[0].error).toBe(MISSING_RESOLVER_MESSAGE);

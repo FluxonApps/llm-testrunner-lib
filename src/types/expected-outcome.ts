@@ -1,4 +1,5 @@
 export type {
+  EvaluationSource,
   ExpectedOutcomeMode,
   ExpectedOutcomeSchemaField,
   ExpectedOutcomeSchema,

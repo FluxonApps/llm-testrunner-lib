@@ -1,6 +1,7 @@
 import { h, FunctionalComponent } from '@stencil/core';
 import {
   ExpectedOutcomeField,
+  type EvaluationSource,
   type ExpectedOutcomeMode,
 } from '../../../types/llm-test-runner';
 import { ChipsConfig, FormFieldType, SelectConfig, TextAreaConfig } from '../../../lib/form/schema';
@@ -18,6 +19,7 @@ interface ExpectedOutcomeRendererProps {
   testCaseId: string;
   fields: ExpectedOutcomeField[];
   dynamicResolutionSupported?: boolean;
+  extractorIds?: string[];
   onExpectedOutcomeChange: (
     e: CustomEvent<ExpectedOutcomeChangeDetail>,
   ) => void;
@@ -27,8 +29,11 @@ export const ExpectedOutcomeRenderer: FunctionalComponent<ExpectedOutcomeRendere
   testCaseId,
   fields,
   dynamicResolutionSupported = false,
+  extractorIds = [],
   onExpectedOutcomeChange,
 }) => {
+  const hasExtractorOptions = extractorIds.length > 0;
+
   const emit = (detail: ExpectedOutcomeChangeDetail) =>
     onExpectedOutcomeChange({
       detail,
@@ -66,6 +71,25 @@ export const ExpectedOutcomeRenderer: FunctionalComponent<ExpectedOutcomeRendere
     rows: 2,
   });
 
+  const buildEvaluationSourceConfig = (index: number): SelectConfig => ({
+    name: `expectedOutcomeEvaluationSource-${index}`,
+    fieldType: FormFieldType.SELECT,
+    label: 'Evaluation Source',
+    placeholder: 'Select evaluation source',
+    required: true,
+    optionList: ['text', 'custom'],
+    defaultValue: 'text',
+  });
+
+  const buildExtractorConfig = (index: number): SelectConfig => ({
+    name: `expectedOutcomeEvaluationSourceExtractor-${index}`,
+    fieldType: FormFieldType.SELECT,
+    label: 'Extractor',
+    placeholder: 'Select extractor',
+    required: true,
+    optionList: extractorIds,
+  });
+
   const renderEvaluationSelector = (
     field: ExpectedOutcomeField,
     index: number,
@@ -85,6 +109,50 @@ export const ExpectedOutcomeRenderer: FunctionalComponent<ExpectedOutcomeRendere
           })
         }
       />
+    );
+  };
+
+  const renderEvaluationSourceSelector = (
+    field: ExpectedOutcomeField,
+    index: number,
+  ) => {
+    if (!hasExtractorOptions) {
+      return null;
+    }
+
+    const sourceType = field.evaluationSource?.type || 'text';
+
+    return (
+      <div>
+        <app-select
+          config={buildEvaluationSourceConfig(index)}
+          value={sourceType}
+          onValueChange={(e) =>
+            emit({
+              testCaseId,
+              index,
+              operation: 'set-evaluation-source-type',
+              value: e.detail.value as EvaluationSource['type'],
+            })
+          }
+        />
+        {sourceType === 'custom' && (
+          <app-select
+            config={buildExtractorConfig(index)}
+            value={field.evaluationSource?.type === 'custom'
+              ? field.evaluationSource.extractorId
+              : ''}
+            onValueChange={(e) =>
+              emit({
+                testCaseId,
+                index,
+                operation: 'set-evaluation-source-extractor',
+                value: e.detail.value,
+              })
+            }
+          />
+        )}
+      </div>
     );
   };
 
@@ -149,6 +217,7 @@ export const ExpectedOutcomeRenderer: FunctionalComponent<ExpectedOutcomeRendere
                     }
                   />
                 )}
+              {!isDynamic && renderEvaluationSourceSelector(field, index)}
               {!isDynamic && renderEvaluationSelector(field, index)}
             </div>
           );
@@ -185,6 +254,7 @@ export const ExpectedOutcomeRenderer: FunctionalComponent<ExpectedOutcomeRendere
                   })
                 }
               />
+              {renderEvaluationSourceSelector(field, index)}
               {renderEvaluationSelector(field, index)}
             </div>
           );
@@ -214,6 +284,7 @@ export const ExpectedOutcomeRenderer: FunctionalComponent<ExpectedOutcomeRendere
                   })
                 }
               />
+              {renderEvaluationSourceSelector(field, index)}
               {renderEvaluationSelector(field, index)}
             </div>
           );
@@ -237,6 +308,7 @@ export const ExpectedOutcomeRenderer: FunctionalComponent<ExpectedOutcomeRendere
                 }
               />
             </div>
+            {renderEvaluationSourceSelector(field, index)}
             {renderEvaluationSelector(field, index)}
           </div>
         );

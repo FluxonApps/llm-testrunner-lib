@@ -1,6 +1,9 @@
 import { describe, it, expect } from '@jest/globals';
 
-import { expectedOutcomeFieldSchema } from './expected-outcome';
+import {
+  expectedOutcomeFieldSchema,
+  validateExpectedOutcomeArrayWithExtractors,
+} from './expected-outcome';
 
 describe('expected outcome schemas', () => {
   it('defaults outcomeMode to static when omitted (textarea only)', () => {
@@ -45,5 +48,41 @@ describe('expected outcome schemas', () => {
 
     expect(parsed.success).toBe(false);
     expect(parsed.error.issues[0].path).toEqual(['resolutionQuery']);
+  });
+
+  it('allows custom evaluationSource with a non-empty extractorId', () => {
+    const data = expectedOutcomeFieldSchema.parse({
+      type: 'text' as const,
+      label: 'Tool Name',
+      value: 'lookup',
+      evaluationSource: {
+        type: 'custom' as const,
+        extractorId: 'tool-name-extractor',
+      },
+    });
+
+    expect(data.evaluationSource).toEqual({
+      type: 'custom',
+      extractorId: 'tool-name-extractor',
+    });
+  });
+
+  it('rejects unknown custom extractorId when extractor-aware validation is used', () => {
+    expect(() =>
+      validateExpectedOutcomeArrayWithExtractors(
+        [
+          {
+            type: 'text',
+            label: 'Tool Name',
+            value: '',
+            evaluationSource: {
+              type: 'custom',
+              extractorId: 'missing-extractor',
+            },
+          },
+        ],
+        ['known-extractor'],
+      ),
+    ).toThrow('Extractor "missing-extractor" is not registered.');
   });
 });

@@ -1,5 +1,6 @@
 import {
   TestCase,
+  type EvaluationSource,
   type ExpectedOutcomeMode,
 } from '../../types/llm-test-runner';
 import { EvaluationApproach } from '../evaluation/constants';
@@ -34,6 +35,16 @@ export type ExpectedOutcomeChange =
   | {
       index: number;
       operation: 'set-resolution-query';
+      value: string;
+    }
+  | {
+      index: number;
+      operation: 'set-evaluation-source-type';
+      value: EvaluationSource['type'];
+    }
+  | {
+      index: number;
+      operation: 'set-evaluation-source-extractor';
       value: string;
     };
 
@@ -113,6 +124,38 @@ export function applyExpectedOutcomeChange(
       expectedOutcome[index] = {
         ...target,
         resolutionQuery: change.value,
+      };
+      return { ...testCase, expectedOutcome };
+    }
+    case 'set-evaluation-source-type': {
+      if (change.value === 'text') {
+        expectedOutcome[index] = {
+          ...target,
+          evaluationSource: { type: 'text' },
+        };
+        return { ...testCase, expectedOutcome };
+      }
+
+      const extractorId =
+        target.evaluationSource?.type === 'custom'
+          ? target.evaluationSource.extractorId
+          : '';
+      expectedOutcome[index] = {
+        ...target,
+        evaluationSource: {
+          type: 'custom',
+          extractorId,
+        },
+      };
+      return { ...testCase, expectedOutcome };
+    }
+    case 'set-evaluation-source-extractor': {
+      expectedOutcome[index] = {
+        ...target,
+        evaluationSource: {
+          type: 'custom',
+          extractorId: change.value,
+        },
       };
       return { ...testCase, expectedOutcome };
     }

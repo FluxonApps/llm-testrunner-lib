@@ -7,6 +7,25 @@ import {
 import { EvaluationApproach } from '../evaluation/constants';
 import { normalizeEvaluationParametersForField } from '../evaluation/field-evaluation-approach';
 
+function isChipsInputField(
+  field: ExpectedOutcomeField,
+): field is Extract<ExpectedOutcomeField, { type: 'chips-input' }> {
+  return field.type === 'chips-input';
+}
+
+function isTextareaField(
+  field: ExpectedOutcomeField,
+): field is Extract<ExpectedOutcomeField, { type: 'textarea' }> {
+  return field.type === 'textarea';
+}
+
+function isDynamicTextareaField(
+  field: ExpectedOutcomeField,
+): field is Extract<ExpectedOutcomeField, { type: 'textarea' }> {
+  return isTextareaField(field) && field.outcomeMode === 'dynamic';
+}
+
+
 export type ExpectedOutcomeChange =
   | {
       index: number;
@@ -159,24 +178,6 @@ export function applyExpectedOutcomeChange(
       });
     }
   }
-}
-
-function isChipsInputField(
-  field: ExpectedOutcomeField,
-): field is Extract<ExpectedOutcomeField, { type: 'chips-input' }> {
-  return field.type === 'chips-input';
-}
-
-function isTextareaField(
-  field: ExpectedOutcomeField,
-): field is Extract<ExpectedOutcomeField, { type: 'textarea' }> {
-  return field.type === 'textarea';
-}
-
-function isDynamicTextareaField(
-  field: ExpectedOutcomeField,
-): field is Extract<ExpectedOutcomeField, { type: 'textarea' }> {
-  return isTextareaField(field) && field.outcomeMode === 'dynamic';
 }
 
 /**

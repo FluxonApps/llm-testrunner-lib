@@ -1,7 +1,7 @@
 import { z } from 'zod';
 import { EvaluationApproach } from '../lib/evaluation/constants';
 import { isApproachAllowedForFieldType } from '../lib/evaluation/field-evaluation-approach';
-import type { EvaluationSourceExtractors } from './model-response';
+import type { ModelResponsePayload } from './model-response';
 
 const nonEmptyString = z.string().trim().min(1);
 const optionalPositiveInt = z.number().int().positive().optional();
@@ -16,6 +16,18 @@ const customEvaluationSourceSchema = z.object({
   extractorId: nonEmptyString,
 });
 
+export const evaluationSourceExtractorSchema = z.custom<
+  (payload: ModelResponsePayload) => string | Promise<string>
+>(
+  value => typeof value === 'function',
+  'Extractor must be a function.',
+);
+
+export const evaluationSourceExtractorsSchema = z.record(
+  z.string().min(1),
+  evaluationSourceExtractorSchema,
+);
+
 export const evaluationSourceSchema = z.discriminatedUnion('type', [
   textEvaluationSourceSchema,
   customEvaluationSourceSchema,
@@ -24,6 +36,12 @@ export const evaluationSourceSchema = z.discriminatedUnion('type', [
 export const expectedOutcomeModeSchema = z.enum(['static', 'dynamic']);
 export type ExpectedOutcomeMode = z.infer<typeof expectedOutcomeModeSchema>;
 export type EvaluationSource = z.infer<typeof evaluationSourceSchema>;
+export type EvaluationSourceExtractor = z.infer<
+  typeof evaluationSourceExtractorSchema
+>;
+export type EvaluationSourceExtractors = z.infer<
+  typeof evaluationSourceExtractorsSchema
+>;
 
 const evaluationParametersSchema = z.object({
   approach: z.enum(EvaluationApproach),

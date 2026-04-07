@@ -18,9 +18,6 @@ export async function resolveActualValue(
   extractors?: EvaluationSourceExtractors,
 ): Promise<ResolvedActualValue> {
   const source = field.evaluationSource || toTextSource();
-  console.log('source', source);
-  console.log('output', output);
-  console.log('extractors', extractors);
 
   if (source.type === 'text') {
     const text = output?.text?.trim();

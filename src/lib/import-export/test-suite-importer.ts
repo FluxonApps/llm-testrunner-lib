@@ -22,7 +22,7 @@ export function importTestSuite(
     const parsed = JSON.parse(jsonContent);
     validateTestCaseInputArray(parsed);
     if (allowedExtractorIds.length > 0) {
-      parsed.forEach((testCase: { expectedOutcome: unknown }) => {
+      parsed.forEach((testCase) => {
         validateExpectedOutcomeArrayWithExtractors(
           testCase.expectedOutcome,
           allowedExtractorIds,

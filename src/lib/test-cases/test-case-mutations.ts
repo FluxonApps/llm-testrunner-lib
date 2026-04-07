@@ -41,6 +41,7 @@ export type ExpectedOutcomeChange =
       index: number;
       operation: 'set-evaluation-source-type';
       value: EvaluationSource['type'];
+      fallbackExtractorId?: string;
     }
   | {
       index: number;
@@ -139,7 +140,7 @@ export function applyExpectedOutcomeChange(
       const extractorId =
         target.evaluationSource?.type === 'custom'
           ? target.evaluationSource.extractorId
-          : '';
+          : (change.fallbackExtractorId ?? '');
       expectedOutcome[index] = {
         ...target,
         evaluationSource: {

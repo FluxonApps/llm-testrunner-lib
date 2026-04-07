@@ -3,6 +3,8 @@ import type { ModelResponsePayload } from '../schemas/model-response';
 
 export type {
   EvaluationSource,
+  EvaluationSourceExtractor,
+  EvaluationSourceExtractors,
   ExpectedOutcomeMode,
   ExpectedOutcomeFieldType,
   ExpectedOutcomeBase,
@@ -20,8 +22,6 @@ export type {
 } from './expected-outcome';
 export type {
   ModelResponsePayload,
-  EvaluationSourceExtractor,
-  EvaluationSourceExtractors,
 } from '../schemas/model-response';
 export type {
   TestCase,

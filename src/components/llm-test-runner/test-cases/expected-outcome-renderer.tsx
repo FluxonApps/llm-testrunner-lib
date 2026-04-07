@@ -33,6 +33,7 @@ export const ExpectedOutcomeRenderer: FunctionalComponent<ExpectedOutcomeRendere
   onExpectedOutcomeChange,
 }) => {
   const hasExtractorOptions = extractorIds.length > 0;
+  const firstExtractorId = extractorIds[0];
 
   const emit = (detail: ExpectedOutcomeChangeDetail) =>
     onExpectedOutcomeChange({
@@ -133,6 +134,7 @@ export const ExpectedOutcomeRenderer: FunctionalComponent<ExpectedOutcomeRendere
               index,
               operation: 'set-evaluation-source-type',
               value: e.detail.value as EvaluationSource['type'],
+              fallbackExtractorId: firstExtractorId,
             })
           }
         />

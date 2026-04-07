@@ -63,8 +63,8 @@ export const LLMTestCaseRow: FunctionalComponent<LLMTestCaseRowProps> = ({
           }
         />
         <chat-history
-          chatHistoryEnabled={testCase.chatHistory !== undefined}
-          chatHistoryValue={testCase.chatHistory ?? ''}
+          chatHistoryEnabled={testCase.chatHistory?.enabled ?? false}
+          chatHistoryValue={testCase.chatHistory?.value ?? ''}
           onChatHistoryChange={(e: Event) => {
             const { enabled, value } = (e as CustomEvent<ChatHistoryChangeDetail>)
               .detail;

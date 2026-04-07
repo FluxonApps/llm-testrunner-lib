@@ -2,11 +2,16 @@ import { z } from 'zod';
 import type { EvaluationResult } from '../lib/evaluation/types';
 import { expectedOutcomeArraySchema } from './expected-outcome';
 
+export const testCaseChatHistorySchema = z.object({
+  enabled: z.boolean(),
+  value: z.string(),
+});
+
 export const testCaseInputSchema = z.object({
   id: z.string(),
   question: z.string(),
   expectedOutcome: expectedOutcomeArraySchema,
-  chatHistory: z.string().optional(),
+  chatHistory: testCaseChatHistorySchema.optional(),
 });
 
 export const testCaseInputArraySchema = z.array(testCaseInputSchema);
@@ -15,7 +20,7 @@ export const testCaseSchema = z.object({
   id: z.string(),
   question: z.string(),
   expectedOutcome: expectedOutcomeArraySchema,
-  chatHistory: z.string().optional(),
+  chatHistory: testCaseChatHistorySchema,
   output: z.string().optional(),
   isRunning: z.boolean().optional(),
   error: z.string().optional(),
@@ -23,6 +28,7 @@ export const testCaseSchema = z.object({
   responseTime: z.number().optional(),
 });
 
+export type TestCaseChatHistory = z.infer<typeof testCaseChatHistorySchema>;
 export type TestCaseInput = z.input<typeof testCaseInputSchema>;
 export type TestCase = z.input<typeof testCaseSchema>;
 

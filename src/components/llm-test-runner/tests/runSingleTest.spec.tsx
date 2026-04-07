@@ -37,6 +37,7 @@ describe('LLMTestRunner', () => {
         value: 'getAnalytics',
       },
     ],
+    chatHistory: { enabled: false, value: '' },
     isRunning: false,
   };
   function getFirstEventFromSpy(
@@ -119,7 +120,9 @@ describe('LLMTestRunner', () => {
 
   it('includes non-empty chatHistory on llmRequest', async () => {
     const raw = '[{"role":"user","content":"hi"}]';
-    page.rootInstance.testCases = [{ ...mockTestCase, chatHistory: raw }];
+    page.rootInstance.testCases = [
+      { ...mockTestCase, chatHistory: { enabled: true, value: raw } },
+    ];
     await page.waitForChanges();
 
     const llmRequestSpy = jest.fn();

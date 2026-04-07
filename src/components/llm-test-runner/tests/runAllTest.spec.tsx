@@ -55,6 +55,7 @@ describe('LLMTestRunner - Run All', () => {
         value: 'getValidEntities',
       },
     ],
+    chatHistory: { enabled: false, value: '' },
     isRunning: false,
   };
 
@@ -79,6 +80,7 @@ describe('LLMTestRunner - Run All', () => {
         value: 'getAnalytics',
       },
     ],
+    chatHistory: { enabled: false, value: '' },
     isRunning: false,
   };
 
@@ -177,7 +179,7 @@ describe('LLMTestRunner - Run All', () => {
 
   it('includes chatHistory on llmRequest only for cases that have it', async () => {
     page.rootInstance.testCases = [
-      { ...testCase1, chatHistory: 'ctx-a' },
+      { ...testCase1, chatHistory: { enabled: true, value: 'ctx-a' } },
       { ...testCase2 },
     ];
     await page.waitForChanges();

@@ -17,6 +17,7 @@ export type {
   SelectExpectedOutcomeField,
 } from './expected-outcome';
 export type {
+  TestCaseChatHistory,
   TestCase,
   TestCaseInput,
 } from './test-case';

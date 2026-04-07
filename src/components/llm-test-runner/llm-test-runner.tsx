@@ -76,6 +76,7 @@ export class LLMTestRunner {
           value: '',
         },
       ],
+      chatHistory: { enabled: false, value: '' },
       isRunning: false,
     },
   ];
@@ -151,7 +152,7 @@ export class LLMTestRunner {
   ) => {
     const { testCaseId, enabled, value } = event.detail;
     this.updateTestCase(testCaseId, {
-      chatHistory: enabled ? value : undefined,
+      chatHistory: { enabled, value },
     });
   };
 
@@ -181,8 +182,8 @@ export class LLMTestRunner {
         resolve,
         reject,
       };
-      if (testCase.chatHistory !== undefined) {
-        payload.chatHistory = testCase.chatHistory;
+      if (testCase.chatHistory?.enabled) {
+        payload.chatHistory = testCase.chatHistory.value;
       }
       this.llmRequest.emit(payload);
     });

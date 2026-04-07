@@ -158,6 +158,18 @@ export const ExpectedOutcomeRenderer: FunctionalComponent<ExpectedOutcomeRendere
     );
   };
 
+  const renderEvaluationOptions = (field: ExpectedOutcomeField, index: number) => (
+    <details class="expected-outcome-renderer__options">
+      <summary class="expected-outcome-renderer__options-summary">
+        Evaluation Settings
+      </summary>
+      <div class="expected-outcome-renderer__options-content">
+        {renderEvaluationSourceSelector(field, index)}
+        {renderEvaluationSelector(field, index)}
+      </div>
+    </details>
+  );
+
   return (
     <div class="expected-outcome-renderer">
       {(fields || []).map((field, index) => {
@@ -219,8 +231,7 @@ export const ExpectedOutcomeRenderer: FunctionalComponent<ExpectedOutcomeRendere
                     }
                   />
                 )}
-              {!isDynamic && renderEvaluationSourceSelector(field, index)}
-              {!isDynamic && renderEvaluationSelector(field, index)}
+              {!isDynamic && renderEvaluationOptions(field, index)}
             </div>
           );
         }
@@ -256,8 +267,7 @@ export const ExpectedOutcomeRenderer: FunctionalComponent<ExpectedOutcomeRendere
                   })
                 }
               />
-              {renderEvaluationSourceSelector(field, index)}
-              {renderEvaluationSelector(field, index)}
+              {renderEvaluationOptions(field, index)}
             </div>
           );
         }
@@ -286,8 +296,7 @@ export const ExpectedOutcomeRenderer: FunctionalComponent<ExpectedOutcomeRendere
                   })
                 }
               />
-              {renderEvaluationSourceSelector(field, index)}
-              {renderEvaluationSelector(field, index)}
+              {renderEvaluationOptions(field, index)}
             </div>
           );
         }
@@ -310,8 +319,7 @@ export const ExpectedOutcomeRenderer: FunctionalComponent<ExpectedOutcomeRendere
                 }
               />
             </div>
-            {renderEvaluationSourceSelector(field, index)}
-            {renderEvaluationSelector(field, index)}
+            {renderEvaluationOptions(field, index)}
           </div>
         );
       })}

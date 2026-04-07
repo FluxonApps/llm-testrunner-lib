@@ -138,10 +138,6 @@ export class LLMTestRunner {
     }
   }
 
-  componentDidLoad() {}
-
-  disconnectedCallback() {}
-
   @Method()
   async resetSavingState(): Promise<void> {
     this.isSaving = false;
@@ -184,17 +180,10 @@ export class LLMTestRunner {
     return new Promise((resolve, reject) => {
       this.llmRequest.emit({
         prompt: testCase.question,
-        resolve: result => resolve(this.normalizeModelResponse(result)),
+        resolve,
         reject,
       });
     });
-  }
-
-  private normalizeModelResponse(result: ModelResponsePayload): ModelResponsePayload {
-    return {
-      text: result.text,
-      metadata: result.metadata,
-    };
   }
 
   private throwError(reason: unknown): never {

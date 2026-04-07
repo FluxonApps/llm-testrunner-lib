@@ -4,11 +4,16 @@ import { ChatHistory, type ChatHistoryChangeDetail } from './chat-history';
 
 type SpecPage = Awaited<ReturnType<typeof newSpecPage>>;
 
+type ChatHistoryHost = HTMLElement & {
+  chatHistoryEnabled: boolean;
+  chatHistoryValue: string;
+};
+
 function attachControlledParent(page: SpecPage): void {
   page.root.addEventListener('chatHistoryChange', (e: Event) => {
     const { enabled, value } = (e as CustomEvent<ChatHistoryChangeDetail>)
       .detail;
-    const host = page.root as HTMLChatHistoryElement;
+    const host = page.root as ChatHistoryHost;
     host.chatHistoryEnabled = enabled;
     host.chatHistoryValue = value;
   });

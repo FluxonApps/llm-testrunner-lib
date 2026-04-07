@@ -1,6 +1,27 @@
 import { jest, describe, beforeEach, it, expect } from '@jest/globals';
 import { newSpecPage } from '@stencil/core/testing';
-import { ChatHistory } from './chat-history';
+import { ChatHistory, type ChatHistoryChangeDetail } from './chat-history';
+
+type SpecPage = Awaited<ReturnType<typeof newSpecPage>>;
+
+function attachControlledParent(page: SpecPage): void {
+  page.root.addEventListener('chatHistoryChange', (e: Event) => {
+    const { enabled, value } = (e as CustomEvent<ChatHistoryChangeDetail>)
+      .detail;
+    const host = page.root as HTMLChatHistoryElement;
+    host.chatHistoryEnabled = enabled;
+    host.chatHistoryValue = value;
+  });
+}
+
+async function enableChatHistoryAsUser(page: SpecPage): Promise<void> {
+  attachControlledParent(page);
+  const toggle = page.root.shadowRoot!.querySelector(
+    '.chat-history__switch-input',
+  ) as HTMLInputElement;
+  setCheckboxChecked(toggle, true);
+  await page.waitForChanges();
+}
 
 function getTextareaValue(textarea: HTMLTextAreaElement): string {
   const v = textarea.value;
@@ -48,17 +69,13 @@ describe('ChatHistory', () => {
     expect(page.root.shadowRoot.querySelector('.chat-history__textarea')).toBeNull();
   });
 
-  it('renders the textarea after the switch is turned on', async () => {
+  it('renders the textarea only after the parent sets enabled (user toggle + prop sync)', async () => {
     const page = await newSpecPage({
       components: [ChatHistory],
       html: '<chat-history></chat-history>',
     });
 
-    const input = page.root.shadowRoot.querySelector(
-      '.chat-history__switch-input',
-    ) as HTMLInputElement;
-    setCheckboxChecked(input, true);
-    await page.waitForChanges();
+    await enableChatHistoryAsUser(page);
 
     expect(
       page.root.shadowRoot.querySelector('.chat-history__textarea'),
@@ -71,11 +88,7 @@ describe('ChatHistory', () => {
       html: '<chat-history></chat-history>',
     });
 
-    const toggle = page.root.shadowRoot.querySelector(
-      '.chat-history__switch-input',
-    ) as HTMLInputElement;
-    setCheckboxChecked(toggle, true);
-    await page.waitForChanges();
+    await enableChatHistoryAsUser(page);
 
     const textarea = page.root.shadowRoot.querySelector(
       '.chat-history__textarea',
@@ -95,7 +108,7 @@ describe('ChatHistory', () => {
 
     const spy = jest.fn();
     page.root.addEventListener('chatHistoryChange', (e: Event) =>
-      spy((e as CustomEvent<{ enabled: boolean; value: string }>).detail),
+      spy((e as CustomEvent<ChatHistoryChangeDetail>).detail),
     );
 
     const input = page.root.shadowRoot.querySelector(
@@ -113,15 +126,11 @@ describe('ChatHistory', () => {
       html: '<chat-history></chat-history>',
     });
 
-    const toggle = page.root.shadowRoot.querySelector(
-      '.chat-history__switch-input',
-    ) as HTMLInputElement;
-    setCheckboxChecked(toggle, true);
-    await page.waitForChanges();
+    await enableChatHistoryAsUser(page);
 
     const spy = jest.fn();
     page.root.addEventListener('chatHistoryChange', (e: Event) =>
-      spy((e as CustomEvent<{ enabled: boolean; value: string }>).detail),
+      spy((e as CustomEvent<ChatHistoryChangeDetail>).detail),
     );
     spy.mockClear();
 
@@ -141,11 +150,11 @@ describe('ChatHistory', () => {
       html: '<chat-history></chat-history>',
     });
 
+    await enableChatHistoryAsUser(page);
+
     const toggle = page.root.shadowRoot.querySelector(
       '.chat-history__switch-input',
     ) as HTMLInputElement;
-    setCheckboxChecked(toggle, true);
-    await page.waitForChanges();
 
     const textarea = page.root.shadowRoot.querySelector(
       '.chat-history__textarea',
@@ -156,7 +165,7 @@ describe('ChatHistory', () => {
 
     const spy = jest.fn();
     page.root.addEventListener('chatHistoryChange', (e: Event) =>
-      spy((e as CustomEvent<{ enabled: boolean; value: string }>).detail),
+      spy((e as CustomEvent<ChatHistoryChangeDetail>).detail),
     );
     spy.mockClear();
 

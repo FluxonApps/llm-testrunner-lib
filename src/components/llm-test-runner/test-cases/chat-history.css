@@ -91,7 +91,7 @@
   border-radius: var(--radius-md);
   font: inherit;
   resize: vertical;
-  min-height: 4.5rem;
+  min-height: 9rem;
   background: var(--background);
 }
 

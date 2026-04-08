@@ -63,7 +63,8 @@
     "just-publish": "npm publish --access=public",
     "lint": "eslint src --ext .ts,.tsx",
     "lint:fix": "eslint src --ext .ts,.tsx --fix",
-    "license-check": "licensee"
+    "license-check": "licensee",
+    "evaluate": "tsx scripts/evaluate.ts"
   },
   "dependencies": {
     "@google/genai": "^1.40.0",
@@ -92,6 +93,7 @@
     "nodemon": "^3.1.11",
     "prettier": "^3.6.2",
     "puppeteer": "^24.3.0",
+    "tsx": "^4.21.0",
     "wait-on": "^9.0.3"
   },
   "peerDependencies": {

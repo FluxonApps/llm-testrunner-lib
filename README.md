@@ -183,6 +183,7 @@ When you pass `initialTestCases`, use an array of objects with `type`, `label`, 
 | Method | Description |
 |--------|-------------|
 | `resetSavingState()` | Call after you finish persisting a save so the Save button leaves loading state. Use a ref in React. |
+| `getTestCases()` | Returns the current in-memory test cases from the runner as `Promise<TestCase[]>`. |
 
 ### Types
 

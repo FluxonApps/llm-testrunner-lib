@@ -20,6 +20,8 @@ import { formatTestSuiteAsJson } from '../../lib/import-export/test-suite-export
 import { importTestSuite } from '../../lib/import-export/test-suite-importer';
 import { EvaluationApproach } from '../../lib/evaluation/constants';
 
+const emptyChatHistory = { enabled: false, value: '' } as const;
+
 describe('llm-test-runner import/export', () => {
   let page: SpecPage;
   let component: any;
@@ -36,7 +38,8 @@ describe('llm-test-runner import/export', () => {
       id: '1',
       question: 'What is AI?',
       expectedOutcome: buildExpectedOutcome('artificial intelligence'),
-      isRunning: false
+      chatHistory: { enabled: false, value: '' },
+      isRunning: false,
     };
 
     return {
@@ -68,8 +71,9 @@ describe('llm-test-runner import/export', () => {
           id: '1',
           question: 'What is AI?',
           expectedOutcome: buildExpectedOutcome('artificial intelligence'),
-          isRunning: false
-        }
+          chatHistory: { ...emptyChatHistory },
+          isRunning: false,
+        },
       ];
 
       const mockFile = createMockFile(JSON.stringify(mockTestData), 'test-suite.json');
@@ -98,8 +102,9 @@ describe('llm-test-runner import/export', () => {
           id: '1',
           question: 'Test question',
           expectedOutcome: buildExpectedOutcome('test'),
-          isRunning: false
-        }
+          chatHistory: { ...emptyChatHistory },
+          isRunning: false,
+        },
       ];
       const normalizedImportData = [
         {
@@ -115,6 +120,7 @@ describe('llm-test-runner import/export', () => {
               },
             },
           ],
+          chatHistory: { ...emptyChatHistory },
           isRunning: false,
         },
       ];
@@ -147,14 +153,16 @@ describe('llm-test-runner import/export', () => {
           id: '1',
           question: 'What is AI?',
           expectedOutcome: buildExpectedOutcome('artificial intelligence'),
-          isRunning: false
+          chatHistory: { ...emptyChatHistory },
+          isRunning: false,
         },
         {
           id: '2',
           question: 'What is ML?',
           expectedOutcome: buildExpectedOutcome('machine learning'),
-          isRunning: false
-        }
+          chatHistory: { ...emptyChatHistory },
+          isRunning: false,
+        },
       ];
 
       const mockFile = createMockFile(JSON.stringify(mockTestData), 'test.json');
@@ -179,20 +187,23 @@ describe('llm-test-runner import/export', () => {
           id: '1',
           question: 'Q1',
           expectedOutcome: buildExpectedOutcome('answer1'),
-          isRunning: false
+          chatHistory: { ...emptyChatHistory },
+          isRunning: false,
         },
         {
           id: '2',
           question: 'Q2',
           expectedOutcome: buildExpectedOutcome('answer2'),
-          isRunning: false
+          chatHistory: { ...emptyChatHistory },
+          isRunning: false,
         },
         {
           id: '3',
           question: 'Q3',
           expectedOutcome: buildExpectedOutcome('answer3'),
-          isRunning: false
-        }
+          chatHistory: { ...emptyChatHistory },
+          isRunning: false,
+        },
       ];
 
       const mockFile = createMockFile(JSON.stringify(mockTestData), 'test.json');

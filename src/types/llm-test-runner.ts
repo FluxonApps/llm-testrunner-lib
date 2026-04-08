@@ -24,6 +24,7 @@ export type {
   ModelResponsePayload,
 } from '../schemas/model-response';
 export type {
+  TestCaseChatHistory,
   TestCase,
   TestCaseInput,
 } from './test-case';
@@ -31,6 +32,7 @@ export type {
 export interface LLMRequestPayload {
   prompt: string;
   resolve: (result: ModelResponsePayload) => void;
+  chatHistory?: string;
   reject: (err: Error | unknown) => void;
 }
 

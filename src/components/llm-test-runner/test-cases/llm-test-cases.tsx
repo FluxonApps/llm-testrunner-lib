@@ -1,6 +1,6 @@
 import { h, FunctionalComponent } from '@stencil/core';
 import { TestCase } from '../../../types/llm-test-runner';
-import { LLMTestCaseRow } from './llm-test-case-row';
+import { LLMTestCaseRow, ChatHistoryRowChangeDetail } from './llm-test-case-row';
 import { Button } from '../../../lib/ui/button/index';
 import { ExpectedOutcomeChangeDetail } from './expected-outcome-renderer';
 
@@ -17,6 +17,7 @@ export interface LLMTestCasesProps {
   onExpectedOutcomeChange: (
     e: CustomEvent<ExpectedOutcomeChangeDetail>,
   ) => void;
+  onChatHistoryChange: (e: CustomEvent<ChatHistoryRowChangeDetail>) => void;
 }
 
 export const LLMTestCases: FunctionalComponent<LLMTestCasesProps> = ({
@@ -28,6 +29,7 @@ export const LLMTestCases: FunctionalComponent<LLMTestCasesProps> = ({
   onAddTestCase,
   handleTestCaseChange,
   onExpectedOutcomeChange,
+  onChatHistoryChange,
 }) => {
   return (
     <div class="test-cases">
@@ -47,6 +49,7 @@ export const LLMTestCases: FunctionalComponent<LLMTestCasesProps> = ({
           onDelete={onDelete}
           handleTestCaseChange={handleTestCaseChange}
           onExpectedOutcomeChange={onExpectedOutcomeChange}
+          onChatHistoryChange={onChatHistoryChange}
         />
       ))}
 

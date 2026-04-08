@@ -19,6 +19,7 @@ function baseCase(overrides: Partial<TestCase> = {}): TestCase {
         outcomeMode: 'static',
       },
     ],
+    chatHistory: { enabled: false, value: '' },
     ...overrides,
   };
 }

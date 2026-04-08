@@ -26,6 +26,10 @@
       "require": "./dist/components/*",
       "types": "./dist/components/*"
     },
+    "./eval": {
+      "import": "./dist/collection/lib/evaluation/eval-suite-runner.js",
+      "types": "./dist/types/lib/evaluation/eval-suite-runner.d.ts"
+    },
     "./loader": {
       "import": "./loader/index.js",
       "require": "./loader/index.cjs",

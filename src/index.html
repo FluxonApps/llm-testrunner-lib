@@ -8,72 +8,38 @@
     />
     <title>LLM TestRunner</title>
 
+    <link rel="stylesheet" href="/demo/vanilla-demo.css" />
     <script type="module" src="/build/llm-testrunner.esm.js"></script>
     <script nomodule src="/build/llm-testrunner.js"></script>
-    <style>
-      body {
-        font-family:
-          -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-        margin: 0;
-        padding: 20px;
-        background-color: #f5f5f5;
-      }
-      .container {
-        max-width: 1200px;
-        margin: 0 auto;
-      }
-      .demo-section {
-        background: white;
-        margin: 20px 0;
-        padding: 30px;
-        border-radius: 8px;
-        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-      }
-      h1 {
-        color: #333;
-        text-align: center;
-        margin-bottom: 40px;
-      }
-      h2 {
-        color: #555;
-        border-bottom: 2px solid #eee;
-        padding-bottom: 10px;
-      }
-    </style>
   </head>
   <body>
     <div class="container">
       <h1>LLM TestRunner</h1>
 
-      <main class="main-content">
+      <main class="demo-section">
         <h2>LLM Test Runner</h2>
         <p>
           Test LLM responses with automated evaluation. Enter questions, set
           expected keywords and source links, then run tests to see how well the
           AI responds.
         </p>
-        <llm-test-runner id="llm-test-runner" delay-ms="1000"></llm-test-runner>
+
+        <div class="demo-mode-bar" role="group" aria-label="Examples">
+          <button type="button" id="mode-default" aria-pressed="true">
+            Simple Test
+          </button>
+          <button type="button" id="mode-schema" aria-pressed="false">
+            Multiple Expected Outcomes
+          </button>
+          <button type="button" id="mode-dynamic" aria-pressed="false">
+            Dynamic Expected Outcome
+          </button>
+        </div>
+
+        <div id="runner-host"></div>
       </main>
     </div>
+
+    <script type="module" src="/demo/vanilla-demo.js"></script>
   </body>
-  <script>
-    document.addEventListener('DOMContentLoaded', () => {
-      const llmTestRunner = document.getElementById('llm-test-runner');
-      const llm = new window.GeminiAdapter(window.env.API_KEY);
-    
-      async function callGeminiAPI(event) {
-        try {
-          const response = await llm.invoke(event.detail.prompt);
-
-          event.detail.resolve({ text: response });
-        } catch (err) {
-          event.detail.reject(
-            err instanceof Error ? err : new Error(String(err)),
-          );
-        }
-      }
-
-      llmTestRunner.addEventListener('llmRequest', callGeminiAPI);
-    });
-  </script>
 </html>

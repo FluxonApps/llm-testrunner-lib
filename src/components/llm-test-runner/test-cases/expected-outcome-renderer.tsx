@@ -161,11 +161,11 @@ export const ExpectedOutcomeRenderer: FunctionalComponent<ExpectedOutcomeRendere
   const renderEvaluationOptions = (field: ExpectedOutcomeField, index: number) => (
     <details class="expected-outcome-renderer__options">
       <summary class="expected-outcome-renderer__options-summary">
-        Evaluation Settings
+        More options
       </summary>
       <div class="expected-outcome-renderer__options-content">
-        {renderEvaluationSourceSelector(field, index)}
         {renderEvaluationSelector(field, index)}
+        {renderEvaluationSourceSelector(field, index)}
       </div>
     </details>
   );

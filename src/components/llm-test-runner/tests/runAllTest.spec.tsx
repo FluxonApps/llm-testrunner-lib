@@ -199,8 +199,8 @@ describe('LLMTestRunner - Run All', () => {
     expect(d0.chatHistory).toBe('ctx-a');
     expect(d1).not.toHaveProperty('chatHistory');
 
-    d0.resolve('Stencil Answer');
-    d1.resolve('JSX Answer');
+    d0.resolve({ text: 'Stencil Answer' });
+    d1.resolve({ text: 'JSX Answer' });
     await page.waitForChanges();
   });
 

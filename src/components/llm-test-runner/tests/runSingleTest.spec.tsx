@@ -114,7 +114,7 @@ describe('LLMTestRunner', () => {
 
     const detail = getFirstEventFromSpy(llmRequestSpy).detail;
     expect(detail).not.toHaveProperty('chatHistory');
-    await detail.resolve('x');
+    await detail.resolve({ text: 'x' });
     await page.waitForChanges();
   });
 
@@ -136,7 +136,7 @@ describe('LLMTestRunner', () => {
 
     const ev = getFirstEventFromSpy(llmRequestSpy);
     expect(ev.detail.chatHistory).toBe(raw);
-    await ev.detail.resolve('ok');
+    await ev.detail.resolve({ text: 'ok' });
     await page.waitForChanges();
   });
 

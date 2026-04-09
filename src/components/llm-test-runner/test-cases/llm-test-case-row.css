@@ -35,6 +35,27 @@
   background: var(--background);
 }
 
+.expected-outcome-renderer__options {
+  border: var(--border-width) solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--muted);
+}
+
+.expected-outcome-renderer__options-summary {
+  cursor: pointer;
+  font-size: var(--font-size-sm);
+  color: var(--foreground);
+  padding: var(--spacing-2) var(--spacing-3);
+  user-select: none;
+}
+
+.expected-outcome-renderer__options-content {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-2);
+  padding: 0 var(--spacing-3) var(--spacing-3);
+}
+
 /* Responsive Design */
 @media (max-width: 1200px) {
   .test-case-row {

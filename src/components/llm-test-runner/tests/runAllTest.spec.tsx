@@ -156,8 +156,8 @@ describe('LLMTestRunner - Run All', () => {
     expect(event1).not.toHaveProperty('chatHistory');
     expect(event2).not.toHaveProperty('chatHistory');
 
-    event1.resolve('Stencil Answer');
-    event2.resolve('JSX Answer');
+    event1.resolve({ text: 'Stencil Answer' });
+    event2.resolve({ text: 'JSX Answer' });
 
     await page.waitForChanges();
 
@@ -167,10 +167,10 @@ describe('LLMTestRunner - Run All', () => {
     // 7. Verify Individual Test States
     const finalCases = page.rootInstance.testCases;
 
-    expect(finalCases[0].output).toBe('Stencil Answer');
+    expect(finalCases[0].output?.text).toBe('Stencil Answer');
     expect(finalCases[0].isRunning).toBe(false);
 
-    expect(finalCases[1].output).toBe('JSX Answer');
+    expect(finalCases[1].output?.text).toBe('JSX Answer');
     expect(finalCases[1].isRunning).toBe(false);
 
     // 8. Verify Evaluation was called for both
@@ -199,8 +199,8 @@ describe('LLMTestRunner - Run All', () => {
     expect(d0.chatHistory).toBe('ctx-a');
     expect(d1).not.toHaveProperty('chatHistory');
 
-    d0.resolve('Stencil Answer');
-    d1.resolve('JSX Answer');
+    d0.resolve({ text: 'Stencil Answer' });
+    d1.resolve({ text: 'JSX Answer' });
     await page.waitForChanges();
   });
 

@@ -1,6 +1,7 @@
 import type { TestCase } from '../../types/llm-test-runner';
 import { createTestCaseFromInput } from '../test-cases/test-case-factory';
 import { validateTestCaseInputArray } from '../../schemas/test-case';
+import { validateExpectedOutcomeArrayWithExtractors } from '../../schemas/expected-outcome';
 
 export interface ImportValidationResult {
   success: boolean;
@@ -13,10 +14,21 @@ export interface ImportValidationResult {
  * @param jsonContent - The JSON string to parse and validate
  * @returns Validation result with test cases or error message
  */
-export function importTestSuite(jsonContent: string): ImportValidationResult {
+export function importTestSuite(
+  jsonContent: string,
+  allowedExtractorIds: string[] = [],
+): ImportValidationResult {
   try {
     const parsed = JSON.parse(jsonContent);
     validateTestCaseInputArray(parsed);
+    if (allowedExtractorIds.length > 0) {
+      parsed.forEach((testCase) => {
+        validateExpectedOutcomeArrayWithExtractors(
+          testCase.expectedOutcome,
+          allowedExtractorIds,
+        );
+      });
+    }
 
     const testCases = parsed.map((item, index) => {
       try {

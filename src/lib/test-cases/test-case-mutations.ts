@@ -1,9 +1,30 @@
 import {
   TestCase,
+  type ExpectedOutcomeField,
+  type EvaluationSource,
   type ExpectedOutcomeMode,
 } from '../../types/llm-test-runner';
 import { EvaluationApproach } from '../evaluation/constants';
 import { normalizeEvaluationParametersForField } from '../evaluation/field-evaluation-approach';
+
+function isChipsInputField(
+  field: ExpectedOutcomeField,
+): field is Extract<ExpectedOutcomeField, { type: 'chips-input' }> {
+  return field.type === 'chips-input';
+}
+
+function isTextareaField(
+  field: ExpectedOutcomeField,
+): field is Extract<ExpectedOutcomeField, { type: 'textarea' }> {
+  return field.type === 'textarea';
+}
+
+function isDynamicTextareaField(
+  field: ExpectedOutcomeField,
+): field is Extract<ExpectedOutcomeField, { type: 'textarea' }> {
+  return isTextareaField(field) && field.outcomeMode === 'dynamic';
+}
+
 
 export type ExpectedOutcomeChange =
   | {
@@ -35,6 +56,17 @@ export type ExpectedOutcomeChange =
       index: number;
       operation: 'set-resolution-query';
       value: string;
+    }
+  | {
+      index: number;
+      operation: 'set-evaluation-source-type';
+      value: EvaluationSource['type'];
+      fallbackExtractorId?: string;
+    }
+  | {
+      index: number;
+      operation: 'set-evaluation-source-extractor';
+      value: string;
     };
 
 export function applyExpectedOutcomeChange(
@@ -49,72 +81,101 @@ export function applyExpectedOutcomeChange(
     return testCase;
   }
 
+  const commit = (updatedField: ExpectedOutcomeField): TestCase => {
+    expectedOutcome[index] = updatedField;
+    return { ...testCase, expectedOutcome };
+  };
+
   switch (change.operation) {
     case 'set-value': {
-      if (target.type === 'chips-input') {
+      if (isChipsInputField(target)) {
         return testCase;
       }
-      if (target.type === 'textarea' && target.outcomeMode === 'dynamic') {
+      if (isDynamicTextareaField(target)) {
         return testCase;
       }
-      expectedOutcome[index] = {
+      return commit({
         ...target,
         value: change.value,
-      };
-      return { ...testCase, expectedOutcome };
+      });
     }
     case 'add-chip': {
-      if (target.type !== 'chips-input') {
+      if (!isChipsInputField(target)) {
         return testCase;
       }
-      expectedOutcome[index] = {
+      return commit({
         ...target,
         value: [...target.value, change.value],
-      };
-      return { ...testCase, expectedOutcome };
+      });
     }
     case 'remove-chip': {
-      if (target.type !== 'chips-input') {
+      if (!isChipsInputField(target)) {
         return testCase;
       }
-      expectedOutcome[index] = {
+      return commit({
         ...target,
         value: target.value.filter(chip => chip !== change.value),
-      };
-      return { ...testCase, expectedOutcome };
+      });
     }
     case 'set-evaluation-approach':
       return updateExpectedOutcomeFieldApproach(testCase, index, change.value);
     case 'set-outcome-mode': {
-      if (target.type !== 'textarea') {
+      if (!isTextareaField(target)) {
         return testCase;
       }
       const mode = change.value;
       if (mode === 'static') {
         const { resolutionQuery: _, ...rest } = target;
-        expectedOutcome[index] = {
+        return commit({
           ...rest,
           outcomeMode: 'static',
           value: '',
-        };
+        });
       } else {
-        expectedOutcome[index] = {
+        return commit({
           ...target,
           outcomeMode: 'dynamic',
           value: '',
-        };
+        });
       }
-      return { ...testCase, expectedOutcome };
     }
     case 'set-resolution-query': {
-      if (target.type !== 'textarea' || target.outcomeMode !== 'dynamic') {
+      if (!isDynamicTextareaField(target)) {
         return testCase;
       }
-      expectedOutcome[index] = {
+      return commit({
         ...target,
         resolutionQuery: change.value,
-      };
-      return { ...testCase, expectedOutcome };
+      });
+    }
+    case 'set-evaluation-source-type': {
+      if (change.value === 'text') {
+        return commit({
+          ...target,
+          evaluationSource: { type: 'text' },
+        });
+      }
+
+      const extractorId =
+        target.evaluationSource?.type === 'custom'
+          ? target.evaluationSource.extractorId
+          : (change.fallbackExtractorId ?? '');
+      return commit({
+        ...target,
+        evaluationSource: {
+          type: 'custom',
+          extractorId,
+        },
+      });
+    }
+    case 'set-evaluation-source-extractor': {
+      return commit({
+        ...target,
+        evaluationSource: {
+          type: 'custom',
+          extractorId: change.value,
+        },
+      });
     }
   }
 }

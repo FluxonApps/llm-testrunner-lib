@@ -1,6 +1,10 @@
 import type { TestCase } from './test-case';
+import type { ModelResponsePayload } from '../schemas/model-response';
 
 export type {
+  EvaluationSource,
+  EvaluationSourceExtractor,
+  EvaluationSourceExtractors,
   ExpectedOutcomeMode,
   ExpectedOutcomeFieldType,
   ExpectedOutcomeBase,
@@ -17,6 +21,9 @@ export type {
   SelectExpectedOutcomeField,
 } from './expected-outcome';
 export type {
+  ModelResponsePayload,
+} from '../schemas/model-response';
+export type {
   TestCaseChatHistory,
   TestCase,
   TestCaseInput,
@@ -24,8 +31,8 @@ export type {
 
 export interface LLMRequestPayload {
   prompt: string;
+  resolve: (result: ModelResponsePayload) => void;
   chatHistory?: string;
-  resolve: (result: string) => void;
   reject: (err: Error | unknown) => void;
 }
 

@@ -23,6 +23,7 @@ function normalizeExpectedOutcomeField(
 ): ExpectedOutcomeField {
   return {
     ...field,
+    evaluationSource: field.evaluationSource || { type: 'text' },
     evaluationParameters: normalizeEvaluationParametersForField(
       field.type,
       field.evaluationParameters,
@@ -55,6 +56,7 @@ function createExpectedOutcomeFieldFromSchema(
         type: 'text',
         label: schemaField.label,
         placeholder: schemaField.placeholder,
+        evaluationSource: schemaField.evaluationSource || { type: 'text' },
         value: '',
         evaluationParameters: normalizeEvaluationParametersForField(
           schemaField.type,
@@ -67,6 +69,7 @@ function createExpectedOutcomeFieldFromSchema(
         type: 'textarea',
         label: schemaField.label,
         placeholder: schemaField.placeholder,
+        evaluationSource: schemaField.evaluationSource || { type: 'text' },
         rows: schemaField.rows,
         value: '',
         evaluationParameters: normalizeEvaluationParametersForField(
@@ -80,6 +83,7 @@ function createExpectedOutcomeFieldFromSchema(
         type: 'chips-input',
         label: schemaField.label,
         placeholder: schemaField.placeholder,
+        evaluationSource: schemaField.evaluationSource || { type: 'text' },
         value: [],
         evaluationParameters: normalizeEvaluationParametersForField(
           schemaField.type,
@@ -92,6 +96,7 @@ function createExpectedOutcomeFieldFromSchema(
         type: 'select',
         label: schemaField.label,
         placeholder: schemaField.placeholder,
+        evaluationSource: schemaField.evaluationSource || { type: 'text' },
         value: schemaField.options[0],
         options: schemaField.options,
         evaluationParameters: normalizeEvaluationParametersForField(

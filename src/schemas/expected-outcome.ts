@@ -1,15 +1,47 @@
 import { z } from 'zod';
 import { EvaluationApproach } from '../lib/evaluation/constants';
 import { isApproachAllowedForFieldType } from '../lib/evaluation/field-evaluation-approach';
+import type { ModelResponsePayload } from './model-response';
 
 const nonEmptyString = z.string().trim().min(1);
 const optionalPositiveInt = z.number().int().positive().optional();
 const optionalString = z.string().optional();
 const selectOptionsSchema = z.array(nonEmptyString).min(1);
 const optionalNumber = z.number().optional();
+const textEvaluationSourceSchema = z.object({
+  type: z.literal('text'),
+});
+const customEvaluationSourceSchema = z.object({
+  type: z.literal('custom'),
+  extractorId: nonEmptyString,
+});
+
+export const evaluationSourceExtractorSchema = z.custom<
+  (payload: ModelResponsePayload) => string | Promise<string>
+>(
+  value => typeof value === 'function',
+  'Extractor must be a function.',
+);
+
+export const evaluationSourceExtractorsSchema = z.record(
+  z.string().min(1),
+  evaluationSourceExtractorSchema,
+);
+
+export const evaluationSourceSchema = z.discriminatedUnion('type', [
+  textEvaluationSourceSchema,
+  customEvaluationSourceSchema,
+]);
 
 export const expectedOutcomeModeSchema = z.enum(['static', 'dynamic']);
 export type ExpectedOutcomeMode = z.infer<typeof expectedOutcomeModeSchema>;
+export type EvaluationSource = z.infer<typeof evaluationSourceSchema>;
+export type EvaluationSourceExtractor = z.infer<
+  typeof evaluationSourceExtractorSchema
+>;
+export type EvaluationSourceExtractors = z.infer<
+  typeof evaluationSourceExtractorsSchema
+>;
 
 const evaluationParametersSchema = z.object({
   approach: z.enum(EvaluationApproach),
@@ -31,6 +63,7 @@ const selectEvaluationParametersSchema = evaluationParametersSchema.superRefine(
 const defaultExpectedOutcomeBaseSchema = z.object({
   label: nonEmptyString,
   placeholder: optionalString,
+  evaluationSource: evaluationSourceSchema.optional(),
 });
 
 const createDefaultExpectedOutcomeFieldSchemas = (
@@ -192,4 +225,39 @@ export function validateExpectedOutcomeArray(
   if (!parsed.success) {
     throw new Error(`Invalid expectedOutcome: ${parsed.error.issues[0].message}`);
   }
+}
+
+export function validateExpectedOutcomeArrayWithExtractors(
+  expectedOutcome: unknown,
+  allowedExtractorIds: string[],
+): asserts expectedOutcome is ExpectedOutcomeField[] {
+  const allowed = new Set(allowedExtractorIds);
+  const schema = expectedOutcomeArraySchema.superRefine((fields, ctx) => {
+    fields.forEach((field, index) => {
+      if (field.evaluationSource?.type !== 'custom') {
+        return;
+      }
+
+      if (allowed.has(field.evaluationSource.extractorId)) {
+        return;
+      }
+
+      ctx.addIssue({
+        code: 'custom',
+        path: [index, 'evaluationSource', 'extractorId'],
+        message: `Invalid expectedOutcome: Extractor "${field.evaluationSource.extractorId}" is not registered.`,
+      });
+    });
+  });
+
+  const parsed = schema.safeParse(expectedOutcome);
+  if (!parsed.success) {
+    throw new Error(parsed.error.issues[0].message);
+  }
+}
+
+export function getExtractorIds(
+  extractors?: EvaluationSourceExtractors,
+): string[] {
+  return Object.keys(extractors || {});
 }

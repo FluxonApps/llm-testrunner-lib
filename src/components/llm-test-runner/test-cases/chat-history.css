@@ -34,6 +34,9 @@
 .chat-history__switch-ui {
   position: relative;
   flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  padding: 0px 4px;
   width: 2.75rem;
   height: 1.5rem;
   border-radius: var(--radius-full);
@@ -52,9 +55,7 @@
 }
 
 .chat-history__switch-thumb {
-  position: absolute;
-  top: 2px;
-  left: 2px;
+  display: inline-block;
   width: calc(1.5rem - 6px);
   height: calc(1.5rem - 6px);
   border-radius: var(--radius-full);
@@ -69,8 +70,7 @@
 }
 
 .chat-history__switch-input:checked + .chat-history__switch-ui .chat-history__switch-thumb {
-  /* track width − end padding (2px × 2) − thumb width */
-  transform: translateX(calc(2.75rem - (1.5rem - 6px) - 4px));
+  transform: translateX(calc(2.75rem - (1.5rem - 6px)));
 }
 
 .chat-history__switch-input:focus-visible + .chat-history__switch-ui {

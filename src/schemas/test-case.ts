@@ -1,6 +1,7 @@
 import { z } from 'zod';
 import type { EvaluationResult } from '../lib/evaluation/types';
 import { expectedOutcomeArraySchema } from './expected-outcome';
+import { modelResponsePayloadSchema } from './model-response';
 
 export const testCaseChatHistorySchema = z.object({
   enabled: z.boolean(),
@@ -20,8 +21,8 @@ export const testCaseSchema = z.object({
   id: z.string(),
   question: z.string(),
   expectedOutcome: expectedOutcomeArraySchema,
+  output: modelResponsePayloadSchema.optional(),
   chatHistory: testCaseChatHistorySchema,
-  output: z.string().optional(),
   isRunning: z.boolean().optional(),
   error: z.string().optional(),
   evaluationResult: z.custom<EvaluationResult>().optional(),

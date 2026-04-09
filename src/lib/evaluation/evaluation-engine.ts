@@ -22,7 +22,7 @@ export class LLMEvaluationEngine {
         const fieldRequest: EvaluationRequest = {
           testCaseId: request.testCaseId,
           question: request.question,
-          actualResponse: request.actualResponse,
+          actualResponse: field.actualResponse,
           expectedOutcome: field.expectedValue,
           evaluationParameters: field.evaluationParameters,
         };

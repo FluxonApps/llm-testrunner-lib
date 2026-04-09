@@ -17,6 +17,7 @@ export type ChatHistoryRowChangeDetail = {
 export interface LLMTestCaseRowProps {
   testCase: TestCase;
   dynamicResolutionSupported?: boolean;
+  extractorIds?: string[];
   onRun: (testCase: TestCase) => void;
   onDelete: (id: string) => void;
   handleTestCaseChange: (
@@ -31,6 +32,7 @@ export interface LLMTestCaseRowProps {
 export const LLMTestCaseRow: FunctionalComponent<LLMTestCaseRowProps> = ({
   testCase,
   dynamicResolutionSupported = false,
+  extractorIds = [],
   onRun,
   onDelete,
   handleTestCaseChange,
@@ -81,6 +83,7 @@ export const LLMTestCaseRow: FunctionalComponent<LLMTestCaseRowProps> = ({
           testCaseId={testCase.id}
           fields={testCase.expectedOutcome || []}
           dynamicResolutionSupported={dynamicResolutionSupported}
+          extractorIds={extractorIds}
           onExpectedOutcomeChange={onExpectedOutcomeChange}
         />
       </div>

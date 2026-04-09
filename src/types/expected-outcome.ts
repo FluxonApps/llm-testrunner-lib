@@ -1,4 +1,7 @@
 export type {
+  EvaluationSource,
+  EvaluationSourceExtractor,
+  EvaluationSourceExtractors,
   ExpectedOutcomeMode,
   ExpectedOutcomeSchemaField,
   ExpectedOutcomeSchema,

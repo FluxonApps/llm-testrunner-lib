@@ -5,7 +5,7 @@ function wireGemini(runner) {
   runner.addEventListener('llmRequest', async (event) => {
     try {
       const response = await llm.invoke(event.detail.prompt);
-      event.detail.resolve(response);
+      event.detail.resolve({ text: response });
     } catch (err) {
       event.detail.reject(
         err instanceof Error ? err : new Error(String(err)),

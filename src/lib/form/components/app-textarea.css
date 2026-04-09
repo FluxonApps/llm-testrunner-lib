@@ -38,8 +38,8 @@
   background: var(--muted);
   color: var(--muted-foreground);
   border-color: var(--border);
-  cursor: not-allowed;
-  resize: none;
+  cursor: default;
+  resize: vertical;
 }
 
 .textarea-element:read-only:focus {

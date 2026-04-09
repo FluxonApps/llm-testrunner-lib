@@ -6,7 +6,7 @@
       name="viewport"
       content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=5.0"
     />
-    <title>LLM TestRunner</title>
+    <title>Fluxon LLM TestRunner</title>
 
     <link rel="stylesheet" href="/demo/vanilla-demo.css" />
     <script type="module" src="/build/llm-testrunner.esm.js"></script>
@@ -14,26 +14,27 @@
   </head>
   <body>
     <div class="container">
-      <h1>LLM TestRunner</h1>
+      <h1>Fluxon LLM TestRunner</h1>
 
       <main class="demo-section">
-        <h2>LLM Test Runner</h2>
+        <h2>Fluxon LLM TestRunner</h2>
         <p>
           Test LLM responses with automated evaluation. Enter questions, set
           expected keywords and source links, then run tests to see how well the
           AI responds.
         </p>
 
-        <div class="demo-mode-bar" role="group" aria-label="Examples">
-          <button type="button" id="mode-default" aria-pressed="true">
-            Simple Test
-          </button>
-          <button type="button" id="mode-schema" aria-pressed="false">
-            Multiple Expected Outcomes
-          </button>
-          <button type="button" id="mode-dynamic" aria-pressed="false">
-            Dynamic Expected Outcome
-          </button>
+        <div class="demo-example-row">
+          <label class="demo-example-row__label" for="demo-example-mode">Example</label>
+          <select id="demo-example-mode" class="demo-example-row__select">
+            <option value="simpleTest">Simple Test</option>
+            <option value="multipleExpectedOutcomes">
+              Multiple Expected Outcomes
+            </option>
+            <option value="dynamicExpectedOutcome">
+              Dynamic Expected Outcome
+            </option>
+          </select>
         </div>
 
         <div id="runner-host"></div>

@@ -34,30 +34,38 @@ h2 {
   margin-top: 0;
 }
 
-.demo-mode-bar {
+.demo-example-row {
   display: flex;
   flex-wrap: wrap;
-  gap: 8px;
-  margin: 20px 0 16px;
+  align-items: center;
+  gap: 10px 14px;
+  margin: 20px 0 20px;
 }
 
-.demo-mode-bar button {
+.demo-example-row__label {
+  font-size: 0.9375rem;
+  font-weight: 600;
+  color: #444;
+}
+
+.demo-example-row__select {
   font: inherit;
-  padding: 8px 14px;
-  border: 1px solid #ccc;
+  font-size: 0.9375rem;
+  line-height: 1.35;
+  min-width: min(100%, 18rem);
+  min-height: 2.5rem;
+  padding: 0.45rem 0.65rem;
+  border: 1px solid #c4c4c4;
   border-radius: 6px;
-  background: #fafafa;
+  background-color: #fff;
+  color: #222;
   cursor: pointer;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
 }
 
-.demo-mode-bar button:hover {
-  background: #f0f0f0;
-}
-
-.demo-mode-bar button[aria-pressed='true'] {
-  background: #1a56db;
-  color: #fff;
-  border-color: #1a56db;
+.demo-example-row__select:focus-visible {
+  outline: 2px solid #1a56db;
+  outline-offset: 2px;
 }
 
 #runner-host {

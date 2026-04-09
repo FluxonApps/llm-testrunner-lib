@@ -30,40 +30,22 @@ function mountMode(host, modeKey) {
   wireGemini(runner);
 }
 
-function setPressed(buttons, activeId) {
-  for (const btn of buttons) {
-    btn.setAttribute('aria-pressed', btn.id === activeId ? 'true' : 'false');
-  }
-}
-
 function initVanillaDemo() {
   const host = document.getElementById('runner-host');
-  const btnDefault = document.getElementById('mode-default');
-  const btnSchema = document.getElementById('mode-schema');
-  const btnDynamic = document.getElementById('mode-dynamic');
-  const buttons = [btnDefault, btnSchema, btnDynamic];
+  const modeSelect = document.getElementById('demo-example-mode');
 
   function showMode(modeKey) {
     mountMode(host, modeKey);
   }
 
-  btnDefault.addEventListener('click', () => {
-    setPressed(buttons, 'mode-default');
-    showMode('simpleTest');
-  });
-  btnSchema.addEventListener('click', () => {
-    setPressed(buttons, 'mode-schema');
-    showMode('multipleExpectedOutcomes');
-  });
-  btnDynamic.addEventListener('click', () => {
-    setPressed(buttons, 'mode-dynamic');
-    showMode('dynamicExpectedOutcome');
+  modeSelect.addEventListener('change', () => {
+    showMode(modeSelect.value);
   });
 
   void (async () => {
     await customElements.whenDefined('llm-test-runner');
+    modeSelect.value = 'simpleTest';
     showMode('simpleTest');
-    setPressed(buttons, 'mode-default');
   })();
 }
 

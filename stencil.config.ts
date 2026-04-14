@@ -27,6 +27,7 @@ export const config: Config = {
     {
       type: 'www',
       serviceWorker: null,
+      copy: [{ src: 'demo', dest: 'demo' }],
     },
   ],
   testing: {

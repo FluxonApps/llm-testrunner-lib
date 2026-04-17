@@ -107,6 +107,9 @@
     }
   },
   "license": "MIT",
+  "overrides": {
+    "protobufjs": "^7.5.5"
+  },
   "keywords": [
     "web-components",
     "stencil",

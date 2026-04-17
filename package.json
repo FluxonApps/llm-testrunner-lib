@@ -34,6 +34,10 @@
     "./dist/*": {
       "import": "./dist/*",
       "types": "./dist/*"
+    },
+    "./headless": {
+      "types": "./dist/headless/headless/index.d.ts",
+      "import": "./dist/headless/headless/index.js"
     }
   },
   "repository": {
@@ -58,7 +62,8 @@
     "watch": "concurrently -n \"Stencil Build,React Wrapper\" -c \"cyan,magenta\" \"stencil build --watch\" \"wait-on generated/react/components.ts && npm run watch:react-wrapper\"",
     "build:react": "tsc --project tsconfig.react.json",
     "watch:react-wrapper": "nodemon --watch generated/react --ext ts,tsx --exec \"npm run build:react\"",
-    "build:all": "npm run build && npm run build:react",
+    "build:headless": "rm -rf dist/headless && tsc --project tsconfig.headless.json",
+    "build:all": "npm run build && npm run build:react && npm run build:headless",
     "build-publish": "npm run build:all && npm run just-publish",
     "just-publish": "npm publish --access=public",
     "lint": "eslint src --ext .ts,.tsx",

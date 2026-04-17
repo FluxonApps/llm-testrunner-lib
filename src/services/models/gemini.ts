@@ -10,16 +10,21 @@ export const enum GeminiModels {
 
 export class GeminiAdapter implements LlmAdapter {
   private readonly sdk;
+  private readonly modelId: string;
 
-  constructor(key: string) {
+  constructor(
+    key: string,
+    modelId: string = GeminiModels.Gemini3Flash__Preview,
+  ) {
     this.sdk = new GoogleGenAI({
       apiKey: key,
     });
+    this.modelId = modelId;
   }
 
   async invoke(text: string) {
     const response = await this.sdk.models.generateContent({
-      model: GeminiModels.Gemini3Flash__Preview,
+      model: this.modelId,
       contents: text,
     });
 

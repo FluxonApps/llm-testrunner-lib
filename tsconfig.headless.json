@@ -1,0 +1,18 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "outDir": "dist/headless",
+    "rootDir": "src",
+    "declaration": true,
+    "declarationMap": true,
+    "noEmit": false,
+    "module": "ESNext",
+    "moduleResolution": "bundler"
+  },
+  "include": [
+    "src/headless/**/*.ts",
+    "src/services/models/gemini.ts",
+    "src/services/adapters.ts"
+  ],
+  "exclude": ["src/headless/**/*.spec.ts"]
+}

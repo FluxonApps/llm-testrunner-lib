@@ -32,6 +32,11 @@ export const config: Config = {
   ],
   testing: {
     browserHeadless: 'shell',
+    moduleNameMapper: {
+      // @xenova/transformers v2 is pure ESM with a known __dirname bug
+      // (fixed in @huggingface/transformers v3+). Mock it for Jest/CJS compat.
+      '^@xenova/transformers$': '<rootDir>/src/__mocks__/xenova-transformers.ts',
+    },
   },
   sourceMap: true,
   globalScript: path.resolve(__dirname, 'src/global/env.ts'),

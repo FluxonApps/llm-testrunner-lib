@@ -21,8 +21,6 @@ function getCopyIcon(page: SpecPage): SVGRectElement | null {
 }
 
 function isDisabled(button: HTMLButtonElement): boolean {
-  // Stencil's spec-mode mock DOM doesn't reflect the .disabled property,
-  // so check the attribute instead.
   return button.hasAttribute('disabled');
 }
 
@@ -35,8 +33,6 @@ async function clickAndSettle(
   button: HTMLButtonElement,
 ): Promise<void> {
   button.click();
-  // Flush microtasks so `await navigator.clipboard.writeText(...)` resolves
-  // and the handler reaches `this.copied = true`.
   await Promise.resolve();
   await Promise.resolve();
   await page.waitForChanges();
@@ -51,19 +47,25 @@ function setClipboardImpl(
   writeTextMock.mockImplementation(impl);
 }
 
+let originalNavigatorDescriptor: PropertyDescriptor | undefined;
+
 beforeEach(() => {
   setClipboardImpl();
-  // Attach (or replace) navigator.clipboard with our spy.
-  Object.defineProperty(navigator, 'clipboard', {
+  originalNavigatorDescriptor = Object.getOwnPropertyDescriptor(global, 'navigator');
+  Object.defineProperty(global as any, 'navigator', {
     configurable: true,
-    value: { writeText: writeTextMock },
+    writable: true,
+    value: { clipboard: { writeText: writeTextMock } },
   });
 });
 
 afterEach(() => {
-  // Clean up any pending real-timers so a stray setTimeout (the 1.4s reset
-  // from a prior test) doesn't fire into a later test's component.
   jest.clearAllTimers();
+  if (originalNavigatorDescriptor) {
+    Object.defineProperty(global as any, 'navigator', originalNavigatorDescriptor);
+  } else {
+    delete (global as { navigator?: unknown }).navigator;
+  }
 });
 
 describe('CopyButton', () => {
@@ -134,9 +136,6 @@ describe('CopyButton', () => {
 
     await clickAndSettle(page, getButton(page));
     expect(getButton(page).className).toContain('copy-button--copied');
-
-    // Use a real (short) timeout so we don't have to coordinate fake timers
-    // with the async click handler's awaited Promises.
     await new Promise<void>((resolve) => setTimeout(resolve, 40));
     await page.waitForChanges();
 

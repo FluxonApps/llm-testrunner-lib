@@ -187,6 +187,7 @@ export const ExpectedOutcomeRenderer: FunctionalComponent<ExpectedOutcomeRendere
               ? 'Filled automatically when the test is run'
               : undefined,
             rows: field.rows || 2,
+            copyable: true,
           };
           return (
             <div class="expected-outcome-renderer__group">

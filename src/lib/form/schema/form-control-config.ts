@@ -4,6 +4,11 @@ import { BaseInputFieldConfig } from './base-input-field-config';
 export interface TextAreaConfig extends BaseInputFieldConfig {
   fieldType: FormFieldType.TEXT_AREA;
   rows?: number;
+  /**
+   * When true, render an inline copy button in the label row. 
+   * Always visible
+   */
+  copyable?: boolean;
 }
 
 export interface ChipsConfig extends BaseInputFieldConfig {

@@ -158,6 +158,31 @@ export const ExpectedOutcomeRenderer: FunctionalComponent<ExpectedOutcomeRendere
     );
   };
 
+  const renderThresholdInput = (
+    field: ExpectedOutcomeField,
+    index: number,
+  ) => {
+    const approach = field.evaluationParameters?.approach;
+    
+    if (!approach || approach === EvaluationApproach.EXACT) {
+      return null;
+    }
+    return (
+      <threshold-input
+        inputId={`expectedOutcomeThreshold-${index}`}
+        value={field.evaluationParameters?.threshold}
+        onThresholdChange={(e) =>
+          emit({
+            testCaseId,
+            index,
+            operation: 'set-evaluation-threshold',
+            value: e.detail.value,
+          })
+        }
+      />
+    );
+  };
+
   const renderEvaluationOptions = (field: ExpectedOutcomeField, index: number) => (
     <details class="expected-outcome-renderer__options">
       <summary class="expected-outcome-renderer__options-summary">
@@ -165,6 +190,7 @@ export const ExpectedOutcomeRenderer: FunctionalComponent<ExpectedOutcomeRendere
       </summary>
       <div class="expected-outcome-renderer__options-content">
         {renderEvaluationSelector(field, index)}
+        {renderThresholdInput(field, index)}
         {renderEvaluationSourceSelector(field, index)}
       </div>
     </details>

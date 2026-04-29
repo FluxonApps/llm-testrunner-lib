@@ -141,7 +141,8 @@ Each expected-outcome field can use a different evaluation method. All of them c
 | **BLEU**  | N-gram precision (1–4)         | Translation-like or n-gram overlap             | Moderate                 | Fast         |
 
 - Set **per expected-outcome field** via the dropdown in the UI, or via each field’s `evaluationParameters.approach` when you pass `initialTestCases`.
-- **ROUGE, BLEU, and Semantic** use a fixed threshold (0.7).
+- **ROUGE, BLEU, and Semantic** use a default threshold (0.7). Override per field via the **Threshold** input under "More options" in the UI, or by
+  setting `evaluationParameters.threshold` (a number in `[0, 1]`) on the field when you pass `initialTestCases`.
 - **Semantic** uses in-browser embeddings ([Xenova/all-MiniLM-L6-v2](https://huggingface.co/Xenova/all-MiniLM-L6-v2)). The first time you use it, the model is downloaded; later runs are faster.
 
 ---

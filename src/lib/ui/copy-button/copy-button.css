@@ -1,0 +1,46 @@
+:host {
+  display: inline-flex;
+  vertical-align: middle;
+}
+
+.copy-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  border: 0;
+  padding: var(--spacing-1);
+  cursor: pointer;
+  color: var(--muted-foreground);
+  border-radius: var(--radius-md);
+  transition: color 0.15s ease, transform 0.1s ease;
+  outline: none;
+  line-height: 0;
+}
+
+.copy-button:hover:not(:disabled) {
+  color: var(--info);
+}
+
+.copy-button:focus-visible {
+  outline: 2px solid var(--ring);
+  outline-offset: 2px;
+}
+
+.copy-button:active:not(:disabled) {
+  transform: scale(0.92);
+}
+
+.copy-button:disabled {
+  cursor: default;
+}
+
+.copy-button--copied,
+.copy-button--copied:disabled {
+  color: var(--success);
+  opacity: 1;
+}
+
+.copy-button svg {
+  display: block;
+}

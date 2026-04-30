@@ -12,6 +12,9 @@ export const ResponseOutput: FunctionalComponent<ResponseOutputProps> = ({
 }) => {
   return (
     <div class="response-output">
+      <div class="response-output__toolbar">
+        <copy-button value={output?.text || ''} label="Copy response" />
+      </div>
       {output?.text ? (
         <div class="response-output__content">{output.text}</div>
       ) : (

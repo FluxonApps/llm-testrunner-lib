@@ -41,7 +41,7 @@ export class AppTextarea {
           'textarea-wrapper--read-only': !!c.readOnly,
         }}
       >
-        {(c.label || c.copyable) && (
+        {(c.label || c.is_copyable) && (
           <div class="textarea-label-row">
             {c.label ? (
               <label class="textarea-label" htmlFor={c.name}>
@@ -50,7 +50,7 @@ export class AppTextarea {
             ) : (
               <span class="textarea-label-spacer" />
             )}
-            {c.copyable && (
+            {c.is_copyable && (
               <copy-button
                 value={this.value}
                 label={`Copy ${c.label || 'value'}`}

@@ -8,7 +8,7 @@ export interface TextAreaConfig extends BaseInputFieldConfig {
    * When true, render an inline copy button in the label row. 
    * Always visible
    */
-  copyable?: boolean;
+  is_copyable?: boolean;
 }
 
 export interface ChipsConfig extends BaseInputFieldConfig {

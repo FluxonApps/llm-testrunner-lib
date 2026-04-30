@@ -17,7 +17,7 @@ export class CopyButton implements CopyButtonProps {
    */
   @Prop() value?: string = '';
   @Prop() label?: string = 'Copy';
-  @Prop() resetMs?: number = 1400;
+  @Prop() resetMs?: number = 500;
 
   @State() copied = false;
 

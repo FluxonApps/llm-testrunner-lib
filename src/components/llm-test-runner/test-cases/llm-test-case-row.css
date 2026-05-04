@@ -7,6 +7,15 @@
   min-height: 200px;
 }
 
+/*
+ * Grid items default to min-width: auto, which prevents tracks from
+ * shrinking below their content's min-content width. Force 0 so long
+ * unbreakable strings (e.g. JSON dumps) don't blow out the layout.
+ */
+.test-case-row > * {
+  min-width: 0;
+}
+
 .test-case-row:hover {
   background: var(--muted);
 }

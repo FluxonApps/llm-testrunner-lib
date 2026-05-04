@@ -20,8 +20,8 @@ export interface ThresholdInputChangeDetail {
 
 export interface ThresholdInputProps {
   value?: number;
+  defaultValue?: number;
   label?: string;
-  placeholder?: string;
   min?: number;
   max?: number;
   precision?: number;
@@ -37,8 +37,8 @@ type MessageLevel = 'error' | 'warning';
 })
 export class ThresholdInput implements ThresholdInputProps {
   @Prop() value?: number;
+  @Prop() defaultValue?: number;
   @Prop() label?: string = 'Threshold';
-  @Prop() placeholder?: string = '0.7';
   @Prop() min?: number = 0;
   @Prop() max?: number = 1;
   @Prop() precision?: number = 4;
@@ -46,8 +46,7 @@ export class ThresholdInput implements ThresholdInputProps {
 
   /**
    * What the user has typed. Kept separate from `value` so that an invalid
-   * draft (e.g. "1.5") stays visible with an error message rather than being
-   * snapped back to the last valid number.
+   * draft (e.g. "1.5") stays visible with an error message
    */
   @State() draft: string = '';
   @State() message: string | null = null;
@@ -63,14 +62,22 @@ export class ThresholdInput implements ThresholdInputProps {
   @Watch('value')
   onValueChange(next: number | undefined) {
     const parsed = this.parseDraft(this.draft);
-    if (parsed !== next) {
-      this.syncDraftFromValue(next);
+    if (parsed === next) return;
+
+    const previousDraft = this.draft;
+    this.syncDraftFromValue(next);
+    if (this.draft !== previousDraft) {
       this.runValidation(this.draft);
     }
   }
 
   private syncDraftFromValue(value: number | undefined): void {
-    this.draft = value === undefined || Number.isNaN(value) ? '' : String(value);
+    if (value === undefined || Number.isNaN(value)) {
+      this.draft =
+        this.defaultValue === undefined ? '' : String(this.defaultValue);
+      return;
+    }
+    this.draft = String(value);
   }
 
   private parseDraft(raw: string): number | undefined {
@@ -124,7 +131,8 @@ export class ThresholdInput implements ThresholdInputProps {
     if (this.messageLevel !== 'error') {
       return false;
     }
-    this.draft = '';
+    this.draft =
+      this.defaultValue === undefined ? '' : String(this.defaultValue);
     this.message = 'Invalid threshold cleared — using default';
     this.messageLevel = 'warning';
     this.thresholdChange.emit({ value: undefined });
@@ -157,7 +165,6 @@ export class ThresholdInput implements ThresholdInputProps {
             step="any"
             min={this.min}
             max={this.max}
-            placeholder={this.placeholder}
             value={this.draft}
             aria-invalid={isInvalid ? 'true' : 'false'}
             aria-describedby={this.message ? messageId : undefined}

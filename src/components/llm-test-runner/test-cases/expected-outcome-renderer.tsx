@@ -7,6 +7,7 @@ import {
 import { ChipsConfig, FormFieldType, SelectConfig, TextAreaConfig } from '../../../lib/form/schema';
 import {
   EvaluationApproach,
+  getDefaultPassScoreForApproach,
 } from '../../../lib/evaluation/constants';
 import { getAllowedApproachesForFieldType } from '../../../lib/evaluation/field-evaluation-approach';
 import { ExpectedOutcomeChange } from '../../../lib/test-cases/test-case-mutations';
@@ -163,14 +164,18 @@ export const ExpectedOutcomeRenderer: FunctionalComponent<ExpectedOutcomeRendere
     index: number,
   ) => {
     const approach = field.evaluationParameters?.approach;
-    
+
     if (!approach || approach === EvaluationApproach.EXACT) {
       return null;
     }
+
+    const defaultThreshold = getDefaultPassScoreForApproach(approach);
     return (
       <threshold-input
+        key={`expectedOutcomeThreshold-${index}-${approach}`}
         inputId={`expectedOutcomeThreshold-${index}`}
         value={field.evaluationParameters?.threshold}
+        defaultValue={defaultThreshold}
         onThresholdChange={(e) =>
           emit({
             testCaseId,

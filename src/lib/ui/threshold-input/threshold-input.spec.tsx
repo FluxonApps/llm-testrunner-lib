@@ -42,7 +42,17 @@ function attachChangeSpy(
 }
 
 describe('ThresholdInput — basic rendering', () => {
-  it('renders empty when no value is provided', async () => {
+  it('renders the parent-provided defaultValue when no value is set', async () => {
+    const page = await newSpecPage({
+      components: [ThresholdInput],
+      html: '<threshold-input default-value="0.7"></threshold-input>',
+    });
+
+    expect(getInput(page).getAttribute('value')).toBe('0.7');
+    expect(getMessage(page)).toBeNull();
+  });
+
+  it('renders empty when neither value nor defaultValue is provided', async () => {
     const page = await newSpecPage({
       components: [ThresholdInput],
       html: '<threshold-input></threshold-input>',
@@ -50,6 +60,15 @@ describe('ThresholdInput — basic rendering', () => {
 
     expect(getInput(page).getAttribute('value')).toBe('');
     expect(getMessage(page)).toBeNull();
+  });
+
+  it('honours a custom per-approach defaultValue', async () => {
+    const page = await newSpecPage({
+      components: [ThresholdInput],
+      html: '<threshold-input default-value="0.4"></threshold-input>',
+    });
+
+    expect(getInput(page).getAttribute('value')).toBe('0.4');
   });
 
   it('renders the initial value', async () => {
@@ -212,6 +231,11 @@ describe('ThresholdInput — typed input', () => {
     expect(spy.mock.calls.at(-1)![0].detail.value).toBe(1);
   });
 
+  // The "approach switch picks up a new defaultValue" behavior is handled
+  // by the renderer keying the threshold-input on approach (see
+  // expected-outcome-renderer.tsx) — a fresh component instance mounts,
+  // so there is no in-component watcher to test here.
+
   it('updates the draft when the parent changes the value prop', async () => {
     // Covers @Watch('value'). The parent (e.g. test-case state) is the
     // source of truth — when it changes externally, the input must reflect
@@ -260,7 +284,7 @@ describe('ThresholdInput — resolveInvalid()', () => {
   it('clears the draft, downgrades error → warning, and emits undefined', async () => {
     const page = await newSpecPage({
       components: [ThresholdInput],
-      html: '<threshold-input></threshold-input>',
+      html: '<threshold-input default-value="0.7"></threshold-input>',
     });
     const spy = attachChangeSpy(page);
 
@@ -273,7 +297,7 @@ describe('ThresholdInput — resolveInvalid()', () => {
     await page.waitForChanges();
 
     expect(resolved).toBe(true);
-    expect(getInput(page).getAttribute('value')).toBe('');
+    expect(getInput(page).getAttribute('value')).toBe('0.7');
     expect(hasErrorClass(page)).toBe(false);
     expect(hasWarningClass(page)).toBe(true);
     const msg = getMessage(page);
@@ -281,6 +305,20 @@ describe('ThresholdInput — resolveInvalid()', () => {
     expect(msg!.textContent).toContain('default');
     expect(spy).toHaveBeenCalledTimes(1);
     expect(spy.mock.calls[0][0].detail.value).toBeUndefined();
+  });
+
+  it('reverts to a per-approach defaultValue on resolve', async () => {
+    const page = await newSpecPage({
+      components: [ThresholdInput],
+      html: '<threshold-input default-value="0.4"></threshold-input>',
+    });
+
+    await type(page, '1.5');
+    await (page.rootInstance as ThresholdInput).resolveInvalid();
+    await page.waitForChanges();
+
+    expect(getInput(page).getAttribute('value')).toBe('0.4');
+    expect(hasWarningClass(page)).toBe(true);
   });
 
   it('is a no-op when the input is already valid', async () => {

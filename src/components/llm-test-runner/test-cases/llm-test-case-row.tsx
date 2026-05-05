@@ -49,11 +49,7 @@ export const LLMTestCaseRow: FunctionalComponent<LLMTestCaseRowProps> = ({
     rows: 3,
   };
   return (
-    <div
-      class="test-case-row"
-      key={testCase.id}
-      data-testcase-id={testCase.id}
-    >
+    <div class="test-case-row" key={testCase.id}>
       <div class="test-case-row__input-column">
         <app-textarea
           config={questionConfig}

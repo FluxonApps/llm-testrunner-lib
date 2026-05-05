@@ -172,7 +172,6 @@ export const ExpectedOutcomeRenderer: FunctionalComponent<ExpectedOutcomeRendere
     const defaultThreshold = getDefaultPassScoreForApproach(approach);
     return (
       <threshold-input
-        key={`expectedOutcomeThreshold-${index}-${approach}`}
         inputId={`expectedOutcomeThreshold-${index}`}
         value={field.evaluationParameters?.threshold}
         defaultValue={defaultThreshold}

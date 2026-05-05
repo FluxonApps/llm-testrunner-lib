@@ -49,12 +49,6 @@
   box-shadow: 0 0 0 2px rgba(220, 38, 38, 0.1);
 }
 
-.threshold-input__input--warning,
-.threshold-input__input--warning:focus {
-  border-color: var(--warning);
-  box-shadow: 0 0 0 2px rgba(217, 119, 6, 0.1);
-}
-
 .threshold-input__message {
   font-size: var(--font-size-xs);
   line-height: 1.2;
@@ -62,8 +56,4 @@
 
 .threshold-input__message--error {
   color: var(--destructive);
-}
-
-.threshold-input__message--warning {
-  color: var(--warning);
 }

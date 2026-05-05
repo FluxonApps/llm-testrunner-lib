@@ -40,6 +40,14 @@ export const EvaluationSummary: FunctionalComponent<EvaluationSummaryProps> = ({
                         {fieldResult.error}
                       </span>
                     )}
+                    {fieldResult.warning && (
+                      <span
+                        class="evaluation-summary__warning-message"
+                        role="status"
+                      >
+                        {fieldResult.warning}
+                      </span>
+                    )}
                     <span>
                       Score: {fieldResult.evaluationApproachResult.score.toFixed(2)}
                     </span>

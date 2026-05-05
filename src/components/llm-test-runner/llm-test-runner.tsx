@@ -1,6 +1,5 @@
 import {
   Component,
-  Element,
   State,
   Prop,
   h,
@@ -64,7 +63,6 @@ import type { ChatHistoryRowChangeDetail } from './test-cases/llm-test-case-row'
   shadow: true,
 })
 export class LLMTestRunner {
-  @Element() host!: HTMLElement;
   @Event() llmRequest: EventEmitter<LLMRequestPayload>;
   @Event() save: EventEmitter<SavePayload>;
   @Prop() delayMs?: number = 500;
@@ -211,40 +209,6 @@ export class LLMTestRunner {
     return reason instanceof Error ? reason.message : fallback;
   }
 
-  private async resolveInvalidThresholds(
-    scope: Element | ShadowRoot | null | undefined,
-  ): Promise<void> {
-    if (!scope) return;
-    const inputs = scope.querySelectorAll('threshold-input');
-    await Promise.all(
-      Array.from(inputs).map(el => {
-        const fn = (el as HTMLElement & {
-          resolveInvalid?: () => Promise<boolean>;
-        }).resolveInvalid;
-        return fn ? fn.call(el) : Promise.resolve(false);
-      }),
-    );
-  }
-
-  private getRowElement(testCaseId: string): Element | null {
-    const root = this.host?.shadowRoot;
-    if (!root) return null;
-    const rows = root.querySelectorAll('[data-testcase-id]');
-    for (const row of Array.from(rows)) {
-      if (row.getAttribute('data-testcase-id') === testCaseId) {
-        return row;
-      }
-    }
-    return null;
-  }
-
-  private async resolveAndRunSingleTest(testCase: TestCase): Promise<void> {
-    await this.resolveInvalidThresholds(this.getRowElement(testCase.id));
-    const updatedTest =
-      this.testCases.find(tc => tc.id === testCase.id) ?? testCase;
-    return this.runSingleTest(updatedTest);
-  }
-
   private async runSingleTest(testCase: TestCase): Promise<void> {
     const startTime = Date.now();
     this.updateTestCase(testCase.id, { isRunning: true });
@@ -329,7 +293,6 @@ export class LLMTestRunner {
 
   private async runAllTests() {
     this.isRunningAll = true;
-    await this.resolveInvalidThresholds(this.host?.shadowRoot);
     const tasks = [];
     for (const testCase of this.testCases) {
       if (!testCase.isRunning && testCase.question.trim()) {
@@ -454,9 +417,7 @@ export class LLMTestRunner {
             testCases={this.testCases}
             dynamicResolutionSupported={!!this.resolveExpectedOutcome}
             extractorIds={getExtractorIds(this.evaluationSourceExtractors)}
-            onRun={testCase =>
-              this.resolveAndRunSingleTest(testCase).catch(() => {})
-            }
+            onRun={testCase => this.runSingleTest(testCase).catch(() => {})}
             onDelete={id => this.deleteTestCase(id)}
             onAddTestCase={() => this.addNewTestCase()}
             handleTestCaseChange={this.handleTestCaseChange}

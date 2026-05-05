@@ -2,7 +2,6 @@ import {
   Component,
   Event,
   EventEmitter,
-  Method,
   Prop,
   State,
   Watch,
@@ -10,13 +9,11 @@ import {
 } from '@stencil/core';
 
 export interface ThresholdInputChangeDetail {
-  /**
-   * `undefined` when the input is cleared. 
-   * Only emitted for in-range numeric values (or for a deliberate clear); 
-   * out-of-range or non-numeric input is surfaced as an inline error and does NOT emit.
-   */
   value: number | undefined;
 }
+
+/** Maximum number of decimal places the user can type into the input. */
+const MAX_DECIMALS = 4;
 
 export interface ThresholdInputProps {
   value?: number;
@@ -24,11 +21,8 @@ export interface ThresholdInputProps {
   label?: string;
   min?: number;
   max?: number;
-  precision?: number;
   inputId?: string;
 }
-
-type MessageLevel = 'error' | 'warning';
 
 @Component({
   tag: 'threshold-input',
@@ -41,22 +35,20 @@ export class ThresholdInput implements ThresholdInputProps {
   @Prop() label?: string = 'Threshold';
   @Prop() min?: number = 0;
   @Prop() max?: number = 1;
-  @Prop() precision?: number = 4;
   @Prop() inputId?: string;
 
   /**
    * What the user has typed. Kept separate from `value` so that an invalid
-   * draft (e.g. "1.5") stays visible with an error message
+   * draft (e.g. "1.5") stays visible with an error message.
    */
   @State() draft: string = '';
-  @State() message: string | null = null;
-  @State() messageLevel: MessageLevel | null = null;
+  @State() errorMessage: string | null = null;
 
   @Event() thresholdChange: EventEmitter<ThresholdInputChangeDetail>;
 
   componentWillLoad() {
     this.syncDraftFromValue(this.value);
-    this.runValidation(this.draft);
+    this.errorMessage = this.computeError(this.draft);
   }
 
   @Watch('value')
@@ -64,20 +56,31 @@ export class ThresholdInput implements ThresholdInputProps {
     const parsed = this.parseDraft(this.draft);
     if (parsed === next) return;
 
-    const previousDraft = this.draft;
     this.syncDraftFromValue(next);
-    if (this.draft !== previousDraft) {
-      this.runValidation(this.draft);
-    }
+    this.errorMessage = this.computeError(this.draft);
+  }
+ 
+  @Watch('defaultValue')
+  onDefaultValueChange() {
+    if (this.value !== undefined && !Number.isNaN(this.value)) return;
+    this.syncDraftFromValue(this.value);
+    this.errorMessage = this.computeError(this.draft);
   }
 
   private syncDraftFromValue(value: number | undefined): void {
     if (value === undefined || Number.isNaN(value)) {
       this.draft =
-        this.defaultValue === undefined ? '' : String(this.defaultValue);
+        this.defaultValue === undefined
+          ? ''
+          : this.capDecimals(String(this.defaultValue));
       return;
     }
-    this.draft = String(value);
+    const raw = String(value);
+    const capped = this.capDecimals(raw);
+    this.draft = capped;
+    if (capped !== raw) {
+      this.thresholdChange.emit({ value: Number(capped) });
+    }
   }
 
   private parseDraft(raw: string): number | undefined {
@@ -86,64 +89,55 @@ export class ThresholdInput implements ThresholdInputProps {
     return Number.isNaN(n) ? undefined : n;
   }
 
-  private roundToPrecision(n: number): number {
-    const factor = Math.pow(10, this.precision ?? 4);
-    return Math.round(n * factor) / factor;
+  /**
+   * Strips characters that <input type="number"> allows but make no
+   * sense for a 0–1 threshold: scientific-notation `e`/`E` and the `+`
+   * exponent sign. A threshold can't usefully be expressed as `1e3`,
+   * so we drop those characters before any other processing.
+   */
+  private stripExponential(raw: string): string {
+    return raw.replace(/[eE+]/g, '');
   }
 
-  private runValidation(raw: string): boolean {
-    if (raw.trim() === '') {
-      this.message = null;
-      this.messageLevel = null;
-      return true;
-    }
+  private capDecimals(raw: string): string {
+    const dot = raw.indexOf('.');
+    if (dot === -1) return raw;
+    return raw.slice(0, dot + 1 + MAX_DECIMALS);
+  }
+
+  /** Pure: returns the inline error string for `raw`, or null if none. */
+  private computeError(raw: string): string | null {
+    if (raw.trim() === '') return null;
     const n = Number(raw);
-    if (Number.isNaN(n)) {
-      this.message = 'Must be a number';
-      this.messageLevel = 'error';
-      return false;
-    }
+    if (Number.isNaN(n)) return 'Must be a number';
     const min = this.min ?? 0;
     const max = this.max ?? 1;
-    if (n < min || n > max) {
-      this.message = `Must be between ${min} and ${max}`;
-      this.messageLevel = 'error';
-      return false;
-    }
-    this.message = null;
-    this.messageLevel = null;
-    return true;
+    if (n < min || n > max) return `Must be between ${min} and ${max}`;
+    return null;
   }
 
   private handleInput = (e: Event): void => {
-    const raw = (e.target as HTMLInputElement).value;
+    const target = e.target as HTMLInputElement;
+    const raw = this.capDecimals(this.stripExponential(target.value));
+    if (target.value !== raw) {
+      target.value = raw;
+    }
     this.draft = raw;
-    const valid = this.runValidation(raw);
-    if (valid) {
-      const value =
-        raw.trim() === '' ? undefined : this.roundToPrecision(Number(raw));
-      this.thresholdChange.emit({ value });
-    }
-  };
+    this.errorMessage = this.computeError(raw);
 
-  @Method()
-  async resolveInvalid(): Promise<boolean> {
-    if (this.messageLevel !== 'error') {
-      return false;
+    if (raw.trim() === '') {
+      this.thresholdChange.emit({ value: undefined });
+      return;
     }
-    this.draft =
-      this.defaultValue === undefined ? '' : String(this.defaultValue);
-    this.message = 'Invalid threshold cleared — using default';
-    this.messageLevel = 'warning';
-    this.thresholdChange.emit({ value: undefined });
-    return true;
-  }
+    const n = Number(raw);
+    if (Number.isNaN(n)) return;
+    this.thresholdChange.emit({ value: n });
+  };
 
   render() {
     const id = this.inputId || 'threshold-input';
     const messageId = `${id}-message`;
-    const isInvalid = this.messageLevel === 'error';
-    const isWarning = this.messageLevel === 'warning';
+    const isInvalid = this.errorMessage !== null;
 
     return (
       <div class="threshold-input">
@@ -158,7 +152,6 @@ export class ThresholdInput implements ThresholdInputProps {
             class={{
               'threshold-input__input': true,
               'threshold-input__input--invalid': isInvalid,
-              'threshold-input__input--warning': isWarning,
             }}
             type="number"
             inputMode="decimal"
@@ -167,20 +160,16 @@ export class ThresholdInput implements ThresholdInputProps {
             max={this.max}
             value={this.draft}
             aria-invalid={isInvalid ? 'true' : 'false'}
-            aria-describedby={this.message ? messageId : undefined}
+            aria-describedby={this.errorMessage ? messageId : undefined}
             onInput={this.handleInput}
           />
-          {this.message && (
+          {this.errorMessage && (
             <span
               id={messageId}
-              class={{
-                'threshold-input__message': true,
-                'threshold-input__message--error': isInvalid,
-                'threshold-input__message--warning': isWarning,
-              }}
-              role={isInvalid ? 'alert' : 'status'}
+              class="threshold-input__message threshold-input__message--error"
+              role="alert"
             >
-              {this.message}
+              {this.errorMessage}
             </span>
           )}
         </div>

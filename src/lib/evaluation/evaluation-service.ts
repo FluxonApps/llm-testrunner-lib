@@ -12,6 +12,7 @@ import {
 } from '../../types/llm-test-runner';
 import { normalizeEvaluationParametersForField } from './field-evaluation-approach';
 import { resolveActualValue } from './actual-value-resolver';
+import { clampThreshold } from './threshold-clamp';
 
 /**
  * Service for evaluating test case responses
@@ -35,16 +36,27 @@ export class EvaluationService {
   ): Promise<void> {
     const fields: FieldEvaluationInput[] = [];
     const failedFields: FieldEvaluationResult[] = [];
+    // Per-field non-fatal warnings (e.g. "used default threshold because
+    // the configured value was out of range"). Attached to the per-field
+    // result after the engine returns. Mirrors the `error` channel in
+    // shape — same UI rendering path on the other side.
+    const warnings = new Map<number, string>();
 
     for (const [index, field] of (testCase.expectedOutcome || []).entries()) {
       if (field.type === 'textarea' && field.outcomeMode === 'dynamic') {
         continue;
       }
 
-      const evaluationParameters = normalizeEvaluationParametersForField(
+      const normalized = normalizeEvaluationParametersForField(
         field.type,
         field.evaluationParameters,
       );
+      const { params: evaluationParameters, warning } =
+        clampThreshold(normalized);
+      if (warning) {
+        warnings.set(index, warning);
+      }
+
       const expectedValue = getFieldExpectedValue(field);
       const resolvedActualValue = await resolveActualValue(
         field,
@@ -78,6 +90,7 @@ export class EvaluationService {
             'error' in resolvedActualValue
               ? resolvedActualValue.error
               : 'Failed to resolve actual value.',
+          ...(warnings.has(index) ? { warning: warnings.get(index) } : {}),
         });
       }
     }
@@ -105,7 +118,11 @@ export class EvaluationService {
     };
 
     await this.engine.evaluateResponse(evaluationRequest, (result: EvaluationResult) => {
-      const combinedResults = [...(result.fieldResults || []), ...failedFields].sort(
+      const evaluatedResults = (result.fieldResults || []).map(field => {
+        const warning = warnings.get(field.index);
+        return warning ? { ...field, warning } : field;
+      });
+      const combinedResults = [...evaluatedResults, ...failedFields].sort(
         (a, b) => a.index - b.index,
       );
       onResult({

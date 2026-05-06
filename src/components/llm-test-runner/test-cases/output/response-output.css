@@ -7,6 +7,13 @@
   flex-direction: column;
 }
 
+.response-output__toolbar {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: var(--spacing-2);
+  min-height: var(--spacing-6);
+}
+
 .response-output__content {
   background: var(--muted);
   border: var(--border-width) solid var(--border);
@@ -16,11 +23,12 @@
   line-height: var(--line-height-relaxed);
   color: var(--foreground);
   white-space: pre-wrap;
-  word-wrap: break-word;
+  overflow-wrap: anywhere; /* Allow breaking long words/base64 */
   flex: 1;
   overflow-y: auto;
   max-height: 250px;
   overflow-x: scroll;
+  min-width: 0;
 }
 
 .response-output__placeholder {
@@ -33,6 +41,7 @@
   background: var(--muted);
   border: 2px dashed var(--border);
   border-radius: var(--radius);
+  min-width: 0;
 }
 
 /* Responsive Design */

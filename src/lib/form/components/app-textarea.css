@@ -2,9 +2,20 @@
   margin-bottom: var(--spacing-4);
 }
 
+.textarea-label-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--spacing-2);
+  margin-bottom: var(--spacing-2);
+}
+
+.textarea-label-spacer {
+  flex: 1;
+}
+
 .textarea-label {
   display: block;
-  margin-bottom: var(--spacing-2);
   font-weight: var(--font-weight-medium);
   color: var(--foreground);
   font-size: var(--font-size-sm);

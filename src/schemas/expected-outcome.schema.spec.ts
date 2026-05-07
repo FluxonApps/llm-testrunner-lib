@@ -67,6 +67,36 @@ describe('expected outcome schemas', () => {
     });
   });
 
+  it('accepts evaluationParameters with an optional threshold', () => {
+    const data = expectedOutcomeFieldSchema.parse({
+      type: 'textarea' as const,
+      label: 'Expected Outcome',
+      value: 'answer',
+      evaluationParameters: {
+        approach: 'rouge-1',
+        threshold: 0.8,
+      },
+    });
+
+    expect(data.type).toBe('textarea');
+    if (data.type !== 'textarea') return;
+    expect(data.evaluationParameters?.approach).toBe('rouge-1');
+    expect(data.evaluationParameters?.threshold).toBe(0.8);
+  });
+
+  it('treats threshold as optional on evaluationParameters', () => {
+    const data = expectedOutcomeFieldSchema.parse({
+      type: 'textarea' as const,
+      label: 'Expected Outcome',
+      value: 'answer',
+      evaluationParameters: { approach: 'semantic' },
+    });
+
+    expect(data.type).toBe('textarea');
+    if (data.type !== 'textarea') return;
+    expect(data.evaluationParameters?.threshold).toBeUndefined();
+  });
+
   it('rejects unknown custom extractorId when extractor-aware validation is used', () => {
     expect(() =>
       validateExpectedOutcomeArrayWithExtractors(

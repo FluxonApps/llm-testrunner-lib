@@ -1,0 +1,59 @@
+:host {
+  display: block;
+  margin-bottom: var(--spacing-4);
+}
+
+.threshold-input__label {
+  display: block;
+  margin-bottom: var(--spacing-2);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+  color: var(--foreground);
+}
+
+.threshold-input__field {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-2);
+}
+
+.threshold-input__input {
+  width: 100px;
+  padding: var(--spacing-1) var(--spacing-2);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+  border: var(--border-width) solid var(--input);
+  border-radius: var(--radius-md);
+  background: var(--background);
+  color: var(--foreground);
+  outline: none;
+  /* Hide the native number-input spinner arrows. */
+  -moz-appearance: textfield;
+  appearance: textfield;
+}
+
+.threshold-input__input::-webkit-outer-spin-button,
+.threshold-input__input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+.threshold-input__input:focus {
+  border-color: var(--ring);
+  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.1);
+}
+
+.threshold-input__input--invalid,
+.threshold-input__input--invalid:focus {
+  border-color: var(--destructive);
+  box-shadow: 0 0 0 2px rgba(220, 38, 38, 0.1);
+}
+
+.threshold-input__message {
+  font-size: var(--font-size-xs);
+  line-height: 1.2;
+}
+
+.threshold-input__message--error {
+  color: var(--destructive);
+}

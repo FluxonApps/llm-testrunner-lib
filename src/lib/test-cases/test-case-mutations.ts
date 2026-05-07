@@ -49,6 +49,11 @@ export type ExpectedOutcomeChange =
     }
   | {
       index: number;
+      operation: 'set-evaluation-threshold';
+      value: number | undefined;
+    }
+  | {
+      index: number;
       operation: 'set-outcome-mode';
       value: ExpectedOutcomeMode;
     }
@@ -119,6 +124,8 @@ export function applyExpectedOutcomeChange(
     }
     case 'set-evaluation-approach':
       return updateExpectedOutcomeFieldApproach(testCase, index, change.value);
+    case 'set-evaluation-threshold':
+      return updateExpectedOutcomeFieldThreshold(testCase, index, change.value);
     case 'set-outcome-mode': {
       if (!isTextareaField(target)) {
         return testCase;
@@ -203,6 +210,43 @@ export function updateExpectedOutcomeFieldApproach(
       ...currentEvaluationParameters,
       approach,
     }),
+  };
+
+  return {
+    ...testCase,
+    expectedOutcome,
+  };
+}
+
+export function updateExpectedOutcomeFieldThreshold(
+  testCase: TestCase,
+  fieldIndex: number,
+  threshold: number | undefined,
+): TestCase {
+  const expectedOutcome = [...(testCase.expectedOutcome || [])];
+  const target = expectedOutcome[fieldIndex];
+
+  if (!target) {
+    return testCase;
+  }
+
+  const currentApproach = target.evaluationParameters?.approach;
+  if (!currentApproach) {
+    return testCase;
+  }
+
+  // Drop any existing threshold so we can rebuild deterministically below.
+  const { threshold: _previousThreshold, ...restParams } =
+    target.evaluationParameters ?? { approach: currentApproach };
+
+  const evaluationParameters =
+    threshold === undefined
+      ? { ...restParams, approach: currentApproach }
+      : { ...restParams, approach: currentApproach, threshold };
+
+  expectedOutcome[fieldIndex] = {
+    ...target,
+    evaluationParameters,
   };
 
   return {

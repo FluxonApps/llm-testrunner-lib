@@ -47,6 +47,7 @@ export interface FieldEvaluationResult {
   evaluationParameters: EvaluationParameters;
   evaluationApproachResult: EvaluationApproachResult;
   error?: string;
+  warning?: string;
 }
 
 export interface KeywordMatch {

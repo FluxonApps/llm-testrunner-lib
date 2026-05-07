@@ -9,6 +9,7 @@ import {
   TestCase,
   ExpectedOutcomeField,
   EvaluationSourceExtractors,
+  LlmJudge,
 } from '../../types/llm-test-runner';
 import { normalizeEvaluationParametersForField } from './field-evaluation-approach';
 import { resolveActualValue } from './actual-value-resolver';
@@ -33,6 +34,7 @@ export class EvaluationService {
     testCase: TestCase,
     onResult: (result: EvaluationResult) => void,
     extractors?: EvaluationSourceExtractors,
+    llmJudge?: LlmJudge,
   ): Promise<void> {
     const fields: FieldEvaluationInput[] = [];
     const failedFields: FieldEvaluationResult[] = [];
@@ -111,10 +113,20 @@ export class EvaluationService {
       return;
     }
 
+    // Derive chatHistory from the test case so the llm-judge evaluator can
+    // pass it into the judge prompt. Treat disabled / empty values as
+    // undefined so the prompt's CHAT_HISTORY block is omitted entirely.
+    const chatHistory =
+      testCase.chatHistory?.enabled && testCase.chatHistory.value
+        ? testCase.chatHistory.value
+        : undefined;
+
     const evaluationRequest: EvaluationRequestV2 = {
       testCaseId: testCase.id,
       question: testCase.question,
       fields,
+      llmJudge,
+      chatHistory,
     };
 
     await this.engine.evaluateResponse(evaluationRequest, (result: EvaluationResult) => {

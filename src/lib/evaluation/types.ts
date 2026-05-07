@@ -63,6 +63,7 @@ export interface FieldEvaluationResult {
   evaluationApproachResult: EvaluationApproachResult;
   error?: string;
   warning?: string;
+  criterionResults?: CriterionResult[];
 }
 
 export interface KeywordMatch {

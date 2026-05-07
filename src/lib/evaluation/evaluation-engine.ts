@@ -42,6 +42,9 @@ export class LLMEvaluationEngine {
           evaluationParameters: result.evaluationParameters!,
           evaluationApproachResult: result.evaluationApproachResult,
           ...(result.error ? { error: result.error } : {}),
+          ...(result.criterionResults
+            ? { criterionResults: result.criterionResults }
+            : {}),
         };
         return fieldResult;
       }),

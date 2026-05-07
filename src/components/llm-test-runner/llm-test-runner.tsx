@@ -17,6 +17,7 @@ import {
   SavePayload,
   ModelResponsePayload,
   EvaluationSourceExtractors,
+  LlmJudge,
 } from '../../types/llm-test-runner';
 import { readFileAsync } from '../../lib/file/file-reader';
 import { downloadFile } from '../../lib/file/file-download';
@@ -72,6 +73,7 @@ export class LLMTestRunner {
   @Prop() evaluationSourceExtractors?: EvaluationSourceExtractors;
   @Prop() initialTestCases?: TestCase[];
   @Prop() defaultExpectedOutcomeSchema?: ExpectedOutcomeSchema;
+  @Prop() llmJudge?: LlmJudge;
   @State() testCases: TestCase[] = [
     {
       id: '1',
@@ -288,6 +290,7 @@ export class LLMTestRunner {
         });
       },
       this.evaluationSourceExtractors,
+      this.llmJudge,
     );
   }
 

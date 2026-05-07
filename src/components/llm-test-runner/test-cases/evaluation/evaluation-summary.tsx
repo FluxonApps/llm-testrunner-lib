@@ -56,6 +56,21 @@ export const EvaluationSummary: FunctionalComponent<EvaluationSummaryProps> = ({
                       {fieldResult.keywordMatches.filter(match => match.found).length}/
                       {fieldResult.keywordMatches.length}
                     </span>
+                    {fieldResult.criterionResults &&
+                      fieldResult.criterionResults.length > 0 && (
+                        <ul class="evaluation-summary__criterion-list">
+                          {fieldResult.criterionResults.map(criterion => (
+                            <li class="evaluation-summary__criterion-item">
+                              <span class="evaluation-summary__criterion-id">
+                                {criterion.id}
+                              </span>
+                              <span class="evaluation-summary__criterion-score">
+                                {criterion.score.toFixed(2)}
+                              </span>
+                            </li>
+                          ))}
+                        </ul>
+                      )}
                   </div>
                 </div>
               ))}

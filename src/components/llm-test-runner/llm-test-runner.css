@@ -29,3 +29,19 @@
 .test-runner-container__content {
   padding: 0;
 }
+
+@keyframes placeholder-pulse {
+  0%,
+  100% {
+    opacity: 0.55;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+@keyframes placeholder-dots {
+  to {
+    width: 1.2em;
+  }
+}

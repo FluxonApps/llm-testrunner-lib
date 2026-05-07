@@ -94,6 +94,19 @@
   border-radius: var(--radius);
 }
 
+.evaluation-summary__placeholder--running {
+  animation: placeholder-pulse 1.6s ease-in-out infinite;
+}
+
+.evaluation-summary__placeholder-text::after {
+  content: '...';
+  display: inline-block;
+  width: 0;
+  overflow: hidden;
+  vertical-align: bottom;
+  animation: placeholder-dots 1.4s steps(4) infinite;
+}
+
 /* Evaluation Result Element */
 .evaluation-summary__result {
   display: flex;

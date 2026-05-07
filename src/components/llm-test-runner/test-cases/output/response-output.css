@@ -44,6 +44,19 @@
   min-width: 0;
 }
 
+.response-output__placeholder--running {
+  animation: placeholder-pulse 1.6s ease-in-out infinite;
+}
+
+.response-output__placeholder-text::after {
+  content: '...';
+  display: inline-block;
+  width: 0;
+  overflow: hidden;
+  vertical-align: bottom;
+  animation: placeholder-dots 1.4s steps(4) infinite;
+}
+
 /* Responsive Design */
 @media (max-width: 1200px) {
   .response-output {

@@ -94,6 +94,30 @@
   border-radius: var(--radius);
 }
 
+.evaluation-summary__criterion-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.evaluation-summary__criterion-item {
+  display: flex;
+  align-items: center;
+  font-size: var(--font-size-xs);
+}
+
+.evaluation-summary__criterion-id {
+  font-family: var(--font-family-mono, ui-monospace, "SF Mono", Menlo, monospace);
+}
+
+.evaluation-summary__criterion-score {
+  margin-left: auto;
+  font-variant-numeric: tabular-nums;
+}
+
 /* Evaluation Result Element */
 .evaluation-summary__result {
   display: flex;

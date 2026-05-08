@@ -14,6 +14,34 @@ function wireGemini(runner) {
   });
 }
 
+/**
+ * Strips ```json ... ``` (or plain ```) fences a model often wraps JSON in.
+ * Used in the demo because Gemini responses sometimes include them despite
+ * the prompt's "no markdown" rule.
+ */
+function stripJsonFence(raw) {
+  const trimmed = String(raw).trim();
+  const fence = trimmed.match(/^```(?:json)?\s*([\s\S]*?)\s*```$/);
+  return fence ? fence[1] : trimmed;
+}
+
+/**
+ * Wires the `<llm-test-runner llmJudge>` prop to Gemini. The library passes
+ * a `{messages: [{role, content}, …]}` payload — we flatten to a single
+ * prompt (Gemini's `invoke` takes one string), parse the JSON response, and
+ * return the `JudgeResponse` shape the library expects.
+ */
+function wireGeminiJudge(runner) {
+  const llm = new window.GeminiAdapter(window.env.API_KEY);
+  runner.llmJudge = async ({ messages }) => {
+    const prompt = messages
+      .map((m) => `[${m.role.toUpperCase()}]\n${m.content}`)
+      .join('\n\n');
+    const raw = await llm.invoke(prompt);
+    return JSON.parse(stripJsonFence(raw));
+  };
+}
+
 function mountMode(host, modeKey) {
   const config = DEMO_MODES[modeKey];
   host.replaceChildren();
@@ -28,6 +56,7 @@ function mountMode(host, modeKey) {
   }
   host.appendChild(runner);
   wireGemini(runner);
+  wireGeminiJudge(runner);
 }
 
 function initVanillaDemo() {

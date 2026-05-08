@@ -11,6 +11,7 @@ import { performRouge1Evaluation } from './evaluators/rouge1-evaluator';
 import { performSemanticEvaluation } from './evaluators/semantic/index';
 import { performRougeLEvaluation } from './evaluators/rougeL-evaluator';
 import { performBleuEvaluation } from './evaluators/bleu/bleu-evaluator';
+import { performLlmJudgeEvaluation } from './evaluators/llm-judge/llm-judge-evaluator';
 
 export class LLMEvaluationEngine {
   async evaluateResponse(
@@ -25,6 +26,9 @@ export class LLMEvaluationEngine {
           actualResponse: field.actualResponse,
           expectedOutcome: field.expectedValue,
           evaluationParameters: field.evaluationParameters,
+          llmJudge: request.llmJudge,
+          chatHistory: request.chatHistory,
+          additionalContext: request.additionalContext,
         };
         const result = await this.evaluateField(fieldRequest);
 
@@ -37,6 +41,10 @@ export class LLMEvaluationEngine {
           keywordMatches: result.keywordMatches,
           evaluationParameters: result.evaluationParameters!,
           evaluationApproachResult: result.evaluationApproachResult,
+          ...(result.error ? { error: result.error } : {}),
+          ...(result.criterionResults
+            ? { criterionResults: result.criterionResults }
+            : {}),
         };
         return fieldResult;
       }),
@@ -91,6 +99,8 @@ export class LLMEvaluationEngine {
         return performRougeLEvaluation(request);
       case EvaluationApproach.SEMANTIC:
         return performSemanticEvaluation(request);
+      case EvaluationApproach.LLM_JUDGE:
+        return performLlmJudgeEvaluation(request);
       default:
         console.warn(
           `Unknown matching approach: ${request.evaluationParameters.approach}, falling back to exact matching`,

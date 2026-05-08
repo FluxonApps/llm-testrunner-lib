@@ -19,14 +19,18 @@
 
 .threshold-input__input {
   width: 100px;
-  padding: var(--spacing-1) var(--spacing-2);
+  padding: 6px 10px;
+  font-family: inherit;
   font-size: var(--font-size-sm);
   font-weight: var(--font-weight-medium);
+  letter-spacing: var(--letter-spacing-snug);
+  font-variant-numeric: tabular-nums;
   border: var(--border-width) solid var(--input);
-  border-radius: var(--radius-md);
+  border-radius: var(--radius-lg);
   background: var(--background);
   color: var(--foreground);
   outline: none;
+  transition: border-color 150ms ease, box-shadow 150ms ease;
   /* Hide the native number-input spinner arrows. */
   -moz-appearance: textfield;
   appearance: textfield;
@@ -38,15 +42,19 @@
   margin: 0;
 }
 
+.threshold-input__input:hover:not(:focus) {
+  border-color: var(--border-strong);
+}
+
 .threshold-input__input:focus {
   border-color: var(--ring);
-  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.1);
+  box-shadow: 0 0 0 4px var(--ring-soft);
 }
 
 .threshold-input__input--invalid,
 .threshold-input__input--invalid:focus {
   border-color: var(--destructive);
-  box-shadow: 0 0 0 2px rgba(220, 38, 38, 0.1);
+  box-shadow: 0 0 0 4px var(--destructive-soft-bg);
 }
 
 .threshold-input__message {

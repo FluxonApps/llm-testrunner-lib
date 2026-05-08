@@ -4,23 +4,55 @@
   align-items: center;
   justify-content: center;
   gap: var(--spacing-2);
-  border-radius: var(--radius);
+  border-radius: var(--radius-lg);
+  font-family: inherit;
   font-size: var(--font-size-sm);
   font-weight: var(--font-weight-medium);
+  letter-spacing: var(--letter-spacing-snug);
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition:
+    background-color 120ms ease,
+    border-color 120ms ease,
+    box-shadow 120ms ease,
+    transform 80ms ease;
   border: var(--border-width) solid transparent;
   outline: none;
   position: relative;
   white-space: nowrap;
 }
 
+.ui-button:active:not(:disabled):not(.ui-button--loading) {
+  transform: translateY(0);
+  transition-duration: 50ms;
+}
+
 .ui-button .icon {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  font-size: var(--font-size-base);
+  font-size: 14px; /* default icon size; size variants override below */
   line-height: var(--line-height-none);
+  /* Slightly nudge down so icons sit perfectly with text baselines —
+   * SVG icons render heavier on the top half compared to text glyphs. */
+  margin-top: -1px;
+}
+
+.ui-button .icon svg {
+  width: 1em;
+  height: 1em;
+  display: block;
+}
+
+/* Spinner rotation — reused inside any button while loading. */
+@keyframes ui-button-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.ui-button .icon .icon-spinner {
+  animation: ui-button-spin 1s linear infinite;
+  transform-origin: center;
 }
 
 .ui-button:focus-visible {
@@ -40,32 +72,40 @@
   cursor: wait;
 }
 
-/* Size Variants */
+/* Size Variants — matches Linear / Vercel sizing scale.
+ * Icons are slightly smaller than the text height so they read as
+ * accompanying glyphs rather than competing visual weight. */
 .ui-button--sm {
-  padding: calc(var(--spacing) * 1.5) var(--spacing-3);
+  padding: 4px 10px;
+  height: 28px;
+  gap: 6px;
   font-size: var(--font-size-xs);
 }
 
 .ui-button--sm .icon {
-  font-size: var(--font-size-sm);
+  font-size: 13px;
 }
 
 .ui-button--md {
-  padding: var(--spacing-2) var(--spacing-4);
+  padding: 6px 12px;
+  height: 32px;
+  gap: 6px;
   font-size: var(--font-size-sm);
 }
 
 .ui-button--md .icon {
-  font-size: var(--font-size-base);
+  font-size: 14px;
 }
 
 .ui-button--lg {
-  padding: calc(var(--spacing) * 2.5) var(--spacing-5);
+  padding: 8px 16px;
+  height: 40px;
+  gap: 8px;
   font-size: var(--font-size-base);
 }
 
 .ui-button--lg .icon {
-  font-size: var(--font-size-lg);
+  font-size: 16px;
 }
 
 /* Color Variants */
@@ -77,7 +117,7 @@
 .ui-button--primary:hover:not(:disabled):not(.ui-button--loading) {
   opacity: 0.9;
   transform: translateY(-1px);
-  box-shadow: var(--shadow-sm);
+  box-shadow: var(--shadow-md);
 }
 
 .ui-button--secondary {
@@ -91,14 +131,14 @@
 }
 
 .ui-button--outline {
-  background: transparent;
+  background: var(--background);
   border-color: var(--border);
   color: var(--foreground);
 }
 
 .ui-button--outline:hover:not(:disabled):not(.ui-button--loading) {
-  background: var(--accent);
-  transform: translateY(-1px);
+  background: var(--muted);
+  border-color: var(--border-strong);
 }
 
 .ui-button--destructive {

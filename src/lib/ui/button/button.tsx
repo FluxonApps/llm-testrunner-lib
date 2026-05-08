@@ -1,4 +1,4 @@
-import { h, FunctionalComponent } from '@stencil/core';
+import { h, FunctionalComponent, VNode } from '@stencil/core';
 
 export interface ButtonProps {
   'variant'?: 'primary' | 'secondary' | 'outline' | 'destructive';
@@ -8,7 +8,9 @@ export interface ButtonProps {
   'onClick'?: (event: MouseEvent) => void;
   'type'?: 'button' | 'submit' | 'reset';
   'class'?: string;
-  'icon'?: string;
+  /** A leading icon — accepts a string (legacy emoji/character) or a JSX
+   * node (preferred — see `lib/ui/icons` for the SVG icon set). */
+  'icon'?: string | VNode;
   'aria-label'?: string;
 }
 

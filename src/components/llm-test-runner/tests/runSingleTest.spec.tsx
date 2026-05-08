@@ -74,7 +74,7 @@ describe('LLMTestRunner', () => {
     page.root.addEventListener('llmRequest', llmRequestSpy);
 
     const runButton = page.root.shadowRoot.querySelector(
-      'button[title="Run this test"]',
+      'button[aria-label="Run this test"]',
     ) as HTMLButtonElement;
     runButton.click();
 
@@ -107,7 +107,7 @@ describe('LLMTestRunner', () => {
     page.root.addEventListener('llmRequest', llmRequestSpy);
 
     const runButton = page.root.shadowRoot.querySelector(
-      'button[title="Run this test"]',
+      'button[aria-label="Run this test"]',
     ) as HTMLButtonElement;
     runButton.click();
     await page.waitForChanges();
@@ -129,7 +129,7 @@ describe('LLMTestRunner', () => {
     page.root.addEventListener('llmRequest', llmRequestSpy);
 
     const runButton = page.root.shadowRoot.querySelector(
-      'button[title="Run this test"]',
+      'button[aria-label="Run this test"]',
     ) as HTMLButtonElement;
     runButton.click();
     await page.waitForChanges();
@@ -146,7 +146,7 @@ describe('LLMTestRunner', () => {
     page.root.addEventListener('llmRequest', llmRequestSpy);
 
     const runButton = page.root.shadowRoot.querySelector(
-      'button[title="Run this test"]',
+      'button[aria-label="Run this test"]',
     ) as HTMLButtonElement;
 
     runButton.click();
@@ -179,7 +179,7 @@ describe('LLMTestRunner', () => {
     page.root.addEventListener('llmRequest', llmRequestSpy);
 
     const runButton = page.root.shadowRoot.querySelector(
-      'button[title="Run this test"]',
+      'button[aria-label="Run this test"]',
     ) as HTMLButtonElement;
     runButton.click();
     await page.waitForChanges();
@@ -199,7 +199,7 @@ describe('LLMTestRunner', () => {
     page.root.addEventListener('llmRequest', llmRequestSpy);
 
     const runButton = page.root.shadowRoot.querySelector(
-      'button[title="Run this test"]',
+      'button[aria-label="Run this test"]',
     ) as HTMLButtonElement;
     runButton.click();
     await page.waitForChanges();
@@ -230,7 +230,7 @@ describe('LLMTestRunner', () => {
     page.root.addEventListener('llmRequest', llmRequestSpy);
 
     const runButton = page.root.shadowRoot.querySelector(
-      'button[title="Run this test"]',
+      'button[aria-label="Run this test"]',
     ) as HTMLButtonElement;
     runButton.click();
     await page.waitForChanges();
@@ -267,7 +267,7 @@ describe('LLMTestRunner', () => {
     page.root.addEventListener('llmRequest', llmRequestSpy);
 
     const runButton = page.root.shadowRoot.querySelector(
-      'button[title="Run this test"]',
+      'button[aria-label="Run this test"]',
     ) as HTMLButtonElement;
     runButton.click();
     await page.waitForChanges();
@@ -317,7 +317,7 @@ describe('LLMTestRunner', () => {
     page.root.addEventListener('llmRequest', llmRequestSpy);
 
     const runButton = page.root.shadowRoot.querySelector(
-      'button[title="Run this test"]',
+      'button[aria-label="Run this test"]',
     ) as HTMLButtonElement;
     runButton.click();
     await page.waitForChanges();

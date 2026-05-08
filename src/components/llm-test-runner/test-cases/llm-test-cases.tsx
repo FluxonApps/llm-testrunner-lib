@@ -2,6 +2,7 @@ import { h, FunctionalComponent } from '@stencil/core';
 import { TestCase } from '../../../types/llm-test-runner';
 import { LLMTestCaseRow, ChatHistoryRowChangeDetail } from './llm-test-case-row';
 import { Button } from '../../../lib/ui/button/index';
+import { PlusIcon } from '../../../lib/ui/icons/icons';
 import { ExpectedOutcomeChangeDetail } from './expected-outcome-renderer';
 
 export interface LLMTestCasesProps {
@@ -33,13 +34,6 @@ export const LLMTestCases: FunctionalComponent<LLMTestCasesProps> = ({
 }) => {
   return (
     <div class="test-cases">
-      <div class="test-cases__column-headers">
-        <div class="test-cases__column-header">Input</div>
-        <div class="test-cases__column-header">Output</div>
-        <div class="test-cases__column-header">Evaluation</div>
-        <div class="test-cases__column-header">Actions</div>
-      </div>
-
       {testCases.map(testCase => (
         <LLMTestCaseRow
           testCase={testCase}
@@ -54,8 +48,13 @@ export const LLMTestCases: FunctionalComponent<LLMTestCasesProps> = ({
       ))}
 
       <div class="test-cases__add-section">
-        <Button variant="outline" size="md" onClick={onAddTestCase}>
-          + Add Question
+        <Button
+          variant="outline"
+          size="md"
+          onClick={onAddTestCase}
+          icon={<PlusIcon />}
+        >
+          Add question
         </Button>
       </div>
     </div>

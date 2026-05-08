@@ -115,9 +115,9 @@ ${input.expectedOutcome}
 ASSISTANT_RESPONSE:
 ${input.assistantResponse}
 
-${formatBlock('CHAT_HISTORY', input.chatHistory)}
+${formatBlock('CHAT_HISTORY', input.chatHistory)} // move to corresponding attribute in gemini api call
 
-${formatBlock('ADDITIONAL_CONTEXT', input.additionalContext)}
+${formatBlock('ADDITIONAL_CONTEXT', input.additionalContext)} // move to corresponding attribute in gemini api call
 
 CRITERIA:
 ${JSON.stringify(input.criteria, null, 2)}

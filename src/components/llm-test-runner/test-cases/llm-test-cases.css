@@ -1,39 +1,25 @@
-/* Test Cases Block */
+/* Test Cases — vertical stack of self-contained collapsible cards, one
+ * per test case. Cards collapse to a compact summary (question preview +
+ * status badge + Run / Delete) and expand to reveal the full editor and
+ * results in a 3-column layout. */
 .test-cases {
-  background: var(--background);
-}
-
-/* Column Headers Element */
-.test-cases__column-headers {
-  display: grid;
-  grid-template-columns: 1fr 1.5fr 0.5fr 120px;
-  gap: var(--border-width);
-  background: var(--border);
-  border-bottom: 2px solid var(--border);
-}
-
-.test-cases__column-header {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-3);
+  padding: var(--spacing-5);
   background: var(--muted);
-  padding: var(--spacing-4) var(--spacing-5);
-  font-weight: var(--font-weight-semibold);
-  color: var(--foreground);
-  font-size: var(--font-size-sm);
-  text-transform: uppercase;
-  letter-spacing: var(--letter-spacing-wide);
 }
 
-/* Add Test Case Element */
+/* Add Test Case Element — sits below the card stack as a quiet CTA. */
 .test-cases__add-section {
-  padding: var(--spacing-6);
-  text-align: center;
-  background: var(--muted);
-  border-top: var(--border-width) solid var(--border);
+  display: flex;
+  justify-content: center;
+  padding: var(--spacing-2) 0 var(--spacing-2);
 }
 
-/* Responsive Design */
-@media (max-width: 1200px) {
-  .test-cases__column-headers {
-    display: none;
+@media (max-width: 768px) {
+  .test-cases {
+    padding: var(--spacing-4);
+    gap: var(--spacing-2);
   }
 }
-

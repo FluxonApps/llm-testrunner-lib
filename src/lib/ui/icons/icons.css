@@ -1,0 +1,14 @@
+/* Icon shared styles — kept in a separate file so any host shadow-root
+ * stylesheet can import them via global CSS or be loaded via Stencil's
+ * style mechanism if a particular component needs the spinner animation. */
+
+@keyframes icon-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.icon-spinner {
+  animation: icon-spin 1s linear infinite;
+  transform-origin: center;
+}

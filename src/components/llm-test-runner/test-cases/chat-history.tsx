@@ -26,9 +26,18 @@ export class ChatHistory {
     this.chatHistoryChange.emit(detail);
   }
 
+  /**
+   * Native <details> fires `toggle` whenever its open state changes — both
+   * via user click on the summary AND from programmatic / prop-driven sync.
+   * We treat "open" as the source of truth for `enabled` and preserve the
+   * textarea value across collapses, so the user can quickly hide chat
+   * history without losing what they typed.
+   */
   private onToggle = (e: Event) => {
-    const checked = (e.target as HTMLInputElement).checked;
-    this.emit({ enabled: checked, value: this.chatHistoryValue });
+    const open = (e.target as HTMLDetailsElement).open;
+    if (open !== this.chatHistoryEnabled) {
+      this.emit({ enabled: open, value: this.chatHistoryValue });
+    }
   };
 
   private onTextInput = (e: Event) => {
@@ -38,32 +47,39 @@ export class ChatHistory {
 
   render() {
     return (
-      <div class="chat-history">
-        <div class="chat-history__toggle-row">
-          <label class="chat-history__switch">
-            <input
-              type="checkbox"
-              class="chat-history__switch-input"
-              checked={this.chatHistoryEnabled}
-              onInput={this.onToggle}
-            />
-            <span class="chat-history__switch-ui" aria-hidden="true">
-              <span class="chat-history__switch-thumb" />
-            </span>
-            <span class="chat-history__switch-text">Chat history</span>
-          </label>
-        </div>
-        {this.chatHistoryEnabled ? (
+      <details
+        class="chat-history"
+        open={this.chatHistoryEnabled}
+        onToggle={this.onToggle}
+      >
+        <summary class="chat-history__summary">
+          <svg
+            class="chat-history__icon"
+            width="14"
+            height="14"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            aria-hidden="true"
+          >
+            <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
+          </svg>
+          <span class="chat-history__label">Chat history</span>
+        </summary>
+        <div class="chat-history__content">
           <textarea
             class="chat-history__textarea"
             value={this.chatHistoryValue}
-            rows={8}
+            rows={6}
             placeholder={CHAT_HISTORY_PLACEHOLDER}
             aria-label="Chat history"
             onInput={this.onTextInput}
           />
-        ) : null}
-      </div>
+        </div>
+      </details>
     );
   }
 }

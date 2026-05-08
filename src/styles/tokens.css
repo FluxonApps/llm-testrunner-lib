@@ -52,9 +52,21 @@
   --line-height-loose: 2;
 
   /* Letter Spacing - Only essential values */
-  --letter-spacing-tight: -0.025em;
+  --letter-spacing-tighter: -0.02em;
+  --letter-spacing-tight: -0.01em;
+  --letter-spacing-snug: -0.005em;
   --letter-spacing-normal: 0;
-  --letter-spacing-wide: 0.05em;
+  --letter-spacing-wide: 0.04em;
+  --letter-spacing-wider: 0.06em;
+
+  /* Font families - load Inter / JetBrains Mono in the host page (see
+   * vanilla-demo.css). Fall back gracefully so the product never breaks
+   * if the webfont fails to load. */
+  --font-family-sans:
+    'Inter', 'Inter Variable', ui-sans-serif, system-ui, -apple-system,
+    BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --font-family-mono:
+    'JetBrains Mono', ui-monospace, 'SF Mono', Menlo, Consolas, monospace;
 
   /* Shadows */
   --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
@@ -137,6 +149,26 @@
   /* Info colors */
   --info: #3b82f6;
   --info-foreground: #fafafa;
+
+  /* Soft variants for chip/pill style badges (lighter than solid colors).
+   * Used by status badges and subtle accents — gives a calm Linear/Vercel
+   * feel rather than alarming Bootstrap solid blocks. */
+  --success-soft-bg: rgb(16 185 129 / 0.1);
+  --success-soft-fg: #047857;
+  --success-soft-border: rgb(16 185 129 / 0.2);
+
+  --destructive-soft-bg: rgb(239 68 68 / 0.1);
+  --destructive-soft-fg: #b91c1c;
+  --destructive-soft-border: rgb(239 68 68 / 0.2);
+
+  --warning-soft-bg: rgb(245 158 11 / 0.1);
+  --warning-soft-fg: #b45309;
+  --warning-soft-border: rgb(245 158 11 / 0.25);
+
+  --ring-soft: rgb(59 130 246 / 0.12);
+
+  /* Border emphasis variant for hover/focus-within on cards. */
+  --border-strong: #d4d4d8;
 }
 
 /* Dark theme support - apply data-theme="dark" to the host element */
@@ -166,8 +198,24 @@
   --destructive-foreground: #fafafa;
 
   --border: #27272a;
+  --border-strong: #3f3f46;
   --input: #27272a;
   --ring: #3b82f6;
+
+  /* Soft variants — dark theme */
+  --success-soft-bg: rgb(16 185 129 / 0.15);
+  --success-soft-fg: #34d399;
+  --success-soft-border: rgb(16 185 129 / 0.3);
+
+  --destructive-soft-bg: rgb(239 68 68 / 0.15);
+  --destructive-soft-fg: #f87171;
+  --destructive-soft-border: rgb(239 68 68 / 0.3);
+
+  --warning-soft-bg: rgb(245 158 11 / 0.15);
+  --warning-soft-fg: #fbbf24;
+  --warning-soft-border: rgb(245 158 11 / 0.3);
+
+  --ring-soft: rgb(59 130 246 / 0.18);
 
   --success: #059669;
   --success-foreground: #fafafa;

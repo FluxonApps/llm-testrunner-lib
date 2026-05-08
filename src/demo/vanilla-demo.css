@@ -1,71 +1,124 @@
+/* Inter & JetBrains Mono — loaded once at the document level so they're
+ * available inside every Stencil shadow root automatically. */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
+
+:root {
+  --page-padding-x: clamp(16px, 4vw, 40px);
+  --page-padding-y: clamp(16px, 3vw, 32px);
+}
+
+html,
 body {
-  font-family:
-    -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  height: 100%;
+}
+
+body {
   margin: 0;
-  padding: 20px;
-  background-color: #f5f5f5;
-  color: #333;
+  padding: var(--page-padding-y) var(--page-padding-x);
+  background: #fafafa;
+  color: #18181b;
+  font-family:
+    'Inter', 'Inter Variable', ui-sans-serif, system-ui, -apple-system,
+    BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  font-feature-settings: 'cv11', 'ss01', 'ss03';
+  font-size: 14px;
   line-height: 1.5;
+  letter-spacing: -0.005em;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
 }
 
 .container {
-  max-width: 1200px;
+  /* Drop the old 1200px cap — rely on the body's responsive padding for
+   * comfortable reading width on ultra-wide displays without artificially
+   * constricting the test runner. */
+  max-width: none;
+  width: 100%;
   margin: 0 auto;
 }
 
 .demo-section {
-  background: white;
-  margin: 20px 0;
-  padding: 30px;
-  border-radius: 8px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  background: transparent;
+  margin: 0;
+  padding: 0;
+  border-radius: 0;
+  box-shadow: none;
 }
 
 h1 {
-  color: #333;
-  text-align: center;
-  margin-bottom: 40px;
+  margin: 0 0 8px;
+  font-size: 28px;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  color: #09090b;
+  text-align: left;
 }
 
 h2 {
-  color: #555;
-  border-bottom: 2px solid #eee;
-  padding-bottom: 10px;
-  margin-top: 0;
+  /* The duplicate "Fluxon LLM TestRunner" h2 reads as redundant chrome
+   * once the page is full-width. Soften it visually so it reads as a
+   * subtle subhead rather than a heavy section banner. */
+  margin: 0 0 4px;
+  font-size: 14px;
+  font-weight: 500;
+  letter-spacing: -0.005em;
+  color: #71717a;
+  border: none;
+  padding: 0;
+}
+
+.demo-section > p {
+  margin: 0 0 24px;
+  color: #52525b;
+  font-size: 14px;
+  max-width: 680px;
 }
 
 .demo-example-row {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: 10px 14px;
-  margin: 20px 0 20px;
+  gap: 10px 12px;
+  margin: 0 0 24px;
 }
 
 .demo-example-row__label {
-  font-size: 0.9375rem;
-  font-weight: 600;
-  color: #444;
+  font-size: 13px;
+  font-weight: 500;
+  color: #52525b;
+  letter-spacing: -0.005em;
 }
 
 .demo-example-row__select {
   font: inherit;
-  font-size: 0.9375rem;
-  line-height: 1.35;
-  min-width: min(100%, 18rem);
-  min-height: 2.5rem;
-  padding: 0.45rem 0.65rem;
-  border: 1px solid #c4c4c4;
-  border-radius: 6px;
-  background-color: #fff;
-  color: #222;
+  font-size: 13px;
+  line-height: 1.4;
+  min-width: min(100%, 16rem);
+  height: 36px;
+  padding: 0 32px 0 12px;
+  border: 1px solid #e4e4e7;
+  border-radius: 8px;
+  background-color: #ffffff;
+  background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 12 12"><path d="M3 4.5l3 3 3-3" fill="none" stroke="%2371717a" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>');
+  background-repeat: no-repeat;
+  background-position: right 10px center;
+  background-size: 12px;
+  color: #18181b;
   cursor: pointer;
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+  appearance: none;
+  -webkit-appearance: none;
+  transition: border-color 150ms ease, box-shadow 150ms ease;
+}
+
+.demo-example-row__select:hover {
+  border-color: #d4d4d8;
 }
 
 .demo-example-row__select:focus-visible {
-  outline: 2px solid #1a56db;
-  outline-offset: 2px;
+  outline: none;
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 4px rgb(59 130 246 / 0.12);
 }
 
 #runner-host {

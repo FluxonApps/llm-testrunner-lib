@@ -19,12 +19,18 @@ function attachControlledParent(page: SpecPage): void {
   });
 }
 
-async function enableChatHistoryAsUser(page: SpecPage): Promise<void> {
+/**
+ * Native <details> doesn't fire `toggle` from a programmatic `.open = ...`
+ * change in jsdom; we trigger it explicitly so the component's onToggle
+ * handler observes the new state, just as it would in a real browser.
+ */
+async function openChatHistoryAsUser(page: SpecPage): Promise<void> {
   attachControlledParent(page);
-  const toggle = page.root.shadowRoot!.querySelector(
-    '.chat-history__switch-input',
-  ) as HTMLInputElement;
-  setCheckboxChecked(toggle, true);
+  const details = page.root.shadowRoot!.querySelector(
+    'details',
+  ) as HTMLDetailsElement;
+  details.open = true;
+  details.dispatchEvent(new Event('toggle', { bubbles: true }));
   await page.waitForChanges();
 }
 
@@ -36,9 +42,12 @@ function getTextareaValue(textarea: HTMLTextAreaElement): string {
   return textarea.getAttribute('value') ?? '';
 }
 
-function setCheckboxChecked(input: HTMLInputElement, checked: boolean): void {
-  input.checked = checked;
-  input.dispatchEvent(new Event('input', { bubbles: true }));
+// Stencil's spec DOM doesn't reflect the `open` property on <details> the
+// way real browsers do. Read the attribute (set by the JSX `open={...}`
+// binding) instead.
+function isDetailsOpen(details: HTMLDetailsElement): boolean {
+  if (typeof details.open === 'boolean') return details.open;
+  return details.hasAttribute('open');
 }
 
 describe('ChatHistory', () => {
@@ -46,7 +55,7 @@ describe('ChatHistory', () => {
     jest.clearAllMocks();
   });
 
-  it('shows toggle on and textarea value from props', async () => {
+  it('renders open with textarea value from props when enabled', async () => {
     const page = await newSpecPage({
       components: [ChatHistory],
       html: '<chat-history chat-history-enabled chat-history-value="[imported]"></chat-history>',
@@ -54,58 +63,60 @@ describe('ChatHistory', () => {
 
     await page.waitForChanges();
 
+    const details = page.root.shadowRoot.querySelector(
+      'details',
+    ) as HTMLDetailsElement;
+    expect(isDetailsOpen(details)).toBe(true);
+
     const textarea = page.root.shadowRoot.querySelector(
       '.chat-history__textarea',
     ) as HTMLTextAreaElement;
     expect(textarea).not.toBeNull();
     expect(getTextareaValue(textarea)).toBe('[imported]');
-    const toggle = page.root.shadowRoot.querySelector(
-      '.chat-history__switch-input',
-    ) as HTMLInputElement;
-    expect(toggle.checked).toBe(true);
   });
 
-  it('does not render the textarea when disabled', async () => {
+  it('renders collapsed (open=false) by default', async () => {
     const page = await newSpecPage({
       components: [ChatHistory],
       html: '<chat-history></chat-history>',
     });
 
-    expect(page.root.shadowRoot.querySelector('.chat-history__textarea')).toBeNull();
+    const details = page.root.shadowRoot.querySelector(
+      'details',
+    ) as HTMLDetailsElement;
+    expect(isDetailsOpen(details)).toBe(false);
   });
 
-  it('renders the textarea only after the parent sets enabled (user toggle + prop sync)', async () => {
+  it('shows the summary label and chat icon at all times', async () => {
     const page = await newSpecPage({
       components: [ChatHistory],
       html: '<chat-history></chat-history>',
     });
 
-    await enableChatHistoryAsUser(page);
+    const summary = page.root.shadowRoot.querySelector(
+      '.chat-history__summary',
+    );
+    expect(summary).not.toBeNull();
+    expect(summary?.textContent).toContain('Chat history');
+    expect(
+      page.root.shadowRoot.querySelector('.chat-history__icon'),
+    ).not.toBeNull();
+  });
+
+  it('opens to reveal the textarea after the user expands the disclosure', async () => {
+    const page = await newSpecPage({
+      components: [ChatHistory],
+      html: '<chat-history></chat-history>',
+    });
+
+    await openChatHistoryAsUser(page);
 
     expect(
       page.root.shadowRoot.querySelector('.chat-history__textarea'),
     ).not.toBeNull();
   });
 
-  it('keeps typed value in the textarea while enabled', async () => {
-    const page = await newSpecPage({
-      components: [ChatHistory],
-      html: '<chat-history></chat-history>',
-    });
-
-    await enableChatHistoryAsUser(page);
-
-    const textarea = page.root.shadowRoot.querySelector(
-      '.chat-history__textarea',
-    ) as HTMLTextAreaElement;
-    textarea.value = 'paste-json-here';
-    textarea.dispatchEvent(new Event('input', { bubbles: true }));
-    await page.waitForChanges();
-
-    expect(getTextareaValue(textarea)).toBe('paste-json-here');
-  });
-
-  it('emits chatHistoryChange when the switch is toggled on', async () => {
+  it('emits chatHistoryChange with enabled=true when the user expands', async () => {
     const page = await newSpecPage({
       components: [ChatHistory],
       html: '<chat-history></chat-history>',
@@ -116,10 +127,11 @@ describe('ChatHistory', () => {
       spy((e as CustomEvent<ChatHistoryChangeDetail>).detail),
     );
 
-    const input = page.root.shadowRoot.querySelector(
-      '.chat-history__switch-input',
-    ) as HTMLInputElement;
-    setCheckboxChecked(input, true);
+    const details = page.root.shadowRoot.querySelector(
+      'details',
+    ) as HTMLDetailsElement;
+    details.open = true;
+    details.dispatchEvent(new Event('toggle', { bubbles: true }));
     await page.waitForChanges();
 
     expect(spy).toHaveBeenCalledWith({ enabled: true, value: '' });
@@ -131,7 +143,7 @@ describe('ChatHistory', () => {
       html: '<chat-history></chat-history>',
     });
 
-    await enableChatHistoryAsUser(page);
+    await openChatHistoryAsUser(page);
 
     const spy = jest.fn();
     page.root.addEventListener('chatHistoryChange', (e: Event) =>
@@ -149,22 +161,18 @@ describe('ChatHistory', () => {
     expect(spy).toHaveBeenCalledWith({ enabled: true, value: 'hello' });
   });
 
-  it('hides the textarea after toggling off and emits disabled state', async () => {
+  it('preserves typed value across collapse/expand toggles', async () => {
     const page = await newSpecPage({
       components: [ChatHistory],
       html: '<chat-history></chat-history>',
     });
 
-    await enableChatHistoryAsUser(page);
-
-    const toggle = page.root.shadowRoot.querySelector(
-      '.chat-history__switch-input',
-    ) as HTMLInputElement;
+    await openChatHistoryAsUser(page);
 
     const textarea = page.root.shadowRoot.querySelector(
       '.chat-history__textarea',
     ) as HTMLTextAreaElement;
-    textarea.value = 'keep';
+    textarea.value = 'keep me';
     textarea.dispatchEvent(new Event('input', { bubbles: true }));
     await page.waitForChanges();
 
@@ -172,12 +180,15 @@ describe('ChatHistory', () => {
     page.root.addEventListener('chatHistoryChange', (e: Event) =>
       spy((e as CustomEvent<ChatHistoryChangeDetail>).detail),
     );
-    spy.mockClear();
 
-    setCheckboxChecked(toggle, false);
+    // User collapses — emit enabled=false but value is preserved.
+    const details = page.root.shadowRoot.querySelector(
+      'details',
+    ) as HTMLDetailsElement;
+    details.open = false;
+    details.dispatchEvent(new Event('toggle', { bubbles: true }));
     await page.waitForChanges();
 
-    expect(page.root.shadowRoot.querySelector('.chat-history__textarea')).toBeNull();
-    expect(spy).toHaveBeenCalledWith({ enabled: false, value: 'keep' });
+    expect(spy).toHaveBeenCalledWith({ enabled: false, value: 'keep me' });
   });
 });

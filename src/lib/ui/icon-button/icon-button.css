@@ -3,16 +3,39 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  padding: var(--spacing-2);
-  min-width: var(--spacing-10);
-  height: var(--spacing-10);
-  border-radius: var(--radius);
-  font-size: var(--font-size-base);
+  padding: 0;
+  width: 32px;
+  height: 32px;
+  border-radius: var(--radius-lg);
+  font-size: 16px;
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition:
+    background-color 120ms ease,
+    border-color 120ms ease,
+    box-shadow 120ms ease,
+    color 120ms ease,
+    transform 80ms ease;
   border: var(--border-width) solid transparent;
   outline: none;
   position: relative;
+  font-family: inherit;
+}
+
+.ui-icon-button svg {
+  width: 16px;
+  height: 16px;
+  display: block;
+}
+
+@keyframes ui-icon-button-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.ui-icon-button .icon-spinner {
+  animation: ui-icon-button-spin 1s linear infinite;
+  transform-origin: center;
 }
 
 .ui-icon-button:focus-visible {
@@ -55,14 +78,15 @@
 }
 
 .ui-icon-button--outline {
-  background: transparent;
+  background: var(--background);
   border-color: var(--border);
-  color: var(--foreground);
+  color: var(--muted-foreground);
 }
 
 .ui-icon-button--outline:hover:not(:disabled):not(.ui-icon-button--loading) {
-  background: var(--accent);
-  transform: translateY(-1px);
+  background: var(--muted);
+  border-color: var(--border-strong);
+  color: var(--foreground);
 }
 
 .ui-icon-button--destructive {

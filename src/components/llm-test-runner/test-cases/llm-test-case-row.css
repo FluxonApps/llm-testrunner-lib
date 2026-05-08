@@ -1,37 +1,260 @@
-/* Test Case Row Block */
-.test-case-row {
-  display: grid;
-  grid-template-columns: 1fr 1.5fr 0.5fr 120px;
-  gap: var(--border-width);
-  border-bottom: var(--border-width) solid var(--border);
-  min-height: 200px;
-}
+/* ------------------------------------------------------------------ */
+/* Card                                                               */
+/* ------------------------------------------------------------------ */
 
-/*
- * Grid items default to min-width: auto, which prevents tracks from
- * shrinking below their content's min-content width. Force 0 so long
- * unbreakable strings (e.g. JSON dumps) don't blow out the layout.
- */
-.test-case-row > * {
-  min-width: 0;
+.test-case-row {
+  background: var(--background);
+  border: var(--border-width) solid var(--border);
+  border-radius: var(--radius-xl);
+  overflow: hidden;
+  transition:
+    border-color 150ms ease,
+    box-shadow 150ms ease;
 }
 
 .test-case-row:hover {
+  border-color: var(--border-strong);
+}
+
+.test-case-row[open] {
+  border-color: var(--border-strong);
+  box-shadow: var(--shadow-sm);
+}
+
+/* ------------------------------------------------------------------ */
+/* Summary (collapsed header — always visible)                        */
+/* ------------------------------------------------------------------ */
+
+.test-case-row__summary {
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-3);
+  padding: var(--spacing-3) var(--spacing-4);
+  user-select: none;
+  list-style: none;
+  background: transparent;
+  transition: background-color 150ms ease;
+}
+
+.test-case-row__summary:hover {
   background: var(--muted);
 }
 
-/* Input Column Element */
-.test-case-row__input-column {
-  padding: var(--spacing-5);
-  background: var(--background);
-  border-right: var(--border-width) solid var(--border);
+/* Hide native disclosure markers so we can render our own chevron. */
+.test-case-row__summary::-webkit-details-marker {
+  display: none;
 }
+
+.test-case-row__summary::marker {
+  display: none;
+  content: '';
+}
+
+/* Custom chevron — rotates 90° when the card is open. Same look as the
+ * "More options" and "Chat history" disclosures so the row feels visually
+ * consistent. */
+.test-case-row__summary::before {
+  content: '';
+  display: inline-block;
+  width: 0;
+  height: 0;
+  border-top: 5px solid transparent;
+  border-bottom: 5px solid transparent;
+  border-left: 6px solid var(--muted-foreground);
+  transition:
+    transform 200ms ease,
+    border-left-color 150ms ease;
+  transform-origin: 25% 50%;
+  flex-shrink: 0;
+}
+
+.test-case-row__summary:hover::before {
+  border-left-color: var(--foreground);
+}
+
+.test-case-row[open] .test-case-row__summary::before {
+  transform: rotate(90deg);
+  border-left-color: var(--foreground);
+}
+
+/* Question preview — clamped to 2 lines with ellipsis. */
+.test-case-row__question-preview {
+  flex: 1;
+  min-width: 0;
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+  letter-spacing: var(--letter-spacing-snug);
+  color: var(--foreground);
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  line-clamp: 2;
+  overflow: hidden;
+  line-height: 1.45;
+}
+
+/* Empty / placeholder question gets muted treatment. */
+.test-case-row__question-preview:empty,
+.test-case-row__question-preview:first-letter:lang(en) {
+  /* No-op selector — placeholder coloring is applied via parent state */
+}
+
+/* The actions cluster on the right side of the summary. */
+.test-case-row__summary-actions {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-2);
+  flex-shrink: 0;
+}
+
+/* ------------------------------------------------------------------ */
+/* Status pill — Not run / Running / Passed / Failed                  */
+/* ------------------------------------------------------------------ */
+
+.test-case-row__status {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 2px 10px;
+  border-radius: var(--radius-full);
+  font-size: 11px;
+  font-weight: var(--font-weight-medium);
+  letter-spacing: var(--letter-spacing-snug);
+  border: var(--border-width) solid transparent;
+  white-space: nowrap;
+}
+
+.test-case-row__status::before {
+  content: '';
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: currentColor;
+  flex-shrink: 0;
+}
+
+.test-case-row__status--not-run {
+  background: var(--muted);
+  color: var(--muted-foreground);
+  border-color: var(--border);
+}
+
+.test-case-row__status--running {
+  background: rgb(59 130 246 / 0.1);
+  color: var(--ring);
+  border-color: rgb(59 130 246 / 0.25);
+}
+
+/* Running dot pulses gently to signal live activity. */
+.test-case-row__status--running::before {
+  animation: test-case-row-pulse 1.4s ease-in-out infinite;
+}
+
+@keyframes test-case-row-pulse {
+  0%, 100% { opacity: 0.4; transform: scale(0.85); }
+  50% { opacity: 1; transform: scale(1); }
+}
+
+.test-case-row__status--passed {
+  background: var(--success-soft-bg);
+  color: var(--success-soft-fg);
+  border-color: var(--success-soft-border);
+}
+
+.test-case-row__status--failed {
+  background: var(--destructive-soft-bg);
+  color: var(--destructive-soft-fg);
+  border-color: var(--destructive-soft-border);
+}
+
+/* ------------------------------------------------------------------ */
+/* Body (expanded — the existing 3-column editor)                     */
+/* ------------------------------------------------------------------ */
+
+/* Body — vertical stack: Input on top (always when expanded), Output +
+ * Evaluation appear below as a 2-column grid only when the test has
+ * been run (or is currently running). Fresh test cases stay compact. */
+.test-case-row__body {
+  display: flex;
+  flex-direction: column;
+  border-top: var(--border-width) solid var(--border);
+  background: var(--background);
+}
+
+/* Output + Evaluation row — visually distinct from the input section
+ * above. Sits on a muted "tray" with its own bordered, rounded sub-cards
+ * for Output and Evaluation. The shift in background + the inset
+ * sub-cards signal "this is the result of the test", separate from the
+ * editor that produced it. */
+.test-case-row__results {
+  display: grid;
+  grid-template-columns: 1.5fr 1fr;
+  gap: var(--spacing-3);
+  padding: var(--spacing-3);
+  background: var(--muted);
+  border-top: var(--border-width) solid var(--border);
+}
+
+.test-case-row__results > * {
+  min-width: 0;
+}
+
+/* Each panel: a small uppercase header strip + flexible content area. */
+.test-case-row__panel {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+/* Panels inside the results tray become their own bordered sub-cards
+ * with a white background — they "sit on" the muted tray. */
+.test-case-row__results .test-case-row__panel {
+  background: var(--background);
+  border: var(--border-width) solid var(--border);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+}
+
+.test-case-row__panel-header {
+  padding: var(--spacing-2) var(--spacing-4);
+  font-size: 11px;
+  font-weight: var(--font-weight-semibold);
+  text-transform: uppercase;
+  letter-spacing: var(--letter-spacing-wider);
+  color: var(--muted-foreground);
+  background: var(--muted);
+  border-bottom: var(--border-width) solid var(--border);
+}
+
+.test-case-row__panel-content {
+  flex: 1;
+  min-width: 0;
+}
+
+/* Input column keeps its own padding rules (the existing
+ * input-content > textarea / chat-history / expected-outcome layout). */
+.test-case-row__input-content {
+  flex: 1;
+  padding: var(--spacing-5);
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-3);
+}
+
+/* The Run footer that used to live at the bottom of the input column is
+ * removed — the Run button is now in the summary, always reachable
+ * without expanding the card. */
+
+/* ------------------------------------------------------------------ */
+/* Expected outcome renderer (within input column)                    */
+/* ------------------------------------------------------------------ */
 
 .expected-outcome-renderer {
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-4);
-  margin-top: var(--spacing-4);
+  gap: var(--spacing-3);
+  margin-top: var(--spacing-2);
 }
 
 .expected-outcome-renderer__group {
@@ -40,50 +263,119 @@
   gap: var(--spacing-2);
   padding: var(--spacing-3);
   border: var(--border-width) solid var(--border);
-  border-radius: var(--radius-md);
+  border-radius: var(--radius-lg);
   background: var(--background);
+  transition: border-color 150ms ease;
+}
+
+.expected-outcome-renderer__group:focus-within {
+  border-color: var(--border-strong);
 }
 
 .expected-outcome-renderer__options {
   border: var(--border-width) solid var(--border);
-  border-radius: var(--radius-sm);
+  border-radius: var(--radius-lg);
+  background: transparent;
+  overflow: hidden;
+  transition: border-color 150ms ease, background-color 150ms ease;
+}
+
+.expected-outcome-renderer__options[open] {
   background: var(--muted);
+  border-color: var(--border-strong);
 }
 
 .expected-outcome-renderer__options-summary {
   cursor: pointer;
-  font-size: var(--font-size-sm);
-  color: var(--foreground);
-  padding: var(--spacing-2) var(--spacing-3);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 11px;
+  font-weight: var(--font-weight-semibold);
+  text-transform: uppercase;
+  letter-spacing: var(--letter-spacing-wider);
+  color: var(--muted-foreground);
+  padding: var(--spacing-3) var(--spacing-3);
   user-select: none;
+  list-style: none;
+  transition: color 150ms ease;
+}
+
+.expected-outcome-renderer__options-summary:hover {
+  color: var(--foreground);
+}
+
+.expected-outcome-renderer__options-summary::-webkit-details-marker {
+  display: none;
+}
+
+.expected-outcome-renderer__options-summary::marker {
+  display: none;
+  content: '';
+}
+
+.expected-outcome-renderer__options-summary::before {
+  content: '';
+  display: inline-block;
+  width: 0;
+  height: 0;
+  border-top: 4px solid transparent;
+  border-bottom: 4px solid transparent;
+  border-left: 5px solid currentColor;
+  transition: transform 200ms ease;
+  transform-origin: 25% 50%;
+  flex-shrink: 0;
+}
+
+.expected-outcome-renderer__options[open]
+  .expected-outcome-renderer__options-summary::before {
+  transform: rotate(90deg);
 }
 
 .expected-outcome-renderer__options-content {
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-2);
+  gap: var(--spacing-3);
   padding: 0 var(--spacing-3) var(--spacing-3);
 }
 
-/* Responsive Design */
+/* ------------------------------------------------------------------ */
+/* Responsive                                                         */
+/* ------------------------------------------------------------------ */
+
 @media (max-width: 1200px) {
-  .test-case-row {
+  .test-case-row__results {
     grid-template-columns: 1fr;
-    gap: 0;
   }
 
-  .test-case-row__input-column {
+  .test-case-row__results .test-case-row__panel {
     border-right: none;
     border-bottom: var(--border-width) solid var(--border);
+  }
+
+  .test-case-row__results .test-case-row__panel:last-child {
+    border-bottom: none;
   }
 }
 
 @media (max-width: 768px) {
-  .test-case-row__input-column {
-    padding: var(--spacing-4);
+  .test-case-row__summary {
+    padding: var(--spacing-3);
+    flex-wrap: wrap;
   }
 
-  .test-case-row {
-    min-height: auto;
+  .test-case-row__question-preview {
+    flex: 1 1 100%;
+    order: 1;
+  }
+
+  .test-case-row__summary-actions {
+    order: 2;
+    width: 100%;
+    justify-content: flex-end;
+  }
+
+  .test-case-row__input-content {
+    padding: var(--spacing-4);
   }
 }

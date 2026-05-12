@@ -304,7 +304,9 @@ describe('performLlmJudgeEvaluation', () => {
       const result = await performLlmJudgeEvaluation(buildRequest());
 
       expect(result.passed).toBe(false);
-      expect(result.error).toContain('schema validation failed');
+      expect(result.error).toContain('Judge response invalid');
+      // The bullet points should reference the offending field path.
+      expect(result.error).toContain('criteria');
     });
 
     it('returns an error result when a score is out of range', async () => {
@@ -315,7 +317,9 @@ describe('performLlmJudgeEvaluation', () => {
       const result = await performLlmJudgeEvaluation(buildRequest());
 
       expect(result.passed).toBe(false);
-      expect(result.error).toContain('schema validation failed');
+      expect(result.error).toContain('Judge response invalid');
+      // The bullet point should pinpoint the score field at index 0.
+      expect(result.error).toContain('score');
     });
 
     it('returns an error result when the judge skips a criterion id', async () => {
@@ -359,31 +363,4 @@ describe('performLlmJudgeEvaluation', () => {
     });
   });
 
-  describe('context fields flow through to the prompt', () => {
-    beforeEach(() => {
-      mockJudge.mockResolvedValue({
-        criteria: [{ id: 'correctness', score: 0.9 }],
-      });
-    });
-
-    it('passes chatHistory into the judge messages as a CHAT_HISTORY block', async () => {
-      await performLlmJudgeEvaluation(
-        buildRequest({ chatHistory: 'user: hi\nassistant: hello' }),
-      );
-      expect(judgeUserContent()).toContain(
-        'CHAT_HISTORY:\nuser: hi\nassistant: hello',
-      );
-    });
-
-    it('passes additionalContext into the judge messages as an ADDITIONAL_CONTEXT block', async () => {
-      await performLlmJudgeEvaluation(
-        buildRequest({
-          additionalContext: 'Wikipedia snippet about France.',
-        }),
-      );
-      expect(judgeUserContent()).toContain(
-        'ADDITIONAL_CONTEXT:\nWikipedia snippet about France.',
-      );
-    });
-  });
 });

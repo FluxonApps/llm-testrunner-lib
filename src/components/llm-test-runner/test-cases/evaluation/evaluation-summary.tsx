@@ -61,7 +61,10 @@ export const EvaluationSummary: FunctionalComponent<EvaluationSummaryProps> = ({
                         <ul class="evaluation-summary__criterion-list">
                           {fieldResult.criterionResults.map(criterion => (
                             <li class="evaluation-summary__criterion-item">
-                              <span class="evaluation-summary__criterion-id">
+                              <span
+                                class="evaluation-summary__criterion-id"
+                                title={criterion.id}
+                              >
                                 {criterion.id}
                               </span>
                               <span class="evaluation-summary__criterion-score">

@@ -15,10 +15,7 @@ import type {
   EvaluationResult,
   FieldEvaluationInput,
 } from './types';
-import type {
-  JudgeMessage,
-  LlmJudge,
-} from '../../types/llm-test-runner';
+import type { LlmJudge } from '../../types/llm-test-runner';
 
 const mockJudge = jest.fn<LlmJudge>();
 
@@ -93,40 +90,6 @@ describe('LLMEvaluationEngine — llm-judge dispatch', () => {
     // The mock callback was invoked, proving the V2 → field-request → evaluator
     // plumbing wired the reference all the way through.
     expect(mockJudge).toHaveBeenCalledTimes(1);
-  });
-
-  it('plumbs chatHistory from V2 into the prompt sent to the judge', async () => {
-    mockJudge.mockResolvedValue({
-      criteria: [{ id: 'correctness', score: 0.9 }],
-    });
-
-    await runEngine(
-      engine,
-      buildRequest({ chatHistory: 'user: hi\nassistant: hello' }),
-    );
-
-    const args = mockJudge.mock.calls[0][0] as { messages: JudgeMessage[] };
-    expect(args.messages[1].content).toContain(
-      'CHAT_HISTORY:\nuser: hi\nassistant: hello',
-    );
-  });
-
-  it('plumbs additionalContext from V2 into the prompt sent to the judge', async () => {
-    mockJudge.mockResolvedValue({
-      criteria: [{ id: 'correctness', score: 0.9 }],
-    });
-
-    await runEngine(
-      engine,
-      buildRequest({
-        additionalContext: 'Wikipedia snippet about France.',
-      }),
-    );
-
-    const args = mockJudge.mock.calls[0][0] as { messages: JudgeMessage[] };
-    expect(args.messages[1].content).toContain(
-      'ADDITIONAL_CONTEXT:\nWikipedia snippet about France.',
-    );
   });
 
   it('maps EvaluationResult.error onto FieldEvaluationResult.error', async () => {

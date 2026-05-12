@@ -25,19 +25,18 @@ function stripJsonFence(raw) {
   return fence ? fence[1] : trimmed;
 }
 
-/**
- * Wires the `<llm-test-runner llmJudge>` prop to Gemini. The library passes
- * a `{messages: [{role, content}, …]}` payload — we flatten to a single
- * prompt (Gemini's `invoke` takes one string), parse the JSON response, and
- * return the `JudgeResponse` shape the library expects.
- */
 function wireGeminiJudge(runner) {
   const llm = new window.GeminiAdapter(window.env.API_KEY);
   runner.llmJudge = async ({ messages }) => {
-    const prompt = messages
-      .map((m) => `[${m.role.toUpperCase()}]\n${m.content}`)
-      .join('\n\n');
-    const raw = await llm.invoke(prompt);
+    const systemMsg = messages.find((m) => m.role === 'system');
+    const userMsg = messages.find((m) => m.role === 'user');
+    if (!userMsg) {
+      throw new Error('Judge messages payload is missing a user message.');
+    }
+    const raw = await llm.invoke({
+      prompt: userMsg.content,
+      system: systemMsg?.content,
+    });
     return JSON.parse(stripJsonFence(raw));
   };
 }

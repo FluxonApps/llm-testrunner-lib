@@ -113,20 +113,11 @@ export class EvaluationService {
       return;
     }
 
-    // Derive chatHistory from the test case so the llm-judge evaluator can
-    // pass it into the judge prompt. Treat disabled / empty values as
-    // undefined so the prompt's CHAT_HISTORY block is omitted entirely.
-    const chatHistory =
-      testCase.chatHistory?.enabled && testCase.chatHistory.value
-        ? testCase.chatHistory.value
-        : undefined;
-
     const evaluationRequest: EvaluationRequestV2 = {
       testCaseId: testCase.id,
       question: testCase.question,
       fields,
       llmJudge,
-      chatHistory,
     };
 
     await this.engine.evaluateResponse(evaluationRequest, (result: EvaluationResult) => {

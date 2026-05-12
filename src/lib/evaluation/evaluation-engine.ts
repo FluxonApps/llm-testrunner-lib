@@ -27,8 +27,6 @@ export class LLMEvaluationEngine {
           expectedOutcome: field.expectedValue,
           evaluationParameters: field.evaluationParameters,
           llmJudge: request.llmJudge,
-          chatHistory: request.chatHistory,
-          additionalContext: request.additionalContext,
         };
         const result = await this.evaluateField(fieldRequest);
 

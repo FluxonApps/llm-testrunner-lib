@@ -11,8 +11,6 @@ export interface EvaluationRequest {
   actualResponse: string;
   evaluationParameters: EvaluationParameters;
   llmJudge?: LlmJudge;
-  chatHistory?: string;
-  additionalContext?: string;
 }
 
 export interface FieldEvaluationInput {
@@ -29,8 +27,6 @@ export interface EvaluationRequestV2 {
   question: string;
   fields: FieldEvaluationInput[];
   llmJudge?: LlmJudge;
-  chatHistory?: string;
-  additionalContext?: string;
 }
 
 export interface EvaluationResult {

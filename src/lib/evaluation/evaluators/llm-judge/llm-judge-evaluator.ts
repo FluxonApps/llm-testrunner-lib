@@ -30,6 +30,29 @@ const judgeResponseSchema = z.object({
     .min(1),
 });
 
+/**
+ * Translates Zod validation errors into a human-readable bullet list so
+ * the user sees actionable feedback in the UI rather than the raw issue
+ * tree. Caps at five issues to keep the error pill compact; the full
+ * detail is still in `parsed.error.issues` if a consumer needs it.
+ *
+ * Example output:
+ *   Judge response invalid:
+ *     • criteria.0.score: must be ≤ 1 (got 1.5)
+ *     • criteria.1.id: required
+ */
+function formatJudgeValidationError(error: z.ZodError): string {
+  const issues = error.issues.slice(0, 5).map(issue => {
+    const path = issue.path.length > 0 ? issue.path.join('.') : '(root)';
+    return `  • ${path}: ${issue.message}`;
+  });
+  const remaining = error.issues.length - issues.length;
+  if (remaining > 0) {
+    issues.push(`  • (+${remaining} more issue${remaining === 1 ? '' : 's'})`);
+  }
+  return `Judge response invalid:\n${issues.join('\n')}`;
+}
+
 function validateCoverage(
   inputCriteria: Criterion[],
   judgeCriteriaIds: Set<string>,
@@ -110,15 +133,11 @@ export async function performLlmJudgeEvaluation(
     actualResponse: assistantResponse,
     evaluationParameters,
     llmJudge,
-    chatHistory,
-    additionalContext,
   } = request;
   const messages = buildJudgeMessages({
     question,
     expectedOutcome,
     assistantResponse,
-    chatHistory,
-    additionalContext,
     criteria,
   });
 
@@ -132,10 +151,7 @@ export async function performLlmJudgeEvaluation(
 
   const parsed = judgeResponseSchema.safeParse(judgeResponse);
   if (!parsed.success) {
-    return buildErrorResult(
-      request,
-      `Judge response schema validation failed: ${parsed.error.message}`,
-    );
+    return buildErrorResult(request, formatJudgeValidationError(parsed.error));
   }
 
   const judgeIds = new Set(parsed.data.criteria.map(c => c.id));

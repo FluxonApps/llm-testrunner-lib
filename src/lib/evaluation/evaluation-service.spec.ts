@@ -11,11 +11,7 @@ jest.mock('./evaluators/semantic/index', () => ({
 import { EvaluationService } from './evaluation-service';
 import { EvaluationApproach } from './constants';
 import type { EvaluationResult } from './types';
-import type {
-  JudgeMessage,
-  LlmJudge,
-  TestCase,
-} from '../../types/llm-test-runner';
+import type { LlmJudge, TestCase } from '../../types/llm-test-runner';
 
 const mockJudge = jest.fn<LlmJudge>();
 
@@ -70,46 +66,5 @@ describe('EvaluationService — llm-judge plumbing', () => {
   it('passes the llmJudge callback through to the engine and the evaluator', async () => {
     await runService(service, buildTestCase(), mockJudge);
     expect(mockJudge).toHaveBeenCalledTimes(1);
-  });
-
-  it('derives chatHistory from the test case when enabled and non-empty', async () => {
-    await runService(
-      service,
-      buildTestCase({
-        chatHistory: { enabled: true, value: 'user: hi\nassistant: hello' },
-      }),
-      mockJudge,
-    );
-
-    const args = mockJudge.mock.calls[0][0] as { messages: JudgeMessage[] };
-    expect(args.messages[1].content).toContain(
-      'CHAT_HISTORY:\nuser: hi\nassistant: hello',
-    );
-  });
-
-  it('omits chatHistory when disabled, even if a value is set', async () => {
-    await runService(
-      service,
-      buildTestCase({
-        chatHistory: { enabled: false, value: 'user: hi' },
-      }),
-      mockJudge,
-    );
-
-    const args = mockJudge.mock.calls[0][0] as { messages: JudgeMessage[] };
-    expect(args.messages[1].content).not.toContain('CHAT_HISTORY:');
-  });
-
-  it('omits chatHistory when enabled but value is empty', async () => {
-    await runService(
-      service,
-      buildTestCase({
-        chatHistory: { enabled: true, value: '' },
-      }),
-      mockJudge,
-    );
-
-    const args = mockJudge.mock.calls[0][0] as { messages: JudgeMessage[] };
-    expect(args.messages[1].content).not.toContain('CHAT_HISTORY:');
   });
 });

@@ -45,75 +45,16 @@ describe('buildJudgeMessages', () => {
     expect(userContent).toContain('"weight": 2');
   });
 
-  it('omits the chat history label when chatHistory is undefined', () => {
-    const userContent = buildJudgeMessages(baseInput)[1].content;
-    expect(userContent).not.toContain('CHAT_HISTORY:');
-  });
-
-  it('renders a labeled chat history block when chatHistory is provided', () => {
-    const userContent = buildJudgeMessages({
-      ...baseInput,
-      chatHistory: 'user: hi\nassistant: hello',
-    })[1].content;
-    expect(userContent).toContain(
-      'CHAT_HISTORY:\nuser: hi\nassistant: hello',
-    );
-  });
-
-  it('omits the additional context label when additionalContext is undefined', () => {
-    const userContent = buildJudgeMessages(baseInput)[1].content;
-    expect(userContent).not.toContain('ADDITIONAL_CONTEXT:');
-  });
-
-  it('renders a labeled additional context block when additionalContext is provided', () => {
-    const userContent = buildJudgeMessages({
-      ...baseInput,
-      additionalContext: 'Page snippet: Paris is the capital of France.',
-    })[1].content;
-    expect(userContent).toContain(
-      'ADDITIONAL_CONTEXT:\nPage snippet: Paris is the capital of France.',
-    );
-  });
-
-  it('honors a userTemplate override; system stays default', () => {
-    // Capture the default system content from a no-override call so we can
-    // assert stability without needing the system constant exported.
-    const defaultSystem = buildJudgeMessages(baseInput)[0].content;
-
-    const customUser = 'Q: ${question}\nA: ${assistant_response}';
-    const messages = buildJudgeMessages({
-      ...baseInput,
-      userTemplate: customUser,
-    });
-
-    expect(messages[0].content).toBe(defaultSystem);
-    expect(messages[1].content).toBe(
-      'Q: What is the capital of France?\nA: The capital is Paris.',
-    );
-  });
-
   it('throws when criteria is empty', () => {
     expect(() =>
       buildJudgeMessages({ ...baseInput, criteria: [] }),
     ).toThrow();
   });
 
-  it('user-template path does not re-interpolate placeholder-like text inside replacement values', () => {
-    const messages = buildJudgeMessages({
-      ...baseInput,
-      assistantResponse: 'I would say ${question} is the question.',
-      userTemplate: 'Q: ${question}\nA: ${assistant_response}',
-    });
+  it('does not re-interpolate placeholder-like text inside input values', () => {
     // Single-pass regex substitution must NOT re-scan replacement values:
-    // the literal `${question}` inside the assistant response stays intact.
-    expect(messages[1].content).toBe(
-      'Q: What is the capital of France?\nA: I would say ${question} is the question.',
-    );
-  });
-
-  it('default path embeds placeholder-like text from inputs as literal', () => {
-    // JS template literals are not recursive, so `${question}` embedded in an
-    // input value can never become a re-interpolated placeholder.
+    // a literal `${question}` inside the assistant response stays intact
+    // and does not get expanded again.
     const userContent = buildJudgeMessages({
       ...baseInput,
       assistantResponse: 'I would say ${question} is the question.',

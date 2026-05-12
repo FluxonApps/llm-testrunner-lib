@@ -103,19 +103,29 @@
   gap: 2px;
 }
 
+/* Grid layout (1fr | auto) so the id column can shrink when it's long,
+ * triggering the ellipsis below — the score column stays its natural
+ * width on the right. */
 .evaluation-summary__criterion-item {
-  display: flex;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
   align-items: center;
+  gap: var(--spacing-2);
   font-size: var(--font-size-xs);
+  line-height: 1.3;
 }
 
 .evaluation-summary__criterion-id {
   font-family: var(--font-family-mono, ui-monospace, "SF Mono", Menlo, monospace);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  min-width: 0;
 }
 
 .evaluation-summary__criterion-score {
-  margin-left: auto;
   font-variant-numeric: tabular-nums;
+  text-align: right;
 }
 
 /* Evaluation Result Element */

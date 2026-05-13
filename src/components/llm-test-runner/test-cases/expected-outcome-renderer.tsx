@@ -187,6 +187,28 @@ export const ExpectedOutcomeRenderer: FunctionalComponent<ExpectedOutcomeRendere
     );
   };
 
+  const renderCriteriaInput = (
+    field: ExpectedOutcomeField,
+    index: number,
+  ) => {
+    if (field.evaluationParameters?.approach !== EvaluationApproach.LLM_JUDGE) {
+      return null;
+    }
+    return (
+      <criteria-input
+        criteria={field.evaluationParameters?.criteria}
+        onCriteriaChange={(e) =>
+          emit({
+            testCaseId,
+            index,
+            operation: 'set-evaluation-criteria',
+            value: e.detail.value,
+          })
+        }
+      />
+    );
+  };
+
   const renderEvaluationOptions = (field: ExpectedOutcomeField, index: number) => (
     <details class="expected-outcome-renderer__options">
       <summary class="expected-outcome-renderer__options-summary">
@@ -196,6 +218,7 @@ export const ExpectedOutcomeRenderer: FunctionalComponent<ExpectedOutcomeRendere
         {renderEvaluationSelector(field, index)}
         {renderThresholdInput(field, index)}
         {renderEvaluationSourceSelector(field, index)}
+        {renderCriteriaInput(field, index)}
       </div>
     </details>
   );

@@ -2,7 +2,7 @@ import {
   EvaluationParameters,
   EvaluationApproachResult,
 } from '../../types/evaluation';
-import type { ExpectedOutcomeFieldType } from '../../types/llm-test-runner';
+import type { ExpectedOutcomeFieldType, LlmJudge } from '../../types/llm-test-runner';
 
 export interface EvaluationRequest {
   testCaseId: string;
@@ -10,6 +10,7 @@ export interface EvaluationRequest {
   expectedOutcome: string;
   actualResponse: string;
   evaluationParameters: EvaluationParameters;
+  llmJudge?: LlmJudge;
 }
 
 export interface FieldEvaluationInput {
@@ -25,6 +26,7 @@ export interface EvaluationRequestV2 {
   testCaseId: string;
   question: string;
   fields: FieldEvaluationInput[];
+  llmJudge?: LlmJudge;
 }
 
 export interface EvaluationResult {
@@ -35,6 +37,15 @@ export interface EvaluationResult {
   timestamp?: string;
   evaluationParameters?: EvaluationParameters;
   evaluationApproachResult?: EvaluationApproachResult;
+  criterionResults?: CriterionResult[];
+  /**
+   * Populated by evaluators (currently llm-judge) when evaluation fails for a
+   * recoverable reason — e.g. judge call threw, response failed schema
+   * validation, criterion coverage check failed. The engine maps this onto
+   * the corresponding `FieldEvaluationResult.error` so the existing
+   * evaluation-row UI can render it.
+   */
+  error?: string;
 }
 
 export interface FieldEvaluationResult {
@@ -48,6 +59,7 @@ export interface FieldEvaluationResult {
   evaluationApproachResult: EvaluationApproachResult;
   error?: string;
   warning?: string;
+  criterionResults?: CriterionResult[];
 }
 
 export interface KeywordMatch {
@@ -71,4 +83,12 @@ export interface Rouge1OverallDetails {
   passRate: string;
   thresholdUsed: number;
   approach: string;
+}
+
+export interface CriterionResult {
+  id: string;
+  description: string;
+  weight: number;
+  score: number;
+  reason?: string;
 }

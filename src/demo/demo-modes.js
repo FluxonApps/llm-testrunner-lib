@@ -98,6 +98,59 @@ export const DEMO_MODES = {
       },
     ],
   },
+  llmJudge: {
+    initialTestCases: [
+      {
+        id: 'demo-llmJudge-1',
+        question:
+          'In one or two sentences, explain why the sky appears blue during the day.',
+        expectedOutcome: [
+          {
+            type: 'textarea',
+            label: 'Expected Outcome',
+            value:
+              'Sunlight is scattered by air molecules; shorter (blue) wavelengths scatter more, so the sky looks blue.',
+            evaluationParameters: {
+              approach: 'llm-judge',
+              threshold: 0.7,
+              criteria: [
+                {
+                  id: 'correctness',
+                  description:
+                    'Names Rayleigh scattering or describes shorter/blue wavelengths scattering more.',
+                  weight: 2,
+                },
+                {
+                  id: 'concision',
+                  description:
+                    'Stays within roughly one to two sentences and avoids unrelated tangents.',
+                  weight: 1,
+                },
+              ],
+            },
+          },
+        ],
+      },
+      {
+        id: 'demo-llmJudge-2',
+        question:
+          'Briefly: what is one upside and one downside of using LLM-as-judge?',
+        expectedOutcome: [
+          {
+            type: 'textarea',
+            label: 'Expected Outcome',
+            value:
+              'Upside: scales beyond hand-graded keyword matching for open-ended outputs. Downside: judges can be biased and add cost / latency.',
+            evaluationParameters: {
+              approach: 'llm-judge',
+              threshold: 0.7,
+              // No criteria — falls back to the default correctness criterion.
+            },
+          },
+        ],
+      },
+    ],
+  },
   dynamicExpectedOutcome: {
     initialTestCases: [
       {

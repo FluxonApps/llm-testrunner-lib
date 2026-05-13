@@ -9,6 +9,7 @@ import {
   TestCase,
   ExpectedOutcomeField,
   EvaluationSourceExtractors,
+  LlmJudge,
 } from '../../types/llm-test-runner';
 import { normalizeEvaluationParametersForField } from './field-evaluation-approach';
 import { resolveActualValue } from './actual-value-resolver';
@@ -33,6 +34,7 @@ export class EvaluationService {
     testCase: TestCase,
     onResult: (result: EvaluationResult) => void,
     extractors?: EvaluationSourceExtractors,
+    llmJudge?: LlmJudge,
   ): Promise<void> {
     const fields: FieldEvaluationInput[] = [];
     const failedFields: FieldEvaluationResult[] = [];
@@ -115,6 +117,7 @@ export class EvaluationService {
       testCaseId: testCase.id,
       question: testCase.question,
       fields,
+      llmJudge,
     };
 
     await this.engine.evaluateResponse(evaluationRequest, (result: EvaluationResult) => {

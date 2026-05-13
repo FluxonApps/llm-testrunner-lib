@@ -8,6 +8,15 @@ export const enum GeminiModels {
   Gemini3Flash__Preview = 'gemini-3-flash-preview',
 }
 
+export interface GeminiInvokeInput {
+  /** The user prompt for this turn. */
+  prompt: string;
+  /** Optional system instructions, sent via Gemini's first-class
+   * `systemInstruction` config (NOT concatenated into the user prompt).
+   * Used by the judge wiring to keep system + user separated. */
+  system?: string;
+}
+
 export class GeminiAdapter implements LlmAdapter {
   private readonly sdk;
 
@@ -17,10 +26,24 @@ export class GeminiAdapter implements LlmAdapter {
     });
   }
 
-  async invoke(text: string) {
+  /**
+   * Generate content from Gemini.
+   *
+   * Accepts either a plain prompt string (single-turn call) or a
+   * structured input with explicit system instructions. Structured input
+   * lets Gemini treat the system prompt as a first-class directive
+   * rather than concatenated user text.
+   */
+  async invoke(input: string | GeminiInvokeInput) {
+    const params: GeminiInvokeInput =
+      typeof input === 'string' ? { prompt: input } : input;
+
     const response = await this.sdk.models.generateContent({
       model: GeminiModels.Gemini3Flash__Preview,
-      contents: text,
+      contents: params.prompt,
+      config: params.system
+        ? { systemInstruction: params.system }
+        : undefined,
     });
 
     return response.text;

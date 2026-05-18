@@ -1,4 +1,9 @@
-export { evaluateBleu, evaluateExact, evaluateSemantic } from './evaluate-outcome';
+export {
+  evaluateBleu,
+  evaluateExact,
+  evaluateRouge1,
+  evaluateSemantic,
+} from './evaluate-outcome';
 export { installLlmMatchers } from './jest-matchers';
 export { LLMTestKit } from './llm-test-kit';
 export { createGeminiInvoke } from './gemini-invoke';

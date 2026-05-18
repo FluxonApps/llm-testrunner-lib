@@ -40,3 +40,5 @@ jobs:
 
       - name: Test
         run: npm run test
+        env:
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}

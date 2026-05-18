@@ -17,6 +17,7 @@ export function installLlmMatchers(
 }
 
 declare module 'expect' {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   interface Matchers<R extends void | Promise<void>, T = unknown> {
     toExactMatch(expected: string): Promise<R>;
   }

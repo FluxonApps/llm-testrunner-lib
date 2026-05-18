@@ -2,6 +2,7 @@ export {
   evaluateBleu,
   evaluateExact,
   evaluateRouge1,
+  evaluateRougeL,
   evaluateSemantic,
 } from './evaluate-outcome';
 export { installLlmMatchers } from './jest-matchers';

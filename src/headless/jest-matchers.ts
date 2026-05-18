@@ -1,6 +1,7 @@
 import { evaluateBleu } from './evaluate-bleu';
 import { evaluateExact } from './evaluate-exact';
 import { evaluateRouge1 } from './evaluate-rouge1';
+import { evaluateRougeL } from './evaluate-rougeL';
 import { evaluateSemantic } from './evaluate-semantic';
 
 export function installLlmMatchers(
@@ -55,6 +56,19 @@ export function installLlmMatchers(
           `toRouge1Match failed.\nExpected: ${expected}\nReceived (snippet): ${actual.slice(0, 300)}${actual.length > 300 ? '…' : ''}`,
       };
     },
+    async toRougeLMatch(
+      received: unknown,
+      expected: string,
+      threshold?: number,
+    ) {
+      const actual = String(await Promise.resolve(received));
+      const result = await evaluateRougeL(actual, expected, threshold);
+      return {
+        pass: result.passed,
+        message: () =>
+          `toRougeLMatch failed.\nExpected: ${expected}\nReceived (snippet): ${actual.slice(0, 300)}${actual.length > 300 ? '…' : ''}`,
+      };
+    },
   });
 }
 
@@ -65,5 +79,6 @@ declare module 'expect' {
     toSemanticMatch(expected: string, threshold?: number): Promise<R>;
     toBleuMatch(expected: string, threshold?: number): Promise<R>;
     toRouge1Match(expected: string, threshold?: number): Promise<R>;
+    toRougeLMatch(expected: string, threshold?: number): Promise<R>;
   }
 }

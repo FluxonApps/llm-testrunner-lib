@@ -1,0 +1,84 @@
+import { evaluateBleu } from './evaluate-bleu';
+import { evaluateExact } from './evaluate-exact';
+import { evaluateRouge1 } from './evaluate-rouge1';
+import { evaluateRougeL } from './evaluate-rougeL';
+import { evaluateSemantic } from './evaluate-semantic';
+
+export function installLlmMatchers(
+  expectObj: typeof import('@jest/globals').expect,
+): void {
+  expectObj.extend({
+    async toExactMatch(received: unknown, expected: string) {
+      const actual = String(await Promise.resolve(received));
+      const result = await evaluateExact(actual, expected);
+      return {
+        pass: result.passed,
+        message: () =>
+          `toExactMatch failed.\nExpected: ${expected}\nReceived (snippet): ${actual.slice(0, 300)}${actual.length > 300 ? '…' : ''}`,
+      };
+    },
+    async toSemanticMatch(
+      received: unknown,
+      expected: string,
+      threshold?: number,
+    ) {
+      const actual = String(await Promise.resolve(received));
+      const result = await evaluateSemantic(actual, expected, threshold);
+      return {
+        pass: result.passed,
+        message: () =>
+          `toSemanticMatch failed.\nExpected: ${expected}\nReceived (snippet): ${actual.slice(0, 300)}${actual.length > 300 ? '…' : ''}`,
+      };
+    },
+    async toBleuMatch(
+      received: unknown,
+      expected: string,
+      threshold?: number,
+    ) {
+      const actual = String(await Promise.resolve(received));
+      const result = await evaluateBleu(actual, expected, threshold);
+      return {
+        pass: result.passed,
+        message: () =>
+          `toBleuMatch failed.\nExpected: ${expected}\nReceived (snippet): ${actual.slice(0, 300)}${actual.length > 300 ? '…' : ''}`,
+      };
+    },
+    async toRouge1Match(
+      received: unknown,
+      expected: string,
+      threshold?: number,
+    ) {
+      const actual = String(await Promise.resolve(received));
+      const result = await evaluateRouge1(actual, expected, threshold);
+      return {
+        pass: result.passed,
+        message: () =>
+          `toRouge1Match failed.\nExpected: ${expected}\nReceived (snippet): ${actual.slice(0, 300)}${actual.length > 300 ? '…' : ''}`,
+      };
+    },
+    async toRougeLMatch(
+      received: unknown,
+      expected: string,
+      threshold?: number,
+    ) {
+      const actual = String(await Promise.resolve(received));
+      const result = await evaluateRougeL(actual, expected, threshold);
+      return {
+        pass: result.passed,
+        message: () =>
+          `toRougeLMatch failed.\nExpected: ${expected}\nReceived (snippet): ${actual.slice(0, 300)}${actual.length > 300 ? '…' : ''}`,
+      };
+    },
+  });
+}
+
+declare module 'expect' {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  interface Matchers<R extends void | Promise<void>, T = unknown> {
+    toExactMatch(expected: string): Promise<R>;
+    toSemanticMatch(expected: string, threshold?: number): Promise<R>;
+    toBleuMatch(expected: string, threshold?: number): Promise<R>;
+    toRouge1Match(expected: string, threshold?: number): Promise<R>;
+    toRougeLMatch(expected: string, threshold?: number): Promise<R>;
+  }
+}

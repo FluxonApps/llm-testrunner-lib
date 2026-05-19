@@ -38,8 +38,7 @@ jobs:
       - name: Build
         run: npm run build
 
-      - name: Build React wrapper
-        run: npm run build:react
-
       - name: Test
         run: npm run test
+        env:
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}

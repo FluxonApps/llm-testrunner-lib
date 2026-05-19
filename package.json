@@ -34,6 +34,10 @@
     "./dist/*": {
       "import": "./dist/*",
       "types": "./dist/*"
+    },
+    "./headless": {
+      "types": "./dist/headless/index.d.mts",
+      "import": "./dist/headless/index.mjs"
     }
   },
   "repository": {
@@ -49,15 +53,20 @@
     "dist/",
     "loader/"
   ],
+  "publishConfig": {
+    "access": "public"
+  },
   "scripts": {
     "start": "stencil build --dev --watch --serve",
     "test": "stencil test --spec --e2e --passWithNoTests",
     "test.watch": "stencil test --spec --e2e --watchAll",
     "generate": "stencil generate",
-    "build": "stencil build",
+    "build": "stencil build && tsc --project tsconfig.react.json && tsup",
+    "publish": "npm publish",
+    "prepublishOnly": "npm run build",
     "watch": "concurrently -n \"Stencil Build,React Wrapper\" -c \"cyan,magenta\" \"stencil build --watch\" \"wait-on generated/react/components.ts && npm run watch:react-wrapper\"",
     "build:react": "tsc --project tsconfig.react.json",
-    "watch:react-wrapper": "nodemon --watch generated/react --ext ts,tsx --exec \"npm run build:react\"",
+    "watch:react-wrapper": "nodemon --watch generated/react --ext ts,tsx --exec \"tsc --project tsconfig.react.json\"",
     "build:all": "npm run build && npm run build:react",
     "prepare": "npm run build:all",
     "build-publish": "npm run build:all && npm run just-publish",
@@ -93,13 +102,18 @@
     "nodemon": "^3.1.11",
     "prettier": "^3.6.2",
     "puppeteer": "^24.3.0",
-    "wait-on": "^9.0.3"
+    "wait-on": "^9.0.3",
+    "tsup": "^8.5.0"
   },
   "peerDependencies": {
+    "jest": "^29.0.0",
     "react": ">=16.8.0",
     "react-dom": ">=16.8.0"
   },
   "peerDependenciesMeta": {
+    "jest": {
+      "optional": true
+    },
     "react": {
       "optional": true
     },
@@ -115,6 +129,9 @@
     "web-components",
     "stencil",
     "react",
-    "typescript"
+    "typescript",
+    "jest",
+    "llm-testing",
+    "headless"
   ]
 }

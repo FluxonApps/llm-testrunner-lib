@@ -1,6 +1,6 @@
 # LLM TestRunner Components
 
-**A ready-made UI for testing your LLM.** Add questions and expected outcomes, run tests one-by-one or in batch, and get pass/fail results using five evaluation strategies—while you keep full control over which LLM you call (OpenAI, Gemini, Claude, or your own).
+**A ready-made UI for testing your LLM.** Add questions and expected outcomes, run tests one-by-one or in batch, and get pass/fail results using six evaluation strategies—while you keep full control over which LLM you call (OpenAI, Gemini, Claude, or your own).
 
 [![npm](https://img.shields.io/npm/v/llm-testrunner-components.svg)](https://www.npmjs.com/package/llm-testrunner-components) [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
@@ -10,14 +10,14 @@
 
 - **Test faster** — You get a complete test-runner UI (questions, expected outcomes, run one / run all, pass/fail, response times). No need to build tables, evaluation logic, or import/export from scratch.
 - **Stay in control** — The library never calls an LLM. You handle one event: we send you the prompt, you call your API and pass back the response (or an error). Works with any provider or local model.
-- **Match how you think** — Each expected-outcome field can use a different evaluation: exact keywords, semantic similarity (meaning), ROUGE (word overlap / sequence), or BLEU (n-gram precision). Choose per field.
+- **Match how you think** — Each expected-outcome field can use a different evaluation: exact keywords, semantic similarity (meaning), ROUGE (word overlap / sequence), BLEU (n-gram precision), or LLM-as-judge (criterion-based grading by another LLM). Choose per field.
 - **Fit your stack** — Load test cases from your backend or a JSON file. Optionally persist runs with a Save button that emits the current state so you can store it in Firebase, your API, or anywhere else.
 
 ---
 
 ## What you get
 
-- **Test case table** — Add, edit, delete test cases. Each test case has a question, configurable expected-outcome fields (single line, paragraph, keyword chips, dropdown), and a per-field evaluation approach (exact, semantic, ROUGE-1, ROUGE-L, BLEU).
+- **Test case table** — Add, edit, delete test cases. Each test case has a question, configurable expected-outcome fields (single line, paragraph, keyword chips, dropdown), and a per-field evaluation approach (exact, semantic, ROUGE-1, ROUGE-L, BLEU, llm-judge).
 - **Run one or run all** — Run a single test or batch with a configurable delay between API calls (rate limiting).
 - **Live results** — Pass/fail, keyword match count (e.g. X/Y found), and response time per test.
 - **Import / export** — Import a test suite from JSON. Export the current suite as JSON or export run results as CSV.
@@ -110,13 +110,56 @@ Load the loader and define the custom elements, then listen for `llmRequest` and
 
 ## Connect your LLM
 
-The library **never** sends requests to an LLM. You do. When a test runs, the component emits an `llmRequest` event with:
+The library **never** sends requests to an LLM. You do.
 
-- `prompt` — the question text for this test case  
-- `resolve({ text, metadata? })` — call this with the model’s reply payload  
-- `reject(error)` — call this if the request fails  
+**For the model under test** — when a test runs, the component emits an `llmRequest` event with:
 
-How you get the response is up to you: REST, SDK, or local inference. Same pattern for OpenAI, Gemini, Claude, or any other provider.
+- `prompt` — the question text for this test case
+- `resolve({ text, metadata? })` — call this with the model’s reply payload
+- `reject(error)` — call this if the request fails
+
+**For LLM-as-judge evaluation** — if any field uses the `llm-judge` approach, you must also provide an `llmJudge` callback. The library hands you the prompt messages and expects you to call your model and return parsed JSON:
+
+```ts
+runner.llmJudge = async ({ messages }) => {
+  // messages: [{ role: "system", content: ... }, { role: "user", content: ... }]
+  const raw = await yourLLMApi(messages);
+  return JSON.parse(raw); // must match { criteria: [{ id, score, reason? }] }
+};
+```
+
+**Why the format matters**
+
+Keep the two messages separate — the system message carries the JSON contract and grading rubric, and providers weight it more heavily than user content. Collapsing both into one prompt makes the judge more likely to drift or wrap output in markdown.
+
+The output is validated, not parsed-and-hoped. A wrong shape, scores outside `[0, 1]`, or missing scores for criteria you supplied all surface as a per-field error — not a low score. Set temperature low (e.g. `0`) for reproducible grading.
+
+**Worked example (Gemini)**
+
+```ts
+import { GoogleGenAI } from "@google/genai";
+
+const genai = new GoogleGenAI({ apiKey: process.env.GEMINI_KEY });
+
+runner.llmJudge = async ({ messages }) => {
+  const system = messages.find((m) => m.role === "system")?.content;
+  const user = messages.find((m) => m.role === "user")!.content;
+
+  const response = await genai.models.generateContent({
+    model: "gemini-3-flash-preview",
+    contents: user,
+    config: { systemInstruction: system },
+  });
+
+  // Gemini sometimes wraps JSON in ```json ... ``` despite the prompt's instructions.
+  const stripped = response.text
+    .trim()
+    .replace(/^```(?:json)?\s*([\s\S]*?)\s*```$/, "$1");
+  return JSON.parse(stripped);
+};
+```
+
+How you get either response is up to you: REST, SDK, or local inference. Same pattern for OpenAI, Gemini, Claude, or any other provider.
 
 ---
 
@@ -139,11 +182,14 @@ Each expected-outcome field can use a different evaluation method. All of them c
 | **ROUGE-L** | Longest common subsequence   | Phrasing and word order matter                 | Moderate–high            | Slightly slower |
 | **Semantic** | Meaning (embeddings + cosine) | Different words, same meaning                 | Yes                      | First run loads model |
 | **BLEU**  | N-gram precision (1–4)         | Translation-like or n-gram overlap             | Moderate                 | Fast         |
+| **LLM-judge** | Criterion-by-criterion grading by another LLM | Open-ended answers, rubrics, qualitative checks | Yes              | Slow (extra API call per test) |
 
 - Set **per expected-outcome field** via the dropdown in the UI, or via each field’s `evaluationParameters.approach` when you pass `initialTestCases`.
 - **ROUGE, BLEU, and Semantic** use a default threshold (0.7). Override per field via the **Threshold** input under "More options" in the UI, or by
   setting `evaluationParameters.threshold` (a number in `[0, 1]`) on the field when you pass `initialTestCases`.
 - **Semantic** uses in-browser embeddings ([Xenova/all-MiniLM-L6-v2](https://huggingface.co/Xenova/all-MiniLM-L6-v2)). The first time you use it, the model is downloaded; later runs are faster.
+- **LLM-judge** requires you to provide a second callback (`llmJudge`) that calls an LLM to score the response. The library never calls an LLM directly — see [Connect your LLM](#connect-your-llm). Define grading criteria per field via `evaluationParameters.criteria` (each criterion has `id`, `description`, and optional `weight` — see [Types](#types)). If you omit criteria, a single `correctness` criterion is used. Default pass threshold is `0.7`.
+- The judge callback must return JSON in the shape `{ criteria: [{ id, score, reason? }] }` with one entry per criterion you supplied. Scores are in `[0, 1]`. The library validates this and surfaces a per-field error if the shape is wrong.
 
 ---
 
@@ -171,6 +217,7 @@ When you pass `initialTestCases`, use an array of objects with `type`, `label`, 
 | `initialTestCases` | — | `TestCase[]` | `undefined` | Preload test cases. See [types](#types) below. |
 | `defaultExpectedOutcomeSchema` | — | `ExpectedOutcomeSchema` | built-in | Schema for new test cases (field types and labels). |
 | `evaluationSourceExtractors` | — | `EvaluationSourceExtractors` | `undefined` | Registry of named extractors used by per-field `evaluationSource: { type: 'custom', extractorId }`. |
+| `llmJudge` | — | `LlmJudge` | `undefined` | Callback the runner invokes for every field with `approach: 'llm-judge'`. Receives `{ messages }`, must return `{ criteria: [{ id, score, reason? }] }`. Required if any field uses `llm-judge`. |
 
 ### Events
 
@@ -200,6 +247,10 @@ import type {
   ExpectedOutcomeSchema,
   ExpectedOutcomeField,
   EvaluationParameters,
+  Criterion,
+  JudgeMessage,
+  JudgeResponse,
+  LlmJudge,
 } from "llm-testrunner-components/react/types";
 ```
 

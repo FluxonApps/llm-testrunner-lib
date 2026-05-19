@@ -211,7 +211,16 @@ export class LLMTestRunner {
 
   private async runSingleTest(testCase: TestCase): Promise<void> {
     const startTime = Date.now();
-    this.updateTestCase(testCase.id, { isRunning: true });
+    // Clear results from any previous run so the Output and Evaluation
+    // columns show "Running..." / "Evaluating..." placeholders instead
+    // of stale content from the prior run.
+    this.updateTestCase(testCase.id, {
+      isRunning: true,
+      output: undefined,
+      evaluationResult: undefined,
+      error: null,
+      responseTime: undefined,
+    });
     const [llmSettled, resolutionSettled] = await Promise.allSettled([
       this.requestLlmResponse(testCase),
       resolveDynamicExpectedOutcomes(testCase, this.resolveExpectedOutcome),

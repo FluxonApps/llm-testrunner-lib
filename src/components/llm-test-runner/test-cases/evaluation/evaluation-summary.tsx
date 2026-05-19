@@ -63,8 +63,15 @@ export const EvaluationSummary: FunctionalComponent<EvaluationSummaryProps> = ({
           ) : null}
         </div>
       ) : (
-        <div class="evaluation-summary__placeholder">
-          {isRunning ? 'Evaluating...' : ''}
+        <div
+          class={{
+            'evaluation-summary__placeholder': true,
+            'evaluation-summary__placeholder--running': isRunning,
+          }}
+        >
+          {isRunning && (
+            <span class="evaluation-summary__placeholder-text">Evaluating</span>
+          )}
         </div>
       )}
     </div>

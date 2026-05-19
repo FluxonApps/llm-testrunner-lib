@@ -18,7 +18,16 @@ export const ResponseOutput: FunctionalComponent<ResponseOutputProps> = ({
       {output?.text ? (
         <div class="response-output__content">{output.text}</div>
       ) : (
-        <div class="response-output__placeholder">{isRunning ? 'Running...' : ''}</div>
+        <div
+          class={{
+            'response-output__placeholder': true,
+            'response-output__placeholder--running': isRunning,
+          }}
+        >
+          {isRunning && (
+            <span class="response-output__placeholder-text">Running</span>
+          )}
+        </div>
       )}
     </div>
   );

@@ -1,10 +1,10 @@
 import { LLMEvaluationEngine } from './evaluation-engine';
-import {
-  EvaluationResult,
+import type {
   FieldEvaluationInput,
   EvaluationRequestV2,
   FieldEvaluationResult,
-} from '../../../common/evaluation/types';
+  TestCaseEvaluationResult,
+} from './multi-field-types';
 import {
   TestCase,
   ExpectedOutcomeField,
@@ -31,7 +31,7 @@ export class EvaluationService {
    */
   async evaluateTestCase(
     testCase: TestCase,
-    onResult: (result: EvaluationResult) => void,
+    onResult: (result: TestCaseEvaluationResult) => void,
     extractors?: EvaluationSourceExtractors,
   ): Promise<void> {
     const fields: FieldEvaluationInput[] = [];
@@ -117,7 +117,7 @@ export class EvaluationService {
       fields,
     };
 
-    await this.engine.evaluateResponse(evaluationRequest, (result: EvaluationResult) => {
+    await this.engine.evaluateResponse(evaluationRequest, result => {
       const evaluatedResults = (result.fieldResults || []).map(field => {
         const warning = warnings.get(field.index);
         return warning ? { ...field, warning } : field;

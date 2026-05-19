@@ -1,8 +1,8 @@
 import { h, FunctionalComponent } from '@stencil/core';
-import { EvaluationResult } from '../../../../../common/evaluation/types';
+import type { TestCaseEvaluationResult } from '../../../../lib/evaluation/multi-field-types';
 
 export interface EvaluationSummaryProps {
-  result?: EvaluationResult;
+  result?: TestCaseEvaluationResult;
   isRunning: boolean;
 }
 

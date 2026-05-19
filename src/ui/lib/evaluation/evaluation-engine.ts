@@ -1,9 +1,6 @@
-import {
+import type {
   EvaluationRequest,
   EvaluationResult,
-  EvaluationCallback,
-  FieldEvaluationResult,
-  EvaluationRequestV2,
 } from '../../../common/evaluation/types';
 import { performEvaluation } from '../../../common/evaluation/evaluators/exact/exact';
 import { EvaluationApproach } from '../../../common/evaluation/constants';
@@ -11,11 +8,16 @@ import { performRouge1Evaluation } from '../../../common/evaluation/evaluators/r
 import { performSemanticEvaluation } from '../../../common/evaluation/evaluators/semantic/index';
 import { performRougeLEvaluation } from '../../../common/evaluation/evaluators/rougeL-evaluator';
 import { performBleuEvaluation } from '../../../common/evaluation/evaluators/bleu/bleu-evaluator';
+import type {
+  EvaluationRequestV2,
+  FieldEvaluationResult,
+  TestCaseEvaluationCallback,
+} from './multi-field-types';
 
 export class LLMEvaluationEngine {
   async evaluateResponse(
     request: EvaluationRequestV2,
-    callback: EvaluationCallback,
+    callback: TestCaseEvaluationCallback,
   ): Promise<void> {
     const settledResults = await Promise.allSettled(
       request.fields.map(async field => {

@@ -7,7 +7,7 @@ import {
   Event,
   Method,
 } from '@stencil/core';
-import { EvaluationResult } from '../../../common/evaluation/types';
+import type { TestCaseEvaluationResult } from '../../lib/evaluation/multi-field-types';
 import { ErrorMessage } from '../error-message/error-message';
 import { RateLimitedFetcher } from '../../lib/rate-limited-fetcher/rate-limited-fetcher';
 import {
@@ -291,7 +291,7 @@ export class LLMTestRunner {
   private async evaluateResponse(testCase: TestCase): Promise<void> {
     await this.evaluationService.evaluateTestCase(
       testCase,
-      (result: EvaluationResult) => {
+      (result: TestCaseEvaluationResult) => {
         this.updateTestCase(testCase.id, {
           evaluationResult: result,
         });

@@ -3,7 +3,6 @@ import type {
   EvaluationRequest,
   EvaluationResult,
   KeywordMatch,
-  EvaluationCallback,
 } from '../../../common/evaluation/types';
 
 export { LLMEvaluationEngine };
@@ -11,5 +10,11 @@ export type {
   EvaluationRequest,
   EvaluationResult,
   KeywordMatch,
-  EvaluationCallback,
 };
+export type {
+  FieldEvaluationInput,
+  FieldEvaluationResult,
+  EvaluationRequestV2,
+  TestCaseEvaluationResult,
+  TestCaseEvaluationCallback,
+} from './multi-field-types';

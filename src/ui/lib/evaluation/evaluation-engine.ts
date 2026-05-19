@@ -4,13 +4,13 @@ import {
   EvaluationCallback,
   FieldEvaluationResult,
   EvaluationRequestV2,
-} from './types';
-import { performEvaluation } from './evaluators/exact/exact';
-import { EvaluationApproach } from './constants';
-import { performRouge1Evaluation } from './evaluators/rouge1-evaluator';
-import { performSemanticEvaluation } from './evaluators/semantic/index';
-import { performRougeLEvaluation } from './evaluators/rougeL-evaluator';
-import { performBleuEvaluation } from './evaluators/bleu/bleu-evaluator';
+} from '../../../common/evaluation/types';
+import { performEvaluation } from '../../../common/evaluation/evaluators/exact/exact';
+import { EvaluationApproach } from '../../../common/evaluation/constants';
+import { performRouge1Evaluation } from '../../../common/evaluation/evaluators/rouge1-evaluator';
+import { performSemanticEvaluation } from '../../../common/evaluation/evaluators/semantic/index';
+import { performRougeLEvaluation } from '../../../common/evaluation/evaluators/rougeL-evaluator';
+import { performBleuEvaluation } from '../../../common/evaluation/evaluators/bleu/bleu-evaluator';
 
 export class LLMEvaluationEngine {
   async evaluateResponse(

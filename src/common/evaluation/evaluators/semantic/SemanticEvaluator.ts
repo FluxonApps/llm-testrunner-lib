@@ -2,7 +2,7 @@ import { EvaluationResult, EvaluationRequest } from '../../types';
 import { loadSemanticModel } from './model-loader';
 import { evaluateKeywordsSemantically } from './evaluate-keywords';
 import { FeatureExtractionPipeline } from '@xenova/transformers';
-import { EvaluationParameters } from '../../../../types/evaluation';
+import { EvaluationParameters } from '../../../types/evaluation';
 import {
   DEFAULT_SEMANTIC_PASS_SCORE,
   EvaluationApproach,

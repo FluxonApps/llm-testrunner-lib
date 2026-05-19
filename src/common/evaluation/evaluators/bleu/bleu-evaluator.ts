@@ -1,5 +1,5 @@
 import { bleu } from 'bleu-score';
-import { EvaluationApproachResult } from '../../../../types/evaluation';
+import { EvaluationApproachResult } from '../../../types/evaluation';
 import { EvaluationRequest, EvaluationResult, KeywordMatch } from '../../types';
 import { DEFAULT_BLEU_PASS_SCORE, EvaluationApproach } from '../../constants';
 

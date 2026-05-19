@@ -8,7 +8,7 @@ import { ChipsConfig, FormFieldType, SelectConfig, TextAreaConfig } from '../../
 import {
   EvaluationApproach,
   getDefaultPassScoreForApproach,
-} from '../../../lib/evaluation/constants';
+} from '../../../../common/evaluation/constants';
 import { getAllowedApproachesForFieldType } from '../../../lib/evaluation/field-evaluation-approach';
 import { ExpectedOutcomeChange } from '../../../lib/test-cases/test-case-mutations';
 

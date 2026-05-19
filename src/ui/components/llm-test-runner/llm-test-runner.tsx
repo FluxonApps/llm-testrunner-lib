@@ -7,7 +7,7 @@ import {
   Event,
   Method,
 } from '@stencil/core';
-import { EvaluationResult } from '../../lib/evaluation/types';
+import { EvaluationResult } from '../../../common/evaluation/types';
 import { ErrorMessage } from '../error-message/error-message';
 import { RateLimitedFetcher } from '../../lib/rate-limited-fetcher/rate-limited-fetcher';
 import {

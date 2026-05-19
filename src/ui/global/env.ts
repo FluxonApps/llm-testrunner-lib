@@ -1,4 +1,4 @@
-import { GeminiAdapter } from '../services/models/gemini';
+import { GeminiAdapter } from '../../common/services/models/gemini';
 
 declare global {
   interface Window {

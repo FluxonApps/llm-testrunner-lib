@@ -1,8 +1,8 @@
 import { randomUUID } from 'node:crypto';
 
-import type { EvaluationRequest, EvaluationResult } from '../ui/lib/evaluation/types';
-import { EvaluationApproach } from '../ui/lib/evaluation/constants';
-import { performEvaluation } from '../ui/lib/evaluation/evaluators/exact/exact';
+import type { EvaluationRequest, EvaluationResult } from '../common/evaluation/types';
+import { EvaluationApproach } from '../common/evaluation/constants';
+import { performEvaluation } from '../common/evaluation/evaluators/exact/exact';
 
 export async function evaluateExact(
   actualResponse: string,

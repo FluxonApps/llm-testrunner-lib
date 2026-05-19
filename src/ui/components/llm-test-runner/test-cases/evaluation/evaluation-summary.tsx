@@ -1,5 +1,5 @@
 import { h, FunctionalComponent } from '@stencil/core';
-import { EvaluationResult } from '../../../../lib/evaluation/types';
+import { EvaluationResult } from '../../../../../common/evaluation/types';
 
 export interface EvaluationSummaryProps {
   result?: EvaluationResult;

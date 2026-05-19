@@ -1,8 +1,8 @@
 import { randomUUID } from 'node:crypto';
 
-import type { EvaluationRequest, EvaluationResult } from '../ui/lib/evaluation/types';
-import { EvaluationApproach } from '../ui/lib/evaluation/constants';
-import { performRougeLEvaluation } from '../ui/lib/evaluation/evaluators/rougeL-evaluator';
+import type { EvaluationRequest, EvaluationResult } from '../common/evaluation/types';
+import { EvaluationApproach } from '../common/evaluation/constants';
+import { performRougeLEvaluation } from '../common/evaluation/evaluators/rougeL-evaluator';
 
 export async function evaluateRougeL(
   actualResponse: string,

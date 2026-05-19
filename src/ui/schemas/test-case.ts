@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import type { EvaluationResult } from '../lib/evaluation/types';
+import type { EvaluationResult } from '../../common/evaluation/types';
 import { expectedOutcomeArraySchema } from './expected-outcome';
 import { modelResponsePayloadSchema } from './model-response';
 

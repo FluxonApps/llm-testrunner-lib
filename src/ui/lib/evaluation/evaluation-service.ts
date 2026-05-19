@@ -4,7 +4,7 @@ import {
   FieldEvaluationInput,
   EvaluationRequestV2,
   FieldEvaluationResult,
-} from './types';
+} from '../../../common/evaluation/types';
 import {
   TestCase,
   ExpectedOutcomeField,

@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { EvaluationApproach } from '../lib/evaluation/constants';
+import { EvaluationApproach } from '../../common/evaluation/constants';
 import { isApproachAllowedForFieldType } from '../lib/evaluation/field-evaluation-approach';
 import type { ModelResponsePayload } from './model-response';
 

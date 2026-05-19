@@ -1,6 +1,6 @@
 import { describe, it, expect } from '@jest/globals';
 import { applyExpectedOutcomeChange } from './test-case-mutations';
-import { EvaluationApproach } from '../evaluation/constants';
+import { EvaluationApproach } from '../../../common/evaluation/constants';
 import type { TestCase } from '../../types/llm-test-runner';
 
 function buildTestCase(

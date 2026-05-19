@@ -5,7 +5,7 @@ import {
   DEFAULT_ROUGE_PASS_SCORE,
   DEFAULT_SEMANTIC_PASS_SCORE,
   DEFAULT_BLEU_PASS_SCORE,
-} from './constants';
+} from '../../../common/evaluation/constants';
 
 describe('clampThreshold', () => {
   it('passes through when threshold is undefined', () => {

@@ -1,5 +1,5 @@
-import { EvaluationApproach, EvaluationApproachValues } from './constants';
-import type { EvaluationParameters } from '../../types/evaluation';
+import { EvaluationApproach, EvaluationApproachValues } from '../../../common/evaluation/constants';
+import type { EvaluationParameters } from '../../../common/types/evaluation';
 
 export type EvaluationFieldType = 'text' | 'textarea' | 'chips-input' | 'select';
 

@@ -1,5 +1,5 @@
 import * as rouge from 'js-rouge';
-import { EvaluationApproachResult } from '../../../types/evaluation';
+import { EvaluationApproachResult } from '../../types/evaluation';
 import { EvaluationRequest, EvaluationResult, KeywordMatch } from '../types';
 import { DEFAULT_ROUGE_PASS_SCORE, EvaluationApproach } from '../constants';
 

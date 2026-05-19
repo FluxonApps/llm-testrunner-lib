@@ -1,4 +1,4 @@
-import { GeminiAdapter } from '../ui/services/models/gemini';
+import { GeminiAdapter } from '../common/services/models/gemini';
 
 import type { LlmInvokeFn } from './types';
 

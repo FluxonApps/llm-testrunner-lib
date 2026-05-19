@@ -6,7 +6,7 @@ import {
   TestCase,
   TestCaseInput,
 } from '../../types/llm-test-runner';
-import { EvaluationApproach } from '../evaluation/constants';
+import { EvaluationApproach } from '../../../common/evaluation/constants';
 import { normalizeEvaluationParametersForField } from '../evaluation/field-evaluation-approach';
 
 export const DEFAULT_EXPECTED_OUTCOME_SCHEMA: ExpectedOutcomeSchema = [

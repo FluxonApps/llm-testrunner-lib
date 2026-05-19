@@ -4,7 +4,7 @@ import type {
   EvaluationResult,
   KeywordMatch,
   EvaluationCallback,
-} from './types';
+} from '../../../common/evaluation/types';
 
 export { LLMEvaluationEngine };
 export type {

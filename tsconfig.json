@@ -15,6 +15,6 @@
     "jsxFragmentFactory": "h.Fragment",
     "skipLibCheck": true
   },
-  "include": ["src/ui"],
+  "include": ["src/ui", "src/common"],
   "exclude": ["node_modules", "src/headless"]
 }

@@ -1,8 +1,8 @@
-import type { EvaluationParameters } from '../../types/evaluation';
+import type { EvaluationParameters } from '../../../common/types/evaluation';
 import {
   getDefaultPassScoreForApproach,
   DEFAULT_ROUGE_PASS_SCORE,
-} from './constants';
+} from '../../../common/evaluation/constants';
 
 /**
  * Returns evaluationParameters with the threshold removed if it falls

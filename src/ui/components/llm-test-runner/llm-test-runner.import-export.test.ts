@@ -18,7 +18,7 @@ import { readFileAsync } from '../../lib/file/file-reader';
 import { downloadFile } from '../../lib/file/file-download';
 import { formatTestSuiteAsJson } from '../../lib/import-export/test-suite-exporter';
 import { importTestSuite } from '../../lib/import-export/test-suite-importer';
-import { EvaluationApproach } from '../../lib/evaluation/constants';
+import { EvaluationApproach } from '../../../common/evaluation/constants';
 
 const emptyChatHistory = { enabled: false, value: '' } as const;
 

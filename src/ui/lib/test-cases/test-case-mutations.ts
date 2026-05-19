@@ -4,7 +4,7 @@ import {
   type EvaluationSource,
   type ExpectedOutcomeMode,
 } from '../../types/llm-test-runner';
-import { EvaluationApproach } from '../evaluation/constants';
+import { EvaluationApproach } from '../../../common/evaluation/constants';
 import { normalizeEvaluationParametersForField } from '../evaluation/field-evaluation-approach';
 
 function isChipsInputField(

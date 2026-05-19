@@ -1,8 +1,8 @@
 import {
   EvaluationParameters,
   EvaluationApproachResult,
-} from '../../types/evaluation';
-import type { ExpectedOutcomeFieldType } from '../../types/llm-test-runner';
+} from '../types/evaluation';
+import type { ExpectedOutcomeFieldType } from '../../ui/types/llm-test-runner';
 
 export interface EvaluationRequest {
   testCaseId: string;

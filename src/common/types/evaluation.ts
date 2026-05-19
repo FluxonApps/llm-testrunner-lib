@@ -1,4 +1,4 @@
-import { EvaluationApproach } from '../lib/evaluation/constants'; 
+import { EvaluationApproach } from '../evaluation/constants'; 
 
 export interface EvaluationParameters {
   approach: EvaluationApproach;

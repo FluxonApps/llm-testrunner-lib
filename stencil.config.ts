@@ -33,6 +33,9 @@ export const config: Config = {
   ],
   testing: {
     browserHeadless: 'shell',
+    setupFilesAfterEnv: [
+      path.resolve(__dirname, 'src/headless/jest-setup.ts'),
+    ],
   },
   sourceMap: true,
   globalScript: path.resolve(__dirname, 'src/ui/global/env.ts'),

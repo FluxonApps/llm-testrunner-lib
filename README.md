@@ -213,6 +213,50 @@ import type {
 
 ---
 
+## Headless Jest matchers
+
+For API/integration tests without the UI, install matchers once in Jest config:
+
+```js
+// jest.config.js
+module.exports = {
+  setupFilesAfterEnv: ['llm-testrunner-components/headless/jest-setup'],
+};
+```
+
+Then call your model with `LLMTestKit` and assert on the response string:
+
+```ts
+import { describe, expect, it } from '@jest/globals';
+import {
+  LLMTestKit,
+  createGeminiInvoke,
+} from 'llm-testrunner-components/headless';
+
+describe('capital city', () => {
+  const kit = new LLMTestKit({
+    invoke: createGeminiInvoke({ apiKey: process.env.GEMINI_API_KEY! }),
+  });
+
+  it('mentions Hyderabad', async () => {
+    const answer = await kit.invoke(
+      'What is the capital of Telangana, India? Reply in one short sentence and include the city name.',
+    );
+
+    await expect(answer).toExactMatch('Hyderabad');
+    await expect(answer).toSemanticMatch('Hyderabad', 0.7);
+  });
+});
+```
+
+`createGeminiInvoke` is optional—pass any `invoke(prompt) => Promise<string>` (OpenAI, Anthropic, your API, etc.).
+
+Matchers: `toExactMatch`, `toSemanticMatch`, `toBleuMatch`, `toRouge1Match`, `toRougeLMatch`.
+
+For evaluation without Jest, use `evaluateExact`, `evaluateSemantic`, and the other `evaluate*` helpers from the same entry. `installLlmMatchers` is also exported if you prefer registering matchers manually instead of `jest-setup`.
+
+---
+
 ## Contributing
 
 We welcome contributions. See [CONTRIBUTING.md](CONTRIBUTING.md) for how to get started (opening issues, pull request workflow, and code of conduct).

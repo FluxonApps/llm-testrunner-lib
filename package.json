@@ -38,6 +38,9 @@
     "./headless": {
       "types": "./dist/headless/index.d.mts",
       "import": "./dist/headless/index.mjs"
+    },
+    "./headless/jest-setup": {
+      "import": "./dist/headless/jest-setup.mjs"
     }
   },
   "repository": {

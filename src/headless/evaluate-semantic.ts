@@ -1,7 +1,7 @@
 import { randomUUID } from 'node:crypto';
 
-import type { EvaluationRequest, EvaluationResult } from '../lib/evaluation/types';
-import { EvaluationApproach } from '../lib/evaluation/constants';
+import type { EvaluationRequest, EvaluationResult } from '../ui/lib/evaluation/types';
+import { EvaluationApproach } from '../ui/lib/evaluation/constants';
 
 export async function evaluateSemantic(
   actualResponse: string,
@@ -9,7 +9,7 @@ export async function evaluateSemantic(
   threshold?: number,
 ): Promise<EvaluationResult> {
   const { performSemanticEvaluation } = await import(
-    '../lib/evaluation/evaluators/semantic/index'
+    '../ui/lib/evaluation/evaluators/semantic/index'
   );
   const request: EvaluationRequest = {
     testCaseId: randomUUID(),

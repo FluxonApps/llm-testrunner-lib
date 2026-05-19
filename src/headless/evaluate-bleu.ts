@@ -1,8 +1,8 @@
 import { randomUUID } from 'node:crypto';
 
-import type { EvaluationRequest, EvaluationResult } from '../lib/evaluation/types';
-import { EvaluationApproach } from '../lib/evaluation/constants';
-import { performBleuEvaluation } from '../lib/evaluation/evaluators/bleu/bleu-evaluator';
+import type { EvaluationRequest, EvaluationResult } from '../ui/lib/evaluation/types';
+import { EvaluationApproach } from '../ui/lib/evaluation/constants';
+import { performBleuEvaluation } from '../ui/lib/evaluation/evaluators/bleu/bleu-evaluator';
 
 export async function evaluateBleu(
   actualResponse: string,

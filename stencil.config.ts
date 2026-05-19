@@ -8,6 +8,7 @@ dotenv.config();
 
 export const config: Config = {
   namespace: 'llm-testrunner',
+  srcDir: 'src/ui',
   outputTargets: [
     {
       type: 'dist',
@@ -34,7 +35,7 @@ export const config: Config = {
     browserHeadless: 'shell',
   },
   sourceMap: true,
-  globalScript: path.resolve(__dirname, 'src/global/env.ts'),
+  globalScript: path.resolve(__dirname, 'src/ui/global/env.ts'),
   rollupPlugins: {
     before: [
       replace({

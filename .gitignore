@@ -15,7 +15,7 @@ log.txt
 *.sublime-workspace
 
 # Stencil-generated type declarations (run 'npm run build' to regenerate)
-src/components.d.ts
+src/ui/components.d.ts
 
 .stencil/
 .idea/

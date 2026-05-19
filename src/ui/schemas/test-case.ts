@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import type { TestCaseEvaluationResult } from '../lib/evaluation/multi-field-types';
+import type { EvaluationResult } from '../lib/evaluation/multi-field-types';
 import { expectedOutcomeArraySchema } from './expected-outcome';
 import { modelResponsePayloadSchema } from './model-response';
 
@@ -25,7 +25,7 @@ export const testCaseSchema = z.object({
   chatHistory: testCaseChatHistorySchema,
   isRunning: z.boolean().optional(),
   error: z.string().optional(),
-  evaluationResult: z.custom<TestCaseEvaluationResult>().optional(),
+  evaluationResult: z.custom<EvaluationResult>().optional(),
   responseTime: z.number().optional(),
 });
 

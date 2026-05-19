@@ -1,7 +1,4 @@
-import type {
-  EvaluationResult,
-  KeywordMatch,
-} from '../../../common/evaluation/types';
+import type { KeywordMatch } from '../../../common/evaluation/types';
 import type {
   EvaluationApproachResult,
   EvaluationParameters,
@@ -36,11 +33,14 @@ export interface FieldEvaluationResult {
   warning?: string;
 }
 
-/** Aggregated result for a test case with one or more expected-outcome fields. */
-export interface TestCaseEvaluationResult extends EvaluationResult {
+export interface EvaluationResult {
+  testCaseId: string;
+  passed: boolean;
+  keywordMatches: KeywordMatch[];
   fieldResults?: FieldEvaluationResult[];
+  timestamp?: string;
+  evaluationParameters?: EvaluationParameters;
+  evaluationApproachResult?: EvaluationApproachResult;
 }
 
-export type TestCaseEvaluationCallback = (
-  result: TestCaseEvaluationResult,
-) => void;
+export type EvaluationCallback = (result: EvaluationResult) => void;

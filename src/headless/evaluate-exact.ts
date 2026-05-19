@@ -1,13 +1,13 @@
 import { randomUUID } from 'node:crypto';
 
-import type { EvaluationRequest, EvaluationResult } from '../common/evaluation/types';
+import type { EvaluationRequest, MatchResult } from '../common/evaluation/types';
 import { EvaluationApproach } from '../common/evaluation/constants';
 import { performEvaluation } from '../common/evaluation/evaluators/exact/exact';
 
 export async function evaluateExact(
   actualResponse: string,
   expectedOutcome: string,
-): Promise<EvaluationResult> {
+): Promise<MatchResult> {
   const request: EvaluationRequest = {
     testCaseId: randomUUID(),
     question: '',

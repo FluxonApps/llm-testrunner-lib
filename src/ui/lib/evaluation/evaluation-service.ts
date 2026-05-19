@@ -3,7 +3,7 @@ import type {
   FieldEvaluationInput,
   EvaluationRequestV2,
   FieldEvaluationResult,
-  TestCaseEvaluationResult,
+  EvaluationResult,
 } from './multi-field-types';
 import {
   TestCase,
@@ -31,7 +31,7 @@ export class EvaluationService {
    */
   async evaluateTestCase(
     testCase: TestCase,
-    onResult: (result: TestCaseEvaluationResult) => void,
+    onResult: (result: EvaluationResult) => void,
     extractors?: EvaluationSourceExtractors,
   ): Promise<void> {
     const fields: FieldEvaluationInput[] = [];

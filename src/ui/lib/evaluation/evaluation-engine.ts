@@ -1,6 +1,6 @@
 import type {
   EvaluationRequest,
-  EvaluationResult,
+  MatchResult,
 } from '../../../common/evaluation/types';
 import { performEvaluation } from '../../../common/evaluation/evaluators/exact/exact';
 import { EvaluationApproach } from '../../../common/evaluation/constants';
@@ -11,13 +11,13 @@ import { performBleuEvaluation } from '../../../common/evaluation/evaluators/ble
 import type {
   EvaluationRequestV2,
   FieldEvaluationResult,
-  TestCaseEvaluationCallback,
+  EvaluationCallback,
 } from './multi-field-types';
 
 export class LLMEvaluationEngine {
   async evaluateResponse(
     request: EvaluationRequestV2,
-    callback: TestCaseEvaluationCallback,
+    callback: EvaluationCallback,
   ): Promise<void> {
     const settledResults = await Promise.allSettled(
       request.fields.map(async field => {
@@ -80,7 +80,7 @@ export class LLMEvaluationEngine {
     });
   }
 
-  private async evaluateField(request: EvaluationRequest): Promise<EvaluationResult> {
+  private async evaluateField(request: EvaluationRequest): Promise<MatchResult> {
     const approach: EvaluationApproach = request.evaluationParameters.approach;
     switch (approach) {
       case EvaluationApproach.BLEU:

@@ -1,6 +1,6 @@
 import { bleu } from 'bleu-score';
 import { EvaluationApproachResult } from '../../../types/evaluation';
-import { EvaluationRequest, EvaluationResult, KeywordMatch } from '../../types';
+import { EvaluationRequest, MatchResult, KeywordMatch } from '../../types';
 import { DEFAULT_BLEU_PASS_SCORE, EvaluationApproach } from '../../constants';
 
 /**
@@ -89,7 +89,7 @@ function evaluateKeyword(
 
 export function performBleuEvaluation(
   request: EvaluationRequest,
-): EvaluationResult {
+): MatchResult {
   const { testCaseId, actualResponse, expectedOutcome, evaluationParameters } =
     request;
 

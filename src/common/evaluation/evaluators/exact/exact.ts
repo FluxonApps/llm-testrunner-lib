@@ -1,9 +1,9 @@
-import { EvaluationRequest, EvaluationResult, KeywordMatch } from '../../types';
+import { EvaluationRequest, MatchResult, KeywordMatch } from '../../types';
 import { EvaluationApproach } from '../../constants';
 
 export async function performEvaluation(
   request: EvaluationRequest,
-): Promise<EvaluationResult> {
+): Promise<MatchResult> {
   const { testCaseId, expectedOutcome, actualResponse } = request;
 
   // Split expectedOutcome by newlines to create keywords array

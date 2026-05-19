@@ -1,11 +1,11 @@
 import { SemanticEvaluator } from './SemanticEvaluator';
-import { EvaluationRequest, EvaluationResult } from '../../types';
+import { EvaluationRequest, MatchResult } from '../../types';
 
 const semanticEvaluator = new SemanticEvaluator();
 
 export async function performSemanticEvaluation(
   request: EvaluationRequest,
-): Promise<EvaluationResult> {
+): Promise<MatchResult> {
   await semanticEvaluator.initialize();
   return semanticEvaluator.performEvaluation(request);
 }

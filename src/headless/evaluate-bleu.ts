@@ -1,6 +1,6 @@
 import { randomUUID } from 'node:crypto';
 
-import type { EvaluationRequest, EvaluationResult } from '../common/evaluation/types';
+import type { EvaluationRequest, MatchResult } from '../common/evaluation/types';
 import { EvaluationApproach } from '../common/evaluation/constants';
 import { performBleuEvaluation } from '../common/evaluation/evaluators/bleu/bleu-evaluator';
 
@@ -8,7 +8,7 @@ export async function evaluateBleu(
   actualResponse: string,
   expectedOutcome: string,
   threshold?: number,
-): Promise<EvaluationResult> {
+): Promise<MatchResult> {
   const request: EvaluationRequest = {
     testCaseId: randomUUID(),
     question: '',

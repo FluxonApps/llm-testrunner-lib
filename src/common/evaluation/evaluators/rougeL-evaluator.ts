@@ -1,6 +1,6 @@
 import * as rouge from 'js-rouge';
 import { EvaluationApproachResult } from '../../types/evaluation';
-import { EvaluationRequest, EvaluationResult, KeywordMatch } from '../types';
+import { EvaluationRequest, MatchResult, KeywordMatch } from '../types';
 import { DEFAULT_ROUGE_PASS_SCORE, EvaluationApproach } from '../constants';
 
 function evaluateKeyword(
@@ -61,7 +61,7 @@ function evaluateKeyword(
 
 export function performRougeLEvaluation(
   request: EvaluationRequest,
-): EvaluationResult {
+): MatchResult {
   const { testCaseId, actualResponse, expectedOutcome, evaluationParameters } =
     request;
 

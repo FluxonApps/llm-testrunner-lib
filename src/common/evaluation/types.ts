@@ -11,7 +11,7 @@ export interface EvaluationRequest {
   evaluationParameters: EvaluationParameters;
 }
 
-export interface EvaluationResult {
+export interface MatchResult {
   testCaseId: string;
   passed: boolean;
   keywordMatches: KeywordMatch[];

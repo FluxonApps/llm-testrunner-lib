@@ -1,4 +1,4 @@
-import { EvaluationResult, EvaluationRequest } from '../../types';
+import { MatchResult, EvaluationRequest } from '../../types';
 import { loadSemanticModel } from './model-loader';
 import { evaluateKeywordsSemantically } from './evaluate-keywords';
 import { FeatureExtractionPipeline } from '@xenova/transformers';
@@ -24,7 +24,7 @@ export class SemanticEvaluator {
 
   async performEvaluation(
     request: EvaluationRequest,
-  ): Promise<EvaluationResult> {
+  ): Promise<MatchResult> {
     const threshold =
       request.evaluationParameters?.threshold ?? DEFAULT_SEMANTIC_PASS_SCORE;
 

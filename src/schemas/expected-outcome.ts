@@ -15,6 +15,11 @@ const customEvaluationSourceSchema = z.object({
   type: z.literal('custom'),
   extractorId: nonEmptyString,
 });
+const criterionSchema = z.object({
+  id: nonEmptyString,
+  description: nonEmptyString,
+  weight: z.number().positive().optional()
+});
 
 export const evaluationSourceExtractorSchema = z.custom<
   (payload: ModelResponsePayload) => string | Promise<string>
@@ -42,10 +47,23 @@ export type EvaluationSourceExtractor = z.infer<
 export type EvaluationSourceExtractors = z.infer<
   typeof evaluationSourceExtractorsSchema
 >;
+export type Criterion = z.infer<typeof criterionSchema>;
 
 const evaluationParametersSchema = z.object({
   approach: z.enum(EvaluationApproach),
   threshold: optionalNumber,
+  criteria: z
+    .array(criterionSchema)
+    .superRefine((val, ctx) => {
+      const ids = val.map(c => c.id);
+      if (ids.length !== new Set(ids).size) {
+        ctx.addIssue({
+          code: 'custom',
+          message: 'criteria ids must be unique.',
+        });
+      }
+    })
+    .optional(),
 });
 
 const selectEvaluationParametersSchema = evaluationParametersSchema.superRefine(

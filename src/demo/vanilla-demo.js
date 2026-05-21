@@ -14,6 +14,33 @@ function wireGemini(runner) {
   });
 }
 
+/**
+ * Strips ```json ... ``` (or plain ```) fences a model often wraps JSON in.
+ * Used in the demo because Gemini responses sometimes include them despite
+ * the prompt's "no markdown" rule.
+ */
+function stripJsonFence(raw) {
+  const trimmed = String(raw).trim();
+  const fence = trimmed.match(/^```(?:json)?\s*([\s\S]*?)\s*```$/);
+  return fence ? fence[1] : trimmed;
+}
+
+function wireGeminiJudge(runner) {
+  const llm = new window.GeminiAdapter(window.env.API_KEY);
+  runner.llmJudge = async ({ messages }) => {
+    const systemMsg = messages.find((m) => m.role === 'system');
+    const userMsg = messages.find((m) => m.role === 'user');
+    if (!userMsg) {
+      throw new Error('Judge messages payload is missing a user message.');
+    }
+    const raw = await llm.invoke({
+      prompt: userMsg.content,
+      system: systemMsg?.content,
+    });
+    return JSON.parse(stripJsonFence(raw));
+  };
+}
+
 function mountMode(host, modeKey) {
   const config = DEMO_MODES[modeKey];
   host.replaceChildren();
@@ -28,6 +55,7 @@ function mountMode(host, modeKey) {
   }
   host.appendChild(runner);
   wireGemini(runner);
+  wireGeminiJudge(runner);
 }
 
 function initVanillaDemo() {

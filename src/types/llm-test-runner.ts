@@ -2,6 +2,7 @@ import type { TestCase } from './test-case';
 import type { ModelResponsePayload } from '../schemas/model-response';
 
 export type {
+  Criterion,
   EvaluationSource,
   EvaluationSourceExtractor,
   EvaluationSourceExtractors,
@@ -40,3 +41,15 @@ export interface SavePayload {
   timestamp: string;
   testCases: TestCase[];
 }
+
+export interface JudgeMessage { role: 'system' | 'user'; content: string };
+export interface JudgeResponse {
+  criteria: Array<{
+    id: string;
+    score: number;
+    reason?: string;
+  }>;
+};
+export interface LlmJudge {
+  (input: {messages: JudgeMessage[]}): Promise<JudgeResponse>;
+};

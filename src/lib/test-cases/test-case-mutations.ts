@@ -3,6 +3,7 @@ import {
   type ExpectedOutcomeField,
   type EvaluationSource,
   type ExpectedOutcomeMode,
+  type Criterion,
 } from '../../types/llm-test-runner';
 import { EvaluationApproach } from '../evaluation/constants';
 import { normalizeEvaluationParametersForField } from '../evaluation/field-evaluation-approach';
@@ -72,6 +73,11 @@ export type ExpectedOutcomeChange =
       index: number;
       operation: 'set-evaluation-source-extractor';
       value: string;
+    }
+  | {
+      index: number;
+      operation: 'set-evaluation-criteria';
+      value: Criterion[] | undefined; // clears the criteria override, evaluator falls back to its default correctness criterion.
     };
 
 export function applyExpectedOutcomeChange(
@@ -184,6 +190,8 @@ export function applyExpectedOutcomeChange(
         },
       });
     }
+    case 'set-evaluation-criteria':
+      return updateExpectedOutcomeFieldCriteria(testCase, index, change.value);
   }
 }
 
@@ -249,6 +257,32 @@ export function updateExpectedOutcomeFieldThreshold(
     evaluationParameters,
   };
 
+  return {
+    ...testCase,
+    expectedOutcome,
+  };
+}
+export function updateExpectedOutcomeFieldCriteria(testCase: TestCase, fieldIndex: number, criteria: Criterion[] | undefined): TestCase {
+  const expectedOutcome = [...(testCase.expectedOutcome || [])];
+  const target = expectedOutcome[fieldIndex];
+
+  if (!target) {
+    return testCase;
+  }
+  const currentApproach = target.evaluationParameters?.approach;
+  if (!currentApproach) {
+    return testCase;
+  }
+  const { criteria: _drop, ...restParams } =
+       target.evaluationParameters ?? { approach: currentApproach };
+  const evaluationParameters = criteria
+    ? { ...restParams, approach: currentApproach, criteria }
+    : { ...restParams, approach: currentApproach };
+  
+  expectedOutcome[fieldIndex] = {
+    ...target,
+    evaluationParameters,
+  };
   return {
     ...testCase,
     expectedOutcome,

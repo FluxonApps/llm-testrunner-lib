@@ -4,6 +4,7 @@ export enum EvaluationApproach {
   ROUGE_1 = 'rouge-1',
   ROUGE_L = 'rouge-L',
   BLEU = 'bleu',
+  LLM_JUDGE = 'llm-judge',
 }
 
 // Array of all evaluation approach values for UI components
@@ -12,6 +13,7 @@ export const EvaluationApproachValues = Object.values(EvaluationApproach);
 export const DEFAULT_ROUGE_PASS_SCORE = 0.7;
 export const DEFAULT_SEMANTIC_PASS_SCORE = 0.7;
 export const DEFAULT_BLEU_PASS_SCORE = 0.7;
+export const DEFAULT_LLM_JUDGE_PASS_SCORE = 0.7;
 
 export function getDefaultPassScoreForApproach(
   approach: EvaluationApproach,
@@ -24,6 +26,8 @@ export function getDefaultPassScoreForApproach(
       return DEFAULT_SEMANTIC_PASS_SCORE;
     case EvaluationApproach.BLEU:
       return DEFAULT_BLEU_PASS_SCORE;
+    case EvaluationApproach.LLM_JUDGE:
+      return DEFAULT_LLM_JUDGE_PASS_SCORE;
     case EvaluationApproach.EXACT:
       return undefined;
   }

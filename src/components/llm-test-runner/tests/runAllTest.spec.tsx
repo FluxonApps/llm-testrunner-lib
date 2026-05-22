@@ -129,7 +129,7 @@ describe('LLMTestRunner - Run All', () => {
 
     // 1. Trigger "Run All".
     const runButtonAll = page.root.shadowRoot.querySelector(
-      'button[aria-label="Run All"]',
+      'button[aria-label="Run all"]',
     ) as HTMLButtonElement;
     runButtonAll.click();
 
@@ -188,7 +188,7 @@ describe('LLMTestRunner - Run All', () => {
     page.root.addEventListener('llmRequest', llmRequestSpy);
 
     const runButtonAll = page.root.shadowRoot.querySelector(
-      'button[aria-label="Run All"]',
+      'button[aria-label="Run all"]',
     ) as HTMLButtonElement;
     runButtonAll.click();
     await page.waitForChanges();
@@ -216,7 +216,7 @@ describe('LLMTestRunner - Run All', () => {
     page.root.addEventListener('llmRequest', llmRequestSpy);
 
     const runButtonAll = page.root.shadowRoot.querySelector(
-      'button[aria-label="Run All"]',
+      'button[aria-label="Run all"]',
     ) as HTMLButtonElement;
     runButtonAll.click();
 

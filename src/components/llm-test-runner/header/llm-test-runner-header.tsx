@@ -1,5 +1,15 @@
 import { h, FunctionalComponent } from '@stencil/core';
 import { Button } from '../../../lib/ui/button/index';
+import {
+  UploadIcon,
+  DownloadIcon,
+  FileTextIcon,
+  SaveIcon,
+  SlidersIcon,
+  PlayIcon,
+  SpinnerIcon,
+  PlusIcon,
+} from '../../../lib/ui/icons/icons';
 
 export interface LLMTestRunnerHeaderProps {
   isExportingTestSuite: boolean;
@@ -13,6 +23,7 @@ export interface LLMTestRunnerHeaderProps {
   onExportResults: () => void;
   onRunAll: () => void;
   onSave?: () => void;
+  onAddTestCase: () => void;
 }
 
 export const LLMTestRunnerHeader: FunctionalComponent<
@@ -29,6 +40,7 @@ export const LLMTestRunnerHeader: FunctionalComponent<
   onExportResults,
   onRunAll,
   onSave,
+  onAddTestCase,
 }) => {
   let fileInputRef: HTMLInputElement;
 
@@ -56,62 +68,71 @@ export const LLMTestRunnerHeader: FunctionalComponent<
           accept=".json,application/json"
         />
         <Button
-          variant="secondary"
+          variant="outline"
           size="md"
           onClick={handleFileSelect}
-          icon="↑"
+          icon={<UploadIcon />}
         >
-          Import Test Suite
+          Import suite
         </Button>
         <Button
-          variant="secondary"
+          variant="outline"
           size="md"
           onClick={onExportSuite}
           disabled={isExportingTestSuite}
           loading={isExportingTestSuite}
-          icon={isExportingTestSuite ? '⏳' : '↓'}
+          icon={isExportingTestSuite ? <SpinnerIcon /> : <DownloadIcon />}
         >
-          {isExportingTestSuite ? 'Exporting...' : 'Export Test Suite'}
+          {isExportingTestSuite ? 'Exporting…' : 'Export suite'}
         </Button>
       </div>
 
       <div class="test-runner-header__right">
         {usePromptEditor && (
-          <Button variant="secondary" size="md" icon="⚙️">
-            Prompt Editor
+          <Button variant="outline" size="md" icon={<SlidersIcon />}>
+            Prompt editor
           </Button>
         )}
         <Button
-          variant="secondary"
+          variant="outline"
+          size="md"
+          onClick={onAddTestCase}
+          icon={<PlusIcon />}
+        >
+          Add question
+        </Button>
+        <Button
+          variant="outline"
           size="md"
           onClick={onExportResults}
           disabled={isExportingTestResults}
           loading={isExportingTestResults}
-          icon={isExportingTestResults ? '⏳' : '↓'}
+          icon={isExportingTestResults ? <SpinnerIcon /> : <FileTextIcon />}
         >
-          {isExportingTestResults ? 'Exporting...' : 'Export Test Results'}
+          {isExportingTestResults ? 'Exporting…' : 'Export results'}
         </Button>
         {useSave && (
           <Button
-            variant="secondary"
+            variant="outline"
             size="md"
             onClick={onSave}
             disabled={isSaving}
             loading={isSaving}
-            icon={isSaving ? '⏳' : '💾'}
+            icon={isSaving ? <SpinnerIcon /> : <SaveIcon />}
           >
-            {isSaving ? 'Saving...' : 'Save'}
+            {isSaving ? 'Saving…' : 'Save'}
           </Button>
         )}
         <Button
-          aria-label="Run All"
+          aria-label="Run all"
           variant="primary"
           size="md"
           onClick={onRunAll}
           disabled={isRunningAll}
           loading={isRunningAll}
+          icon={isRunningAll ? <SpinnerIcon /> : <PlayIcon />}
         >
-          {isRunningAll ? 'Running...' : 'Run All'}
+          {isRunningAll ? 'Running…' : 'Run all'}
         </Button>
       </div>
     </header>

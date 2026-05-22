@@ -1,6 +1,7 @@
 dist/
 www/
 loader/
+graphify-out
 
 *~
 *.sw[mnpcod]

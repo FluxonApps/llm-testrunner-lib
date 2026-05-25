@@ -18,12 +18,14 @@ export interface LLMTestRunnerHeaderProps {
   useSave?: boolean;
   isSaving?: boolean;
   usePromptEditor?: boolean;
+  showSummary: boolean;
   onImport: (file: File) => void;
   onExportSuite: () => void;
   onExportResults: () => void;
   onRunAll: () => void;
   onSave?: () => void;
   onAddTestCase: () => void;
+  onToggleSummary: (show: boolean) => void;
 }
 
 export const LLMTestRunnerHeader: FunctionalComponent<
@@ -35,12 +37,14 @@ export const LLMTestRunnerHeader: FunctionalComponent<
   useSave = false,
   isSaving = false,
   usePromptEditor = false,
+  showSummary,
   onImport,
   onExportSuite,
   onExportResults,
   onRunAll,
   onSave,
   onAddTestCase,
+  onToggleSummary,
 }) => {
   let fileInputRef: HTMLInputElement;
 
@@ -85,6 +89,17 @@ export const LLMTestRunnerHeader: FunctionalComponent<
         >
           {isExportingTestSuite ? 'Exporting…' : 'Export suite'}
         </Button>
+        <label class="test-runner-header__toggle">
+          <input
+            type="checkbox"
+            class="test-runner-header__toggle-input"
+            checked={showSummary}
+            onChange={(e) =>
+              onToggleSummary((e.target as HTMLInputElement).checked)
+            }
+          />
+          <span class="test-runner-header__toggle-label">Show summary</span>
+        </label>
       </div>
 
       <div class="test-runner-header__right">

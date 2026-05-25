@@ -43,6 +43,7 @@ import {
   validateExpectedOutcomeSchema,
 } from '../../schemas/expected-outcome';
 import { LLMTestRunnerHeader } from './header/llm-test-runner-header';
+import { LLMTestRunnerSummary } from './summary/llm-test-runner-summary';
 import { LLMTestCases } from './test-cases/llm-test-cases';
 import { ExpectedOutcomeChangeDetail } from './test-cases/expected-outcome-renderer';
 import type { ChatHistoryRowChangeDetail } from './test-cases/llm-test-case-row';
@@ -60,6 +61,7 @@ function nextFrame(): Promise<void> {
     '../../styles/tokens.css',
     'llm-test-runner.css',
     'header/llm-test-runner-header.css',
+    'summary/llm-test-runner-summary.css',
     'test-cases/llm-test-cases.css',
     'test-cases/llm-test-case-row.css',
     'test-cases/actions/row-actions.css',
@@ -103,6 +105,7 @@ export class LLMTestRunner {
   @State() isExportingTestSuite: boolean = false;
   @State() isExportingTestResults: boolean = false;
   @State() isSaving: boolean = false;
+  @State() showSummary: boolean = true;
 
   private evaluationService: EvaluationService;
 
@@ -458,13 +461,18 @@ export class LLMTestRunner {
           useSave={this.useSave}
           isSaving={this.isSaving}
           usePromptEditor={this.usePromptEditor}
+          showSummary={this.showSummary}
           onImport={file => this.handleImport(file)}
           onExportSuite={() => this.handleExportTestSuite()}
           onExportResults={() => this.handleExportTestResults()}
           onRunAll={() => this.runAllTests()}
           onSave={() => this.handleSave()}
           onAddTestCase={() => this.addNewTestCase()}
+          onToggleSummary={(show) => (this.showSummary = show)}
         />
+        {this.showSummary && (
+          <LLMTestRunnerSummary testCases={this.testCases} />
+        )}
         <ErrorMessage message={this.error} onClear={() => (this.error = '')} />
         <div class="test-runner-container__content">
           <LLMTestCases

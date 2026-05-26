@@ -1,4 +1,3 @@
-import { v4 as uuidv4 } from 'uuid';
 import {
   ExpectedOutcomeField,
   ExpectedOutcomeSchema,
@@ -39,7 +38,7 @@ export function createTestCase(
   expectedOutcomeSchema: ExpectedOutcomeSchema = DEFAULT_EXPECTED_OUTCOME_SCHEMA,
 ): TestCase {
   return {
-    id: uuidv4(),
+    id: crypto.randomUUID(),
     question: '',
     expectedOutcome: createExpectedOutcomeFromSchema(expectedOutcomeSchema),
     chatHistory: { enabled: false, value: '' },

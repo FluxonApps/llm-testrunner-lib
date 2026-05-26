@@ -2,10 +2,16 @@
 
 ## 2.0.0
 
-Version 2 changes and upgrade steps are described in detail on the [version 2 pull request](https://github.com/FluxonApps/llm-testrunner-lib/pull/35).
 
 - New summary dashboard
 - Test-runner UI redesigned
 - LLM-as-judge evaluation approach
 - Richer test status states
 
+## 1.x.x
+
+- Headless assertions for Jest (`toExactMatch`, `toSemanticMatch`, `toRouge1Match`, `toRougeLMatch`, `toBleuMatch`)
+- Built-in evaluators: exact, semantic, ROUGE-1, ROUGE-L, BLEU
+- Test suite import / export and CSV results export
+- Optional save flow
+- Initial test-runner UI

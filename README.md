@@ -4,6 +4,8 @@
 
 [![npm](https://img.shields.io/npm/v/llm-testrunner-components.svg)](https://www.npmjs.com/package/llm-testrunner-components) [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
+> **Upgrading from v1.x?** v2 ships a redesigned UI (new class names / DOM), distinct `evaluating` and `partial` test states, and drops the `uuid` dependency. See [`CHANGELOG.md`](CHANGELOG.md) for the full migration notes.
+
 ---
 
 ## Why use this
@@ -19,7 +21,8 @@
 
 - **Test case table** — Add, edit, delete test cases. Each test case has a question, configurable expected-outcome fields (single line, paragraph, keyword chips, dropdown), and a per-field evaluation approach (exact, semantic, ROUGE-1, ROUGE-L, BLEU, llm-judge).
 - **Run one or run all** — Run a single test or batch with a configurable delay between API calls (rate limiting).
-- **Live results** — Pass/fail, keyword match count (e.g. X/Y found), and response time per test.
+- **Live results** — Distinct *running*, *evaluating*, *passed*, *failed*, *partial*, and *not run* states per test. Keyword match count (e.g. X/Y found) and response time included.
+- **Summary dashboard** — A live status bar below the top bar shows pass-rate, passed / failed / not-run chips, and total test count. Toggle on or off via the **Show summary** checkbox in the header.
 - **Import / export** — Import a test suite from JSON. Export the current suite as JSON or export run results as CSV.
 - **Optional save** — When enabled, a Save button emits the current test cases so your app can persist them (e.g. to your backend).
 
@@ -91,7 +94,7 @@ Load the loader and define the custom elements, then listen for `llmRequest` and
 <llm-test-runner id="runner" delay-ms="500"></llm-test-runner>
 
 <script type="module">
-  import { defineCustomElements } from "https://unpkg.com/llm-testrunner-components@1/loader/index.js";
+  import { defineCustomElements } from "https://unpkg.com/llm-testrunner-components@2/loader/index.js";
   defineCustomElements();
 
   const runner = document.getElementById("runner");

@@ -1,101 +1,112 @@
+:host {
+  display: block;
+}
+
+/*
+ * Chat history is now a disclosure (<details>) — the same pattern as the
+ * "More options" panel in the field renderer, so the row has consistent
+ * affordances for optional content. Collapsed = enabled false, expanded =
+ * enabled true. The textarea value is preserved across collapses so the
+ * user can hide it without losing their input.
+ */
 .chat-history {
-  display: flex;
-  flex-direction: column;
-  gap: var(--spacing-3);
-  margin-top: var(--spacing-4);
-}
-
-.chat-history__toggle-row {
-  display: flex;
-  align-items: center;
-}
-
-.chat-history__switch {
-  position: relative;
-  display: inline-flex;
-  align-items: center;
-  gap: var(--spacing-3);
-  cursor: pointer;
-  user-select: none;
-}
-
-.chat-history__switch-input {
-  position: absolute;
-  width: 1px;
-  height: 1px;
-  padding: 0;
-  margin: -1px;
-  overflow: hidden;
-  clip: rect(0, 0, 0, 0);
-  white-space: nowrap;
-  border: 0;
-}
-
-.chat-history__switch-ui {
-  position: relative;
-  flex-shrink: 0;
-  display: flex;
-  align-items: center;
-  padding: 0px 4px;
-  width: 2.75rem;
-  height: 1.5rem;
-  border-radius: var(--radius-full);
-  background: var(--muted);
   border: var(--border-width) solid var(--border);
-  transition:
-    background 0.15s ease,
-    border-color 0.15s ease;
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .chat-history__switch-ui,
-  .chat-history__switch-thumb {
-    transition: none;
-  }
-}
-
-.chat-history__switch-thumb {
-  display: inline-block;
-  width: calc(1.5rem - 6px);
-  height: calc(1.5rem - 6px);
-  border-radius: var(--radius-full);
+  border-radius: var(--radius-lg);
   background: var(--background);
-  box-shadow: var(--shadow-sm);
-  transition: transform 0.15s ease;
+  overflow: hidden;
+  transition: border-color 150ms ease;
 }
 
-.chat-history__switch-input:checked + .chat-history__switch-ui {
-  background: var(--primary);
-  border-color: var(--primary);
+.chat-history[open] {
+  border-color: var(--border-strong);
 }
 
-.chat-history__switch-input:checked + .chat-history__switch-ui .chat-history__switch-thumb {
-  transform: translateX(calc(2.75rem - (1.5rem - 6px)));
+.chat-history:focus-within {
+  border-color: var(--border-strong);
 }
 
-.chat-history__switch-input:focus-visible + .chat-history__switch-ui {
-  outline: 2px solid var(--ring);
-  outline-offset: 2px;
+.chat-history__summary {
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 12px;
+  font-size: 11px;
+  font-weight: var(--font-weight-semibold);
+  text-transform: uppercase;
+  letter-spacing: var(--letter-spacing-wider);
+  color: var(--muted-foreground);
+  user-select: none;
+  list-style: none;
+  background: transparent;
+  transition: color 150ms ease, background-color 150ms ease;
 }
 
-.chat-history__switch-text {
-  font-size: var(--font-size-sm, 0.875rem);
+.chat-history__summary:hover {
   color: var(--foreground);
+  background: var(--muted);
+}
+
+.chat-history[open] .chat-history__summary {
+  color: var(--foreground);
+  border-bottom: var(--border-width) solid var(--border);
+  background: var(--muted);
+}
+
+/* Hide native disclosure markers — we draw a custom chevron via ::before. */
+.chat-history__summary::-webkit-details-marker {
+  display: none;
+}
+
+.chat-history__summary::marker {
+  display: none;
+  content: '';
+}
+
+/* Custom chevron — rotates 90° on open, matching the More options panel. */
+.chat-history__summary::before {
+  content: '';
+  display: inline-block;
+  width: 0;
+  height: 0;
+  border-top: 4px solid transparent;
+  border-bottom: 4px solid transparent;
+  border-left: 5px solid currentColor;
+  transition: transform 200ms ease;
+  transform-origin: 25% 50%;
+  flex-shrink: 0;
+}
+
+.chat-history[open] .chat-history__summary::before {
+  transform: rotate(90deg);
+}
+
+.chat-history__icon {
+  flex-shrink: 0;
+  /* Slight muting so the icon doesn't compete with the chevron. */
+  opacity: 0.7;
+}
+
+.chat-history__label {
+  /* Span is stylistic — letter-spacing already comes from the summary. */
+}
+
+.chat-history__content {
+  padding: 0;
+  background: var(--background);
 }
 
 .chat-history__textarea {
   width: 100%;
   box-sizing: border-box;
   padding: var(--spacing-2) var(--spacing-3);
-  border: var(--border-width) solid var(--border);
-  border-radius: var(--radius-md);
-  font: inherit;
+  border: none;
+  font-family: var(--font-family-mono);
+  font-size: var(--font-size-xs);
+  line-height: 1.55;
   resize: vertical;
-  min-height: 9rem;
+  min-height: 8rem;
   background: var(--background);
-}
-
-.chat-history__textarea:focus-visible {
-  outline: 2px solid var(--ring);
-  outline-offset: 2px;
+  color: var(--foreground);
+  outline: none;
 }

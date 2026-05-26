@@ -7,18 +7,32 @@
 }
 
 .app-select__select {
+  appearance: none;
+  -webkit-appearance: none;
   border: var(--border-width) solid var(--input);
-  border-radius: var(--radius-md);
+  border-radius: var(--radius-lg);
+  font-family: inherit;
   font-size: var(--font-size-sm);
   font-weight: var(--font-weight-medium);
-  padding: var(--spacing-1) var(--spacing-2);
+  letter-spacing: var(--letter-spacing-snug);
+  padding: 6px 30px 6px 10px;
   outline: none;
-  background: var(--background);
+  background-color: var(--background);
+  background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 12 12"><path d="M3 4.5l3 3 3-3" fill="none" stroke="%2371717a" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>');
+  background-repeat: no-repeat;
+  background-position: right 10px center;
+  background-size: 12px;
   width: 145px;
   color: var(--foreground);
+  cursor: pointer;
+  transition: border-color 150ms ease, box-shadow 150ms ease;
+}
+
+.app-select__select:hover {
+  border-color: var(--border-strong);
 }
 
 .app-select__select:focus {
   border-color: var(--ring);
-  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.1);
+  box-shadow: 0 0 0 4px var(--ring-soft);
 }

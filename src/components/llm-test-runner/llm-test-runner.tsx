@@ -6,6 +6,7 @@ import {
   EventEmitter,
   Event,
   Method,
+  Element,
 } from '@stencil/core';
 import { EvaluationResult } from '../../lib/evaluation/types';
 import { ErrorMessage } from '../error-message/error-message';
@@ -42,9 +43,17 @@ import {
   validateExpectedOutcomeSchema,
 } from '../../schemas/expected-outcome';
 import { LLMTestRunnerHeader } from './header/llm-test-runner-header';
+import { LLMTestRunnerSummary } from './summary/llm-test-runner-summary';
 import { LLMTestCases } from './test-cases/llm-test-cases';
 import { ExpectedOutcomeChangeDetail } from './test-cases/expected-outcome-renderer';
 import type { ChatHistoryRowChangeDetail } from './test-cases/llm-test-case-row';
+
+const HIGHLIGHT_VISIBLE_MS = 2000;
+const ELEMENT_LOOKUP_MAX_FRAMES = 10;
+
+function nextFrame(): Promise<void> {
+  return new Promise(resolve => requestAnimationFrame(() => resolve()));
+}
 
 @Component({
   tag: 'llm-test-runner',
@@ -52,6 +61,7 @@ import type { ChatHistoryRowChangeDetail } from './test-cases/llm-test-case-row'
     '../../styles/tokens.css',
     'llm-test-runner.css',
     'header/llm-test-runner-header.css',
+    'summary/llm-test-runner-summary.css',
     'test-cases/llm-test-cases.css',
     'test-cases/llm-test-case-row.css',
     'test-cases/actions/row-actions.css',
@@ -66,6 +76,7 @@ import type { ChatHistoryRowChangeDetail } from './test-cases/llm-test-case-row'
 export class LLMTestRunner {
   @Event() llmRequest: EventEmitter<LLMRequestPayload>;
   @Event() save: EventEmitter<SavePayload>;
+  @Element() el: HTMLElement;
   @Prop() delayMs?: number = 500;
   @Prop() useSave?: boolean = false;
   @Prop() usePromptEditor?: boolean = false;
@@ -94,6 +105,7 @@ export class LLMTestRunner {
   @State() isExportingTestSuite: boolean = false;
   @State() isExportingTestResults: boolean = false;
   @State() isSaving: boolean = false;
+  @State() showSummary: boolean = true;
 
   private evaluationService: EvaluationService;
 
@@ -175,12 +187,44 @@ export class LLMTestRunner {
       const schema = this.getResolvedExpectedOutcomeSchema();
       const newTestCase = createTestCase(schema);
       this.testCases = [...this.testCases, newTestCase];
+
+      // Fire-and-forget: scroll runs after the next render completes.
+      void this.scrollToAndHighlightTestCase(newTestCase.id);
     } catch (err) {
       this.error =
         err instanceof Error
           ? err.message
           : 'Invalid defaultExpectedOutcomeSchema provided.';
     }
+  }
+
+  private async scrollToAndHighlightTestCase(testCaseId: string): Promise<void> {
+    const element = await this.waitForTestCaseElement(testCaseId);
+    if (!element) return;
+
+    (element as HTMLDetailsElement).open = true;
+    await nextFrame();
+
+    element.scrollIntoView({
+      behavior: 'smooth',
+      block: 'center',
+      inline: 'nearest',
+    });
+    element.classList.add('test-case-row--highlight');
+
+    window.setTimeout(() => {
+      element.classList.remove('test-case-row--highlight');
+    }, HIGHLIGHT_VISIBLE_MS);
+  }
+
+  private async waitForTestCaseElement(testCaseId: string): Promise<Element | null> {
+    const selector = `.test-case-row[data-test-case-id="${CSS.escape(testCaseId)}"]`;
+    for (let i = 0; i < ELEMENT_LOOKUP_MAX_FRAMES; i++) {
+      const element = this.el.shadowRoot?.querySelector(selector);
+      if (element) return element;
+      await nextFrame();
+    }
+    return null;
   }
 
   private updateTestCase(id: string, updates: Partial<TestCase>) {
@@ -417,12 +461,18 @@ export class LLMTestRunner {
           useSave={this.useSave}
           isSaving={this.isSaving}
           usePromptEditor={this.usePromptEditor}
+          showSummary={this.showSummary}
           onImport={file => this.handleImport(file)}
           onExportSuite={() => this.handleExportTestSuite()}
           onExportResults={() => this.handleExportTestResults()}
           onRunAll={() => this.runAllTests()}
           onSave={() => this.handleSave()}
+          onAddTestCase={() => this.addNewTestCase()}
+          onToggleSummary={(show) => (this.showSummary = show)}
         />
+        {this.showSummary && (
+          <LLMTestRunnerSummary testCases={this.testCases} />
+        )}
         <ErrorMessage message={this.error} onClear={() => (this.error = '')} />
         <div class="test-runner-container__content">
           <LLMTestCases
@@ -431,7 +481,6 @@ export class LLMTestRunner {
             extractorIds={getExtractorIds(this.evaluationSourceExtractors)}
             onRun={testCase => this.runSingleTest(testCase).catch(() => {})}
             onDelete={id => this.deleteTestCase(id)}
-            onAddTestCase={() => this.addNewTestCase()}
             handleTestCaseChange={this.handleTestCaseChange}
             onExpectedOutcomeChange={this.handleExpectedOutcomeChange}
             onChatHistoryChange={this.handleChatHistoryChange}

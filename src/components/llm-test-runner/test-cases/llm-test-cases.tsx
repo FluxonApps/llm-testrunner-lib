@@ -1,7 +1,6 @@
 import { h, FunctionalComponent } from '@stencil/core';
 import { TestCase } from '../../../types/llm-test-runner';
 import { LLMTestCaseRow, ChatHistoryRowChangeDetail } from './llm-test-case-row';
-import { Button } from '../../../lib/ui/button/index';
 import { ExpectedOutcomeChangeDetail } from './expected-outcome-renderer';
 
 export interface LLMTestCasesProps {
@@ -10,7 +9,6 @@ export interface LLMTestCasesProps {
   extractorIds?: string[];
   onRun: (testCase: TestCase) => void;
   onDelete: (id: string) => void;
-  onAddTestCase: () => void;
   handleTestCaseChange: (
     e: CustomEvent<{ testCaseId: string; key: string; value: string }>,
   ) => void;
@@ -26,20 +24,12 @@ export const LLMTestCases: FunctionalComponent<LLMTestCasesProps> = ({
   extractorIds = [],
   onRun,
   onDelete,
-  onAddTestCase,
   handleTestCaseChange,
   onExpectedOutcomeChange,
   onChatHistoryChange,
 }) => {
   return (
     <div class="test-cases">
-      <div class="test-cases__column-headers">
-        <div class="test-cases__column-header">Input</div>
-        <div class="test-cases__column-header">Output</div>
-        <div class="test-cases__column-header">Evaluation</div>
-        <div class="test-cases__column-header">Actions</div>
-      </div>
-
       {testCases.map(testCase => (
         <LLMTestCaseRow
           testCase={testCase}
@@ -52,12 +42,6 @@ export const LLMTestCases: FunctionalComponent<LLMTestCasesProps> = ({
           onChatHistoryChange={onChatHistoryChange}
         />
       ))}
-
-      <div class="test-cases__add-section">
-        <Button variant="outline" size="md" onClick={onAddTestCase}>
-          + Add Question
-        </Button>
-      </div>
     </div>
   );
 };

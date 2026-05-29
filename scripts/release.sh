@@ -1,8 +1,7 @@
 #!/usr/bin/env bash
-# release.sh — prep a release PR locally (Pattern Y: PR-driven release).
+# release.sh — version bump + changelog + commit + tag (local only).
 #
 # Usage:
-#   git checkout -b release-<your-version>
 #   scripts/release.sh <major|minor|patch|prerelease|X.Y.Z[-rc.N]> [--dry-run] [--no-test]
 #
 # Examples:
@@ -11,22 +10,19 @@
 #   scripts/release.sh 2.1.0-rc.1
 #   scripts/release.sh major --no-test       # only if CI already ran the suite
 #
-# What it does (Pattern Y — release PR flow):
-#   1. Asserts clean tree, NOT on `main`, and that origin/main is reachable from HEAD.
+# What it does:
+#   1. Asserts clean tree, on `main`, in sync with origin/main.
 #   2. Asserts the resulting tag does not already exist (local + remote).
 #   3. Runs lint + test + license-check (skippable with --no-test).
 #   4. Bumps version via `npm version <arg> --no-git-tag-version`.
 #   5. AI-drafts changelog bullets (if `claude` CLI available); falls back to empty stub.
 #   6. Opens $EDITOR on CHANGELOG.md for review.
 #   7. Validates bullets were added.
-#   8. Commits `chore(release): X.Y.Z` on the current branch (NO tag).
-#   9. Prints the push + PR-creation + post-merge tag + publish commands.
+#   8. Commits `chore(release): X.Y.Z` on `main`.
+#   9. Tags `vX.Y.Z` on the commit.
+#  10. Prints the push + publish + GitHub Release commands.
 #
-# The tag is NOT created by this script — it goes on the merge commit AFTER
-# the PR is approved and merged into `main`. The release artifact is the
-# tag, not the branch; branch name is purely cosmetic.
-#
-# Any failure between step 4 and step 8 rolls back package.json,
+# Any failure between step 4 and step 9 rolls back package.json,
 # package-lock.json, and CHANGELOG.md so retries start clean.
 
 set -euo pipefail
@@ -47,7 +43,7 @@ die()   { printf '%s✗%s   %s\n' "$RED"    "$RESET" "$*" >&2; exit 1; }
 BUMP=""
 DRY_RUN=0
 SKIP_TEST=0
-PROTECTED_BRANCH="main"   # the branch we release INTO (script refuses to run on it)
+EXPECTED_BRANCH="main"   # releases must cut from this branch
 
 for arg in "$@"; do
   case "$arg" in
@@ -95,31 +91,28 @@ if ! git diff --quiet || ! git diff --cached --quiet; then
 fi
 ok "Working tree clean"
 
-# Refuse to run on the protected branch — releases happen on a dedicated branch
-# and merge to $PROTECTED_BRANCH via PR. The merge commit is what gets tagged.
+# Must be on the expected release branch.
 CUR_BRANCH="$(git rev-parse --abbrev-ref HEAD)"
-if [ "$CUR_BRANCH" = "$PROTECTED_BRANCH" ]; then
-  die "On '$PROTECTED_BRANCH'. Releases must run on a separate branch.
+if [ "$CUR_BRANCH" != "$EXPECTED_BRANCH" ]; then
+  die "On '$CUR_BRANCH', expected '$EXPECTED_BRANCH'. Releases must cut from $EXPECTED_BRANCH.
        Run:
-         git checkout -b release-<your-version>
-         npm run release:<bump>
-       The branch name itself is up to you — it's just a workspace for the
-       release PR. The tag, not the branch, defines the release."
+         git checkout $EXPECTED_BRANCH
+         git pull --ff-only
+         npm run release:<bump>"
 fi
-ok "On branch '$CUR_BRANCH' (not '$PROTECTED_BRANCH')"
+ok "On branch $EXPECTED_BRANCH"
 
-# Make sure $PROTECTED_BRANCH is reachable from HEAD — i.e. this branch is
-# based on (or ahead of) $PROTECTED_BRANCH. Catches the case where someone
-# branched from an old commit and is about to release stale code.
+# Must be in sync with origin/main — no local drift, no remote drift.
 info "Fetching origin..."
 run git fetch origin --quiet
 if [ "$DRY_RUN" -eq 0 ]; then
-  if ! git merge-base --is-ancestor "origin/$PROTECTED_BRANCH" HEAD; then
-    die "origin/$PROTECTED_BRANCH is not an ancestor of HEAD.
-         Rebase or merge $PROTECTED_BRANCH into '$CUR_BRANCH' first."
+  LOCAL=$(git rev-parse HEAD)
+  REMOTE=$(git rev-parse "origin/$EXPECTED_BRANCH")
+  if [ "$LOCAL" != "$REMOTE" ]; then
+    die "Local $EXPECTED_BRANCH not in sync with origin/$EXPECTED_BRANCH. Pull or push first."
   fi
 fi
-ok "Branch is up-to-date with origin/$PROTECTED_BRANCH"
+ok "In sync with origin/$EXPECTED_BRANCH"
 
 # package.json exists
 [ -f package.json ] || die "No package.json at repo root."
@@ -287,39 +280,30 @@ if [ "$DRY_RUN" -eq 0 ]; then
   ok "Changelog entries detected"
 fi
 
-# ---------- commit (no tag — tag happens after PR merge) ----------
-info "Committing release on '$CUR_BRANCH'"
+# ---------- commit + tag ----------
+info "Committing release"
 run git add package.json package-lock.json CHANGELOG.md
 run git commit -m "chore(release): $NEW_VERSION"
 
+info "Tagging $TAG"
+run git tag -a "$TAG" -m "$TAG"
+
 ROLLBACK_NEEDED=0
-ok "Release commit for $NEW_VERSION ready on '$CUR_BRANCH'."
+ok "Release $NEW_VERSION ready locally."
 
 # ---------- next steps ----------
 cat <<EOF
 
 ${BOLD}Next steps (run manually when ready):${RESET}
 
-  ${BLUE}# 1. Push the release branch${RESET}
-  git push -u origin $CUR_BRANCH
-
-  ${BLUE}# 2. Open a PR to $PROTECTED_BRANCH (gh CLI)${RESET}
-  gh pr create --base $PROTECTED_BRANCH \\
-    --title "release: $TAG" \\
-    --body "\$(awk -v ver=\"$NEW_VERSION\" '
-      \$0 == \"## \" ver { found=1; next }
-      found && /^## / { exit }
-      found { print }
-    ' CHANGELOG.md)"
-
-  ${YELLOW}# --- review + merge the PR before running the rest ---${RESET}
-
-  ${BLUE}# 3. After PR merges, tag the merge commit on $PROTECTED_BRANCH${RESET}
-  git checkout $PROTECTED_BRANCH && git pull --ff-only
-  git tag -a $TAG -m "$TAG"
+  ${BLUE}# 1. Push the release commit + tag${RESET}
+  git push origin $EXPECTED_BRANCH
   git push origin $TAG
 
-  ${BLUE}# 4. Create GitHub Release${RESET}
+  ${BLUE}# 2. Publish to npm${RESET}
+  npm run build-publish
+
+  ${BLUE}# 3. Create GitHub Release (mirrors CHANGELOG section as the body)${RESET}
   gh release create $TAG \\
     --title "$TAG" \\
     --notes "\$(awk -v ver=\"$NEW_VERSION\" '
@@ -327,8 +311,5 @@ ${BOLD}Next steps (run manually when ready):${RESET}
       found && /^## / { exit }
       found { print }
     ' CHANGELOG.md)"
-
-  ${BLUE}# 5. Publish to npm${RESET}
-  npm run build-publish
 
 EOF

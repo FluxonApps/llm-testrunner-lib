@@ -1,7 +1,8 @@
 #!/usr/bin/env bash
-# release.sh — version bump + changelog + commit + tag (local only).
+# release.sh — prep a release PR locally (Pattern Y: PR-driven release).
 #
 # Usage:
+#   git checkout -b release-<your-version>
 #   scripts/release.sh <major|minor|patch|prerelease|X.Y.Z[-rc.N]> [--dry-run] [--no-test]
 #
 # Examples:
@@ -10,17 +11,22 @@
 #   scripts/release.sh 2.1.0-rc.1
 #   scripts/release.sh major --no-test       # only if CI already ran the suite
 #
-# What it does:
-#   1. Asserts clean tree, on `main`, in sync with origin.
+# What it does (Pattern Y — release PR flow):
+#   1. Asserts clean tree, NOT on `main`, and that origin/main is reachable from HEAD.
 #   2. Asserts the resulting tag does not already exist (local + remote).
 #   3. Runs lint + test + license-check (skippable with --no-test).
 #   4. Bumps version via `npm version <arg> --no-git-tag-version`.
-#   5. Prepends a stub section to CHANGELOG.md and opens $EDITOR for you to fill in.
-#   6. Validates bullets were added.
-#   7. Commits `chore(release): X.Y.Z` and tags `vX.Y.Z`.
-#   8. Prints the manual push/release commands to run next.
+#   5. AI-drafts changelog bullets (if `claude` CLI available); falls back to empty stub.
+#   6. Opens $EDITOR on CHANGELOG.md for review.
+#   7. Validates bullets were added.
+#   8. Commits `chore(release): X.Y.Z` on the current branch (NO tag).
+#   9. Prints the push + PR-creation + post-merge tag + publish commands.
 #
-# Any failure between step 4 and step 7 rolls back package.json,
+# The tag is NOT created by this script — it goes on the merge commit AFTER
+# the PR is approved and merged into `main`. The release artifact is the
+# tag, not the branch; branch name is purely cosmetic.
+#
+# Any failure between step 4 and step 8 rolls back package.json,
 # package-lock.json, and CHANGELOG.md so retries start clean.
 
 set -euo pipefail
@@ -41,7 +47,7 @@ die()   { printf '%s✗%s   %s\n' "$RED"    "$RESET" "$*" >&2; exit 1; }
 BUMP=""
 DRY_RUN=0
 SKIP_TEST=0
-EXPECTED_BRANCH="main"
+PROTECTED_BRANCH="main"   # the branch we release INTO (script refuses to run on it)
 
 for arg in "$@"; do
   case "$arg" in
@@ -89,22 +95,31 @@ if ! git diff --quiet || ! git diff --cached --quiet; then
 fi
 ok "Working tree clean"
 
-# On expected branch
+# Refuse to run on the protected branch — releases happen on a dedicated branch
+# and merge to $PROTECTED_BRANCH via PR. The merge commit is what gets tagged.
 CUR_BRANCH="$(git rev-parse --abbrev-ref HEAD)"
-if [ "$CUR_BRANCH" != "$EXPECTED_BRANCH" ]; then
-  die "On '$CUR_BRANCH', expected '$EXPECTED_BRANCH'. Releases must cut from $EXPECTED_BRANCH."
+if [ "$CUR_BRANCH" = "$PROTECTED_BRANCH" ]; then
+  die "On '$PROTECTED_BRANCH'. Releases must run on a separate branch.
+       Run:
+         git checkout -b release-<your-version>
+         npm run release:<bump>
+       The branch name itself is up to you — it's just a workspace for the
+       release PR. The tag, not the branch, defines the release."
 fi
-ok "On branch $EXPECTED_BRANCH"
+ok "On branch '$CUR_BRANCH' (not '$PROTECTED_BRANCH')"
 
-# In sync with origin
+# Make sure $PROTECTED_BRANCH is reachable from HEAD — i.e. this branch is
+# based on (or ahead of) $PROTECTED_BRANCH. Catches the case where someone
+# branched from an old commit and is about to release stale code.
 info "Fetching origin..."
 run git fetch origin --quiet
-LOCAL=$(git rev-parse HEAD)
-REMOTE=$(git rev-parse "origin/$EXPECTED_BRANCH")
-if [ "$LOCAL" != "$REMOTE" ]; then
-  die "Local $EXPECTED_BRANCH not in sync with origin/$EXPECTED_BRANCH. Pull or push first."
+if [ "$DRY_RUN" -eq 0 ]; then
+  if ! git merge-base --is-ancestor "origin/$PROTECTED_BRANCH" HEAD; then
+    die "origin/$PROTECTED_BRANCH is not an ancestor of HEAD.
+         Rebase or merge $PROTECTED_BRANCH into '$CUR_BRANCH' first."
+  fi
 fi
-ok "In sync with origin/$EXPECTED_BRANCH"
+ok "Branch is up-to-date with origin/$PROTECTED_BRANCH"
 
 # package.json exists
 [ -f package.json ] || die "No package.json at repo root."
@@ -190,17 +205,52 @@ get_ai_bullets() {
   prompt=$(cat <<EOF
 As a Project Manager you are drafting a CHANGELOG entry for version $NEW_VERSION of the npm package $pkg_name.
 
-Write 3-7 high-level bullet points summarizing the changes below. Match this terse style exactly:
+Write 3-7 high-level bullet points summarizing the changes below.
+
+=== WORKED EXAMPLE ===
+
+GIVEN commits like:
+  feat(summary): add pass-rate dashboard component
+  feat(summary): show Show summary checkbox in header
+  feat(summary): animated number transitions on chip counts
+  feat(llm-judge): wire end-to-end evaluation
+  feat(llm-judge): support system + user prompts
+  feat(llm-judge): return per-criterion scores
+  feat(status): introduce 'evaluating' and 'partial' kinds
+  refactor(row): redesign test case row layout
+  refactor(header): consolidate import/export/save controls
+  fix(row): clear flicker between LLM response and evaluation
+  chore: bump ws from 8.19.0 to 8.20.1
+  chore: update eslint config
+
+AND diff stat showing changes in:
+  src/components/llm-test-runner/summary/*
+  src/components/llm-test-runner/header/*
+  src/components/llm-test-runner/test-cases/*
+  src/lib/evaluation/evaluators/llm-judge/*
+
+EXPECTED output:
 - New summary dashboard
 - Test-runner UI redesigned
 - LLM-as-judge evaluation approach
+- Richer test status states
 
-Strict rules:
+Notice:
+- chore commits (dependency bumps, lint config) are dropped — not user-facing.
+- 4 related "summary" commits collapsed into one bullet.
+- 3 related "llm-judge" commits collapsed into one bullet.
+- 2 refactor commits about layout collapsed into "Test-runner UI redesigned".
+- The fix is internal mechanics, not surfaced — release note focuses on what users see.
+
+=== STRICT RULES ===
+
 - Output ONLY bullet lines (each starts with "- ").
 - No headings, no preamble, no commentary, no commit hashes, no PR numbers, no emojis.
 - One line per bullet.
-- Group related commits. Drop chore/dependency-bump/internal commits unless notable.
+- Group related commits aggressively. One bullet can summarize 3-10 commits.
+- Drop chore / dependency-bump / lint / formatting / internal commits unless notable (security CVE = notable).
 - Prefer user-facing impact over internal mechanics.
+- Match the terse style of the EXPECTED output above — short noun phrases, no fluff.
 
 === Commits since ${prev_tag:-HEAD} ===
 $commits
@@ -279,27 +329,39 @@ if [ "$DRY_RUN" -eq 0 ]; then
   ok "Changelog entries detected"
 fi
 
-# ---------- commit + tag ----------
-info "Committing release"
+# ---------- commit (no tag — tag happens after PR merge) ----------
+info "Committing release on '$CUR_BRANCH'"
 run git add package.json package-lock.json CHANGELOG.md
 run git commit -m "chore(release): $NEW_VERSION"
 
-info "Tagging $TAG"
-run git tag -a "$TAG" -m "$TAG"
-
 ROLLBACK_NEEDED=0
-ok "Release $NEW_VERSION ready locally."
+ok "Release commit for $NEW_VERSION ready on '$CUR_BRANCH'."
 
 # ---------- next steps ----------
 cat <<EOF
 
 ${BOLD}Next steps (run manually when ready):${RESET}
 
-  ${BLUE}# push branch and tag${RESET}
-  git push origin $EXPECTED_BRANCH
+  ${BLUE}# 1. Push the release branch${RESET}
+  git push -u origin $CUR_BRANCH
+
+  ${BLUE}# 2. Open a PR to $PROTECTED_BRANCH (gh CLI)${RESET}
+  gh pr create --base $PROTECTED_BRANCH \\
+    --title "release: $TAG" \\
+    --body "\$(awk -v ver=\"$NEW_VERSION\" '
+      \$0 == \"## \" ver { found=1; next }
+      found && /^## / { exit }
+      found { print }
+    ' CHANGELOG.md)"
+
+  ${YELLOW}# --- review + merge the PR before running the rest ---${RESET}
+
+  ${BLUE}# 3. After PR merges, tag the merge commit on $PROTECTED_BRANCH${RESET}
+  git checkout $PROTECTED_BRANCH && git pull --ff-only
+  git tag -a $TAG -m "$TAG"
   git push origin $TAG
 
-  ${BLUE}# create GitHub Release (requires gh CLI)${RESET}
+  ${BLUE}# 4. Create GitHub Release${RESET}
   gh release create $TAG \\
     --title "$TAG" \\
     --notes "\$(awk -v ver=\"$NEW_VERSION\" '
@@ -308,7 +370,7 @@ ${BOLD}Next steps (run manually when ready):${RESET}
       found { print }
     ' CHANGELOG.md)"
 
-  ${BLUE}# publish to npm${RESET}
+  ${BLUE}# 5. Publish to npm${RESET}
   npm run build-publish
 
 EOF

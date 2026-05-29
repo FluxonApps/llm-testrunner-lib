@@ -212,8 +212,8 @@ get_ai_bullets() {
   prompt="${prompt//\{\{DIFFSTAT\}\}/$diffstat}"
 
   output=$(claude --print "$prompt" 2>/dev/null) || return 1
-  bullets=$(printf '%s\n' "$output" | grep -E '^- ' || true)
-  [ -n "$bullets" ] || return 1
+  bullets=$(printf '%s\n' "$output" | awk '/^(###|- )/{found=1} found' || true)
+  printf '%s\n' "$bullets" | grep -qE '^- .' || return 1
 
   printf '%s\n' "$bullets"
 }
@@ -240,6 +240,8 @@ if [ "$DRY_RUN" -eq 0 ]; then
     if [ -n "$AI_BULLETS" ]; then
       printf '%s\n' "$AI_BULLETS"
     else
+      echo "### 🚀 What's new"
+      echo ""
       echo "- "
     fi
     echo ""
@@ -272,8 +274,11 @@ if [ "$DRY_RUN" -eq 0 ]; then
     found && /^## / { exit }
     found { print }
   ' CHANGELOG.md)
-  # Strip blanks and the empty stub bullet "- " to see if anything real was added.
-  CONTENT=$(printf '%s\n' "$NEW_SECTION" | sed '/^[[:space:]]*$/d' | sed '/^-[[:space:]]*$/d' || true)
+  CONTENT=$(printf '%s\n' "$NEW_SECTION" \
+    | sed '/^[[:space:]]*$/d' \
+    | sed '/^###/d' \
+    | sed '/^-[[:space:]]*$/d' \
+    || true)
   if [ -z "$CONTENT" ]; then
     die "No changelog entries added under ## $NEW_VERSION. Aborting."
   fi

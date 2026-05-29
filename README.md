@@ -273,6 +273,14 @@ We welcome contributions. See [CONTRIBUTING.md](CONTRIBUTING.md) for how to get 
 
 ---
 
+## Releasing
+
+Maintainers cut releases locally with `npm run release:patch` / `:minor` / `:major`. The script bumps the version, drafts a sectioned changelog with help from the Claude CLI, opens `$EDITOR` for review, then commits and tags on `main`. See [RELEASING.md](RELEASING.md) for the full flow, conventions, and troubleshooting.
+
+The changelog uses a [Keep a Changelog](https://keepachangelog.com/en/1.1.0/)-inspired format with icon-prefixed section headings (`### 🚀 What's new`, `### 🔧 Changed`, `### 🐛 Fixed`, `### 🔒 Security`, …). See [CHANGELOG.md](CHANGELOG.md) for the published history.
+
+---
+
 ## License
 
 The project is licensed under the [MIT License](LICENSE).

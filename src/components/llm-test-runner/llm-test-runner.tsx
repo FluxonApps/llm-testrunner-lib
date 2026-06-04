@@ -2,6 +2,7 @@ import {
   Component,
   State,
   Prop,
+  Watch,
   h,
   EventEmitter,
   Event,
@@ -78,6 +79,7 @@ export class LLMTestRunner {
   @Event() save: EventEmitter<SavePayload>;
   @Element() el: HTMLElement;
   @Prop() delayMs?: number = 500;
+  @Prop() stickyOffset?: number = 0;
   @Prop() useSave?: boolean = false;
   @Prop() usePromptEditor?: boolean = false;
   @Prop() resolveExpectedOutcome?: ExpectedOutcomeResolver;
@@ -116,6 +118,15 @@ export class LLMTestRunner {
 
     validateExpectedOutcomeSchema(this.defaultExpectedOutcomeSchema);
     return this.defaultExpectedOutcomeSchema;
+  }
+
+  @Watch('stickyOffset')
+  stickyOffsetChanged(newVal: number) {
+    this.el.style.setProperty('--llmtr-sticky-top', `${newVal}px`);
+  }
+
+  componentDidLoad() {
+    this.el.style.setProperty('--llmtr-sticky-top', `${this.stickyOffset ?? 0}px`);
   }
 
   componentWillLoad() {

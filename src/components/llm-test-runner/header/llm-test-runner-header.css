@@ -9,7 +9,7 @@
   color: var(--foreground);
   border-bottom: var(--border-width) solid var(--border);
   position: sticky;
-  top: 0;
+  top: var(--llmtr-sticky-top, 0px);
   z-index: var(--z-sticky);
   box-shadow: var(--shadow-sm);
 }

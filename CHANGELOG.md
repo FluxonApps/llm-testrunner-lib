@@ -2,6 +2,26 @@
 
 All notable changes to this project are documented in this file. The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 2.1.0
+
+### 🔧 Changed
+
+- Test-runner UI redesigned
+- Header component layout updated
+- Test case row and chat history components refactored
+
+### 🐛 Fixed
+
+- Sticky header issues
+- CSS flicker on test re-run
+- Protobufjs vulnerability
+
+### 🔒 Security
+
+- Fix npm publish using OpenID Connect
+- Bump uuid from 10.0.0 to 14.0.0
+- Bump ws from 8.19.0 to 8.20.1
+
 ## 2.0.0
 
 ### 🚀 What's new

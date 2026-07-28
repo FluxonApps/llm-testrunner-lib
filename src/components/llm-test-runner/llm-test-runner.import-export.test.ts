@@ -1,5 +1,3 @@
-/* eslint-env jest */
-
 jest.mock('../../lib/evaluation/evaluation-engine', () => ({
   LLMEvaluationEngine: jest.fn().mockImplementation(() => ({
     evaluateResponse: jest.fn()

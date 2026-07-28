@@ -6,5 +6,8 @@
   "packages": {
     "flatbuffers": "*"
   },
+  "ignore": [
+    {"scope": "img"}
+  ],
   "corrections": true
 }

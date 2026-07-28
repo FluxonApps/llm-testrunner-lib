@@ -35,7 +35,7 @@ export function importTestSuite(
         return createTestCaseFromInput(item);
       } catch (err) {
         const message = err instanceof Error ? err.message : 'Unknown error';
-        throw new Error(`Invalid test case at index ${index}: ${message}`);
+        throw new Error(`Invalid test case at index ${index}: ${message}`, { cause: err });
       }
     });
 

@@ -71,8 +71,8 @@
     "prepare": "npm run build:all",
     "build-publish": "npm run build:all && npm run just-publish",
     "just-publish": "npm publish --access=public",
-    "lint": "eslint src --ext .ts,.tsx",
-    "lint:fix": "eslint src --ext .ts,.tsx --fix",
+    "lint": "eslint src",
+    "lint:fix": "eslint src --fix",
     "license-check": "licensee",
     "release": "bash scripts/release.sh",
     "release:patch": "bash scripts/release.sh patch",
@@ -88,22 +88,23 @@
     "zod": "^4.3.6"
   },
   "devDependencies": {
+    "@eslint/js": "^10.0.1",
     "@rollup/plugin-replace": "^6.0.2",
     "@stencil/core": "^4.27.1",
     "@types/jest": "^29.5.14",
     "@types/node": "^22.13.5",
-    "@typescript-eslint/eslint-plugin": "^8.18.0",
-    "@typescript-eslint/parser": "^8.18.0",
     "concurrently": "^9.2.1",
     "dotenv": "^17.2.3",
-    "eslint": "^8.0.0",
+    "eslint": "^10.8.0",
     "eslint-config-prettier": "^10.1.8",
+    "globals": "^16.5.0",
     "jest": "^29.7.0",
     "jest-cli": "^29.7.0",
     "licensee": "^12.0.1",
     "nodemon": "^3.1.11",
     "prettier": "^3.6.2",
     "puppeteer": "^24.3.0",
+    "typescript-eslint": "^8.65.0",
     "wait-on": "^9.0.3",
     "tsup": "^8.5.0"
   },
@@ -125,7 +126,10 @@
   },
   "license": "MIT",
   "overrides": {
-    "protobufjs": "^7.5.5"
+    "protobufjs": "^7.5.5",
+    "esbuild": "^0.28.1",
+    "sharp": "^0.35.0",
+    "minimatch": "^10.2.6"
   },
   "keywords": [
     "web-components",

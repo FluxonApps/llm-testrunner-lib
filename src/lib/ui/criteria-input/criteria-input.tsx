@@ -87,7 +87,7 @@ export class CriteriaInput {
       return;
     }
     const propStr = JSON.stringify(newValue ?? []);
-    let localStr = '[]';
+    let localStr: string;
     try {
       localStr = JSON.stringify(JSON.parse(this.text || '[]'));
     } catch {

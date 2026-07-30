@@ -149,7 +149,7 @@ export class LLMTestRunner {
             return createTestCaseFromInput(rawTestCase);
           } catch (err) {
             const message = err instanceof Error ? err.message : 'Unknown error';
-            throw new Error(`Invalid initial test case at index ${index}: ${message}`);
+            throw new Error(`Invalid initial test case at index ${index}: ${message}`, { cause: err });
           }
         });
       } else {

@@ -1,10 +1,11 @@
 import { jest, describe, it, expect } from '@jest/globals';
 import { evaluateKeywordsSemantically } from '../evaluate-keywords';
 import { FeatureExtractionPipeline } from '@xenova/transformers';
-import { 
+import {
   DEFAULT_SEMANTIC_PASS_SCORE as DEFAULT_SEMANTIC_THRESHOLD,
-  EvaluationApproach 
+  EvaluationApproach
 } from '../../../constants';
+import * as similarityUtils from '../similarity-utils';
 
 describe('evaluateKeywordsSemantically (only extractor mocked)', () => {
   it('should return empty array when no keywords provided', async () => {
@@ -29,7 +30,7 @@ describe('evaluateKeywordsSemantically (only extractor mocked)', () => {
     });
 
     const cosSpy = jest.spyOn(
-      require('../similarity-utils'),
+      similarityUtils,
       'cosineSimilarity',
     );
     cosSpy
@@ -73,7 +74,7 @@ describe('evaluateKeywordsSemantically (only extractor mocked)', () => {
     });
 
     const cosSpy = jest.spyOn(
-      require('../similarity-utils'),
+      similarityUtils,
       'cosineSimilarity',
     );
     cosSpy

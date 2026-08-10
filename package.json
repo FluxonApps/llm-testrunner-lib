@@ -139,5 +139,11 @@
     "jest",
     "llm-testing",
     "headless"
-  ]
+  ],
+  "allowScripts": {
+    "esbuild@0.28.1": true,
+    "fsevents@2.3.3": true,
+    "protobufjs@7.6.5": true,
+    "puppeteer@24.39.1": true
+  }
 }

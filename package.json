@@ -80,7 +80,7 @@
     "release:major": "bash scripts/release.sh major"
   },
   "dependencies": {
-    "@google/genai": "^1.40.0",
+    "@google/genai": "^2.17.1",
     "@stencil/react-output-target": "^1.2.0",
     "@xenova/transformers": "^2.17.2",
     "bleu-score": "^1.0.4",

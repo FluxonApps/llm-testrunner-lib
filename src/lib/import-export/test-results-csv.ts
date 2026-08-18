@@ -1,15 +1,26 @@
 import { TestCase } from '../../types/llm-test-runner';
 
+// Leading chars that spreadsheet apps treat as a formula (CSV injection).
+const FORMULA_TRIGGER_CHARS = ['=', '+', '-', '@', '\t', '\r'];
+
 /**
  * Escapes a CSV field by wrapping it in quotes if it contains special characters
  * @param field - The field to escape
  * @returns Escaped field string
  */
 export function escapeCsvField(field: string): string {
-  if (field.includes(',') || field.includes('"') || field.includes('\n')) {
-    return `"${field.replace(/"/g, '""')}"`;
+  const neutralized = FORMULA_TRIGGER_CHARS.includes(field[0])
+    ? `'${field}`
+    : field;
+
+  if (
+    neutralized.includes(',') ||
+    neutralized.includes('"') ||
+    neutralized.includes('\n')
+  ) {
+    return `"${neutralized.replace(/"/g, '""')}"`;
   }
-  return field;
+  return neutralized;
 }
 
 /**

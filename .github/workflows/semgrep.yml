@@ -1,0 +1,32 @@
+name: Semgrep
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+  schedule:
+    # Catches ruleset updates against unchanged code.
+    # GitHub Actions cron is UTC-only; 3:30 UTC Mon = 9:00 AM IST Mon.
+    - cron: "30 3 * * 1"
+
+jobs:
+  scan:
+    runs-on: ubuntu-latest
+    container:
+      image: semgrep/semgrep
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Run Semgrep
+        run: >
+          semgrep scan
+          --config p/security-audit
+          --config p/secrets
+          --config p/javascript
+          --config p/typescript
+          --error

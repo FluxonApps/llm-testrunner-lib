@@ -84,7 +84,7 @@
     "@stencil/react-output-target": "^1.2.0",
     "@xenova/transformers": "^2.17.2",
     "bleu-score": "^1.0.4",
-    "js-rouge": "^3.0.0",
+    "js-rouge": "^3.2.0",
     "zod": "^4.3.6"
   },
   "devDependencies": {
@@ -104,9 +104,9 @@
     "nodemon": "^3.1.11",
     "prettier": "^3.6.2",
     "puppeteer": "^24.3.0",
+    "tsup": "^8.5.0",
     "typescript-eslint": "^8.65.0",
-    "wait-on": "^9.0.3",
-    "tsup": "^8.5.0"
+    "wait-on": "^9.0.3"
   },
   "peerDependencies": {
     "jest": "^29.0.0",

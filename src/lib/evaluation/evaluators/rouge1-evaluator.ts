@@ -20,7 +20,8 @@ function evaluateKeyword(
 
   try {
     if (keyword.trim().length > 0 && candidate.length > 0) {
-      const rouge1 = rouge.n(candidate, keyword.trim(), { n: 1 });
+      // beta: Infinity keeps this recall-only (js-rouge >=3.1 defaults to F1).
+      const rouge1 = rouge.n(candidate, keyword.trim(), { n: 1, beta: Infinity });
       rouge1Score = isNaN(rouge1) ? 0 : rouge1;
     } else {
       console.warn(

@@ -47,6 +47,21 @@ describe('performRouge1Evaluation', () => {
       ).toBeGreaterThan(0.5);
     });
 
+    it('should pass a short keyword fully contained in a much longer response (recall-only, not F1)', async () => {
+      // Guards the beta: Infinity pin against js-rouge's F1 default.
+      const request: EvaluationRequest = {
+        ...mockRequest,
+        actualResponse: 'The capital of Telangana is Hyderabad.',
+        expectedOutcome: 'Hyderabad',
+      };
+
+      const result = await performRouge1Evaluation(request);
+
+      expect(result.passed).toBe(true);
+      expect(result.keywordMatches[0].found).toBe(true);
+      expect(result.keywordMatches[0].evaluationApproachResult.score).toBe(1);
+    });
+
     it('should fail when keywords are not sufficiently present', async () => {
       const request: EvaluationRequest = {
         ...mockRequest,

@@ -1,0 +1,117 @@
+name: Release PR (dependency updates)
+
+# See RELEASING.md "Automated dependency releases". Idempotent: re-derives
+# the version bump and changelog from scratch on every run and force-pushes
+# the same branch, so multiple Dependabot merges in a week collapse into one
+# release PR instead of piling up duplicates.
+
+on:
+  pull_request_target:
+    types: [closed]
+
+concurrency:
+  group: release-pr
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  release-pr:
+    if: >
+      github.event.pull_request.merged == true &&
+      github.event.pull_request.base.ref == 'main' &&
+      github.event.pull_request.user.login == 'dependabot[bot]'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout main
+        uses: actions/checkout@v7
+        with:
+          ref: main
+          fetch-depth: 0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v7
+        with:
+          node-version-file: ".nvmrc"
+          cache: "npm"
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Bump version
+        id: version
+        run: |
+          npm version minor --no-git-tag-version --allow-same-version >/dev/null
+          NEW_VERSION=$(node -p "require('./package.json').version")
+          echo "new_version=$NEW_VERSION" >> "$GITHUB_OUTPUT"
+          echo "tag=v$NEW_VERSION" >> "$GITHUB_OUTPUT"
+
+      - name: Skip if this version was already released
+        id: guard
+        run: |
+          if git ls-remote --exit-code --tags origin "${{ steps.version.outputs.tag }}" >/dev/null 2>&1; then
+            echo "skip=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "skip=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Draft changelog bullets
+        if: steps.guard.outputs.skip == 'false'
+        env:
+          NEW_VERSION: ${{ steps.version.outputs.new_version }}
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+        run: node scripts/generate-dependency-changelog.mjs > /tmp/bullets.md
+
+      - name: Prepend changelog section
+        if: steps.guard.outputs.skip == 'false'
+        run: |
+          NEW_VERSION="${{ steps.version.outputs.new_version }}"
+          {
+            echo "## $NEW_VERSION"
+            echo ""
+            cat /tmp/bullets.md
+            echo ""
+          } > /tmp/section.md
+          awk -v sectionfile=/tmp/section.md '
+            /^## / && !inserted {
+              while ((getline line < sectionfile) > 0) print line
+              close(sectionfile)
+              inserted=1
+            }
+            { print }
+            END {
+              if (!inserted) { while ((getline line < sectionfile) > 0) print line; close(sectionfile) }
+            }
+          ' CHANGELOG.md > CHANGELOG.md.tmp && mv CHANGELOG.md.tmp CHANGELOG.md
+
+      - name: Commit and push release branch
+        if: steps.guard.outputs.skip == 'false'
+        env:
+          BRANCH: release/${{ steps.version.outputs.tag }}
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git checkout -B "$BRANCH"
+          git add package.json package-lock.json CHANGELOG.md
+          git commit -m "chore(release): ${{ steps.version.outputs.new_version }}"
+          git push --force origin "$BRANCH"
+
+      - name: Open or update release PR
+        if: steps.guard.outputs.skip == 'false'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          BRANCH: release/${{ steps.version.outputs.tag }}
+          TAG: ${{ steps.version.outputs.tag }}
+        run: |
+          gh label create release --color ededed --description "Automated release PR" 2>/dev/null || true
+          EXISTING=$(gh pr list --base main --head "$BRANCH" --state open --json number --jq '.[0].number')
+          if [ -z "$EXISTING" ]; then
+            gh pr create \
+              --base main \
+              --head "$BRANCH" \
+              --title "chore(release): ${{ steps.version.outputs.new_version }}" \
+              --label release \
+              --body "Automated release PR bundling Dependabot/security updates merged since the last release. Tagging $TAG and publishing to npm happen once this is reviewed and merged."
+          fi

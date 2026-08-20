@@ -2,6 +2,11 @@
 
 How we cut a release of `llm-testrunner-components`. This document is the single source of truth — keep it short and accurate.
 
+There are two release paths:
+
+- **Automated dependency releases** (this repo's only auto-publish path) — see [Automated dependency releases](#automated-dependency-releases-dependabotsecurity) below.
+- **Manual releases** (majors, or minors that include real feature/fix work) — the local `release.sh` flow described in the rest of this document.
+
 ## TL;DR
 
 Releases are local-driven from `main`:
@@ -126,6 +131,30 @@ The script prints all three command blocks at the end, ready to copy-paste with 
 **"No changelog entries added under ## X.Y.Z"** — the editor was saved with only the empty `- ` stub. Add bullets and rerun.
 
 **AI drafted weird bullets** — edit them in `$EDITOR` before saving. If `claude` itself is misbehaving, uninstall or unset `PATH` for that run; the script falls back to the empty stub.
+
+## Automated dependency releases (Dependabot/security)
+
+Dependabot/security bumps still go through the same manual PR review you do today — nothing about that changes. What's automated is the *release* that follows: once a Dependabot PR is reviewed and merged into `main`, a release PR bundling it is drafted automatically instead of someone running `release.sh` by hand. This is scoped narrowly — anything that isn't a routine dependency bump still goes through the manual flow above.
+
+```
+Dependabot PR is reviewed and merged into main (manual, as today)
+  └─ .github/workflows/release-pr.yml
+       ├─ bumps package.json (minor)
+       ├─ drafts CHANGELOG bullets via Gemini (scripts/generate-dependency-changelog.mjs)
+       └─ opens/updates a single `release/vX.Y.Z` PR (idempotent — multiple
+          Dependabot merges in the same week collapse into one PR)
+
+release/vX.Y.Z PR is reviewed and merged into main (manual)
+  └─ .github/workflows/release-publish.yml
+       ├─ tags vX.Y.Z
+       ├─ build + test + license-check
+       ├─ npm publish (OIDC trusted publishing, same as publish.yml)
+       └─ gh release create
+```
+
+No auto-merge anywhere — both the Dependabot PR and the release PR still need a human to click merge, same as any other PR to `main`. What's automated is the toil: computing the version bump, drafting the changelog, and (once the release PR is merged) tagging and publishing. No new secrets either: changelog drafting reuses the existing `GEMINI_API_KEY`, and publishing reuses the OIDC trusted-publishing setup already configured for `publish.yml`.
+
+**If this breaks or misbehaves**, the manual flow is unaffected — cut the release with `release.sh` as usual and investigate the workflow separately.
 
 ## Future improvements (not blockers)
 

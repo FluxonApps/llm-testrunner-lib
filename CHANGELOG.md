@@ -2,6 +2,18 @@
 
 All notable changes to this project are documented in this file. The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 2.2.2
+
+### 🔧 Changed
+
+- Bump @google/genai from 1.43.0 to 2.17.1
+- Bump zod from 4.3.6 to 4.4.3
+- Bump @stencil/react-output-target from 1.6.1 to 1.6.2
+
+### 🐛 Fixed
+
+- ROUGE-1 evaluator: restored recall-only scoring on js-rouge 3.2 (beta:Infinity pin)
+
 ## 2.2.1
 
 ### 🔒 Security

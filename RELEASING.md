@@ -139,7 +139,7 @@ Dependabot/security bumps still go through the same manual PR review you do toda
 ```
 Dependabot PR is reviewed and merged into main (manual, as today)
   └─ .github/workflows/release-pr.yml
-       ├─ bumps package.json (minor)
+       ├─ bumps package.json (patch)
        ├─ drafts CHANGELOG bullets via Gemini (scripts/generate-dependency-changelog.mjs)
        └─ opens/updates a single `release/vX.Y.Z` PR (idempotent — multiple
           Dependabot merges in the same week collapse into one PR)

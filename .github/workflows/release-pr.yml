@@ -43,7 +43,7 @@ jobs:
       - name: Bump version
         id: version
         run: |
-          npm version minor --no-git-tag-version --allow-same-version >/dev/null
+          npm version patch --no-git-tag-version --allow-same-version >/dev/null
           NEW_VERSION=$(node -p "require('./package.json').version")
           echo "new_version=$NEW_VERSION" >> "$GITHUB_OUTPUT"
           echo "tag=v$NEW_VERSION" >> "$GITHUB_OUTPUT"

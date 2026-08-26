@@ -1,7 +1,7 @@
 import { h, FunctionalComponent } from '@stencil/core';
 import { Button } from '../../../lib/ui/button/index';
 import {
-  FileTextIcon,
+  BarChart3Icon,
   SaveIcon,
   SlidersIcon,
   PlayIcon,
@@ -47,9 +47,9 @@ export const LLMTestRunnerHeader: FunctionalComponent<
           onClick={onExportResults}
           disabled={isExportingTestResults}
           loading={isExportingTestResults}
-          icon={isExportingTestResults ? <SpinnerIcon /> : <FileTextIcon />}
+          icon={isExportingTestResults ? <SpinnerIcon /> : <BarChart3Icon />}
         >
-          {isExportingTestResults ? 'Exporting…' : 'Export results'}
+          {isExportingTestResults ? 'Creating…' : 'Create report'}
         </Button>
         {useSave && (
           <Button

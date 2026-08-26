@@ -47,6 +47,7 @@ import {
 import { LLMTestRunnerHeader } from './header/llm-test-runner-header';
 import { LLMTestRunnerSummary } from './summary/llm-test-runner-summary';
 import { LLMTestCases } from './test-cases/llm-test-cases';
+import { TestCasesToolbar } from './test-cases/test-cases-toolbar';
 import { ExpectedOutcomeChangeDetail } from './test-cases/expected-outcome-renderer';
 import type { ChatHistoryRowChangeDetail } from './test-cases/llm-test-case-row';
 
@@ -65,6 +66,7 @@ function nextFrame(): Promise<void> {
     'header/llm-test-runner-header.css',
     'summary/llm-test-runner-summary.css',
     'test-cases/llm-test-cases.css',
+    'test-cases/test-cases-toolbar.css',
     'test-cases/llm-test-case-row.css',
     'test-cases/expected-outcome-renderer.css',
     'test-cases/actions/row-actions.css',
@@ -494,6 +496,13 @@ export class LLMTestRunner {
         )}
         <ErrorMessage message={this.error} onClear={() => (this.error = '')} />
         <div class="test-runner-container__content">
+          <TestCasesToolbar
+            totalCount={this.testCases.length}
+            isExportingTestSuite={this.isExportingTestSuite}
+            onAddTestCase={() => this.addNewTestCase()}
+            onImport={file => this.handleImport(file)}
+            onExportSuite={() => this.handleExportTestSuite()}
+          />
           <LLMTestCases
             testCases={this.testCases}
             dynamicResolutionSupported={!!this.resolveExpectedOutcome}

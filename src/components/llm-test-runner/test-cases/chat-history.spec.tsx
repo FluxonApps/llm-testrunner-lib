@@ -4,33 +4,26 @@ import { ChatHistory, type ChatHistoryChangeDetail } from './chat-history';
 
 type SpecPage = Awaited<ReturnType<typeof newSpecPage>>;
 
-type ChatHistoryHost = HTMLElement & {
-  chatHistoryEnabled: boolean;
-  chatHistoryValue: string;
-};
-
-function attachControlledParent(page: SpecPage): void {
-  page.root.addEventListener('chatHistoryChange', (e: Event) => {
-    const { enabled, value } = (e as CustomEvent<ChatHistoryChangeDetail>)
-      .detail;
-    const host = page.root as ChatHistoryHost;
-    host.chatHistoryEnabled = enabled;
-    host.chatHistoryValue = value;
-  });
+function getTrigger(page: SpecPage): HTMLButtonElement {
+  return page.root.shadowRoot.querySelector(
+    '.chat-history__trigger',
+  ) as HTMLButtonElement;
 }
 
-/**
- * Native <details> doesn't fire `toggle` from a programmatic `.open = ...`
- * change in jsdom; we trigger it explicitly so the component's onToggle
- * handler observes the new state, just as it would in a real browser.
- */
-async function openChatHistoryAsUser(page: SpecPage): Promise<void> {
-  attachControlledParent(page);
-  const details = page.root.shadowRoot!.querySelector(
-    'details',
-  ) as HTMLDetailsElement;
-  details.open = true;
-  details.dispatchEvent(new Event('toggle', { bubbles: true }));
+function getTextarea(page: SpecPage): HTMLTextAreaElement | null {
+  return page.root.shadowRoot.querySelector(
+    '.chat-history-modal__textarea',
+  ) as HTMLTextAreaElement | null;
+}
+
+function getBackdrop(page: SpecPage): HTMLElement | null {
+  return page.root.shadowRoot.querySelector(
+    '.chat-history-modal__backdrop',
+  ) as HTMLElement | null;
+}
+
+async function openModal(page: SpecPage): Promise<void> {
+  getTrigger(page).click();
   await page.waitForChanges();
 }
 
@@ -42,12 +35,17 @@ function getTextareaValue(textarea: HTMLTextAreaElement): string {
   return textarea.getAttribute('value') ?? '';
 }
 
-// Stencil's spec DOM doesn't reflect the `open` property on <details> the
-// way real browsers do. Read the attribute (set by the JSX `open={...}`
-// binding) instead.
-function isDetailsOpen(details: HTMLDetailsElement): boolean {
-  if (typeof details.open === 'boolean') return details.open;
-  return details.hasAttribute('open');
+function setTextareaValue(textarea: HTMLTextAreaElement, value: string): void {
+  textarea.value = value;
+  textarea.dispatchEvent(new Event('input', { bubbles: true }));
+}
+
+function clickButtonWithText(page: SpecPage, text: string): void {
+  const buttons = Array.from(
+    page.root.shadowRoot.querySelectorAll('.chat-history-modal__footer button'),
+  ) as HTMLButtonElement[];
+  const button = buttons.find(b => b.textContent?.trim() === text);
+  button?.click();
 }
 
 describe('ChatHistory', () => {
@@ -55,140 +53,160 @@ describe('ChatHistory', () => {
     jest.clearAllMocks();
   });
 
-  it('renders open with textarea value from props when enabled', async () => {
+  it('renders a collapsed icon-only trigger with no modal open by default', async () => {
     const page = await newSpecPage({
       components: [ChatHistory],
-      html: '<chat-history chat-history-enabled chat-history-value="[imported]"></chat-history>',
+      html: '<chat-history></chat-history>',
     });
 
-    await page.waitForChanges();
+    expect(getTrigger(page)).not.toBeNull();
+    expect(getBackdrop(page)).toBeNull();
+  });
 
-    const details = page.root.shadowRoot.querySelector(
-      'details',
-    ) as HTMLDetailsElement;
-    expect(isDetailsOpen(details)).toBe(true);
+  it('opens the modal with the current value when the trigger is clicked', async () => {
+    const page = await newSpecPage({
+      components: [ChatHistory],
+      html: '<chat-history chat-history-value="[imported]"></chat-history>',
+    });
 
-    const textarea = page.root.shadowRoot.querySelector(
-      '.chat-history__textarea',
-    ) as HTMLTextAreaElement;
+    await openModal(page);
+
+    expect(getBackdrop(page)).not.toBeNull();
+    const textarea = getTextarea(page);
     expect(textarea).not.toBeNull();
-    expect(getTextareaValue(textarea)).toBe('[imported]');
+    expect(getTextareaValue(textarea!)).toBe('[imported]');
   });
 
-  it('renders collapsed (open=false) by default', async () => {
+  it('does not emit chatHistoryChange while typing — only on Save', async () => {
     const page = await newSpecPage({
       components: [ChatHistory],
       html: '<chat-history></chat-history>',
     });
-
-    const details = page.root.shadowRoot.querySelector(
-      'details',
-    ) as HTMLDetailsElement;
-    expect(isDetailsOpen(details)).toBe(false);
-  });
-
-  it('shows the summary label and chat icon at all times', async () => {
-    const page = await newSpecPage({
-      components: [ChatHistory],
-      html: '<chat-history></chat-history>',
-    });
-
-    const summary = page.root.shadowRoot.querySelector(
-      '.chat-history__summary',
-    );
-    expect(summary).not.toBeNull();
-    expect(summary?.textContent).toContain('Chat history');
-    expect(
-      page.root.shadowRoot.querySelector('.chat-history__icon'),
-    ).not.toBeNull();
-  });
-
-  it('opens to reveal the textarea after the user expands the disclosure', async () => {
-    const page = await newSpecPage({
-      components: [ChatHistory],
-      html: '<chat-history></chat-history>',
-    });
-
-    await openChatHistoryAsUser(page);
-
-    expect(
-      page.root.shadowRoot.querySelector('.chat-history__textarea'),
-    ).not.toBeNull();
-  });
-
-  it('emits chatHistoryChange with enabled=true when the user expands', async () => {
-    const page = await newSpecPage({
-      components: [ChatHistory],
-      html: '<chat-history></chat-history>',
-    });
+    await openModal(page);
 
     const spy = jest.fn();
     page.root.addEventListener('chatHistoryChange', (e: Event) =>
       spy((e as CustomEvent<ChatHistoryChangeDetail>).detail),
     );
 
-    const details = page.root.shadowRoot.querySelector(
-      'details',
-    ) as HTMLDetailsElement;
-    details.open = true;
-    details.dispatchEvent(new Event('toggle', { bubbles: true }));
+    setTextareaValue(getTextarea(page)!, 'hello');
     await page.waitForChanges();
 
-    expect(spy).toHaveBeenCalledWith({ enabled: true, value: '' });
+    expect(spy).not.toHaveBeenCalled();
   });
 
-  it('emits chatHistoryChange when the user types in the textarea', async () => {
+  it('emits chatHistoryChange with enabled=true and closes the modal on Save', async () => {
     const page = await newSpecPage({
       components: [ChatHistory],
       html: '<chat-history></chat-history>',
     });
-
-    await openChatHistoryAsUser(page);
+    await openModal(page);
 
     const spy = jest.fn();
     page.root.addEventListener('chatHistoryChange', (e: Event) =>
       spy((e as CustomEvent<ChatHistoryChangeDetail>).detail),
     );
-    spy.mockClear();
 
-    const textarea = page.root.shadowRoot.querySelector(
-      '.chat-history__textarea',
-    ) as HTMLTextAreaElement;
-    textarea.value = 'hello';
-    textarea.dispatchEvent(new Event('input', { bubbles: true }));
+    setTextareaValue(getTextarea(page)!, 'hello');
+    clickButtonWithText(page, 'Save');
     await page.waitForChanges();
 
     expect(spy).toHaveBeenCalledWith({ enabled: true, value: 'hello' });
+    expect(getBackdrop(page)).toBeNull();
   });
 
-  it('preserves typed value across collapse/expand toggles', async () => {
+  it('emits enabled=false when saving an empty value', async () => {
     const page = await newSpecPage({
       components: [ChatHistory],
-      html: '<chat-history></chat-history>',
+      html: '<chat-history chat-history-enabled chat-history-value="keep me"></chat-history>',
     });
-
-    await openChatHistoryAsUser(page);
-
-    const textarea = page.root.shadowRoot.querySelector(
-      '.chat-history__textarea',
-    ) as HTMLTextAreaElement;
-    textarea.value = 'keep me';
-    textarea.dispatchEvent(new Event('input', { bubbles: true }));
-    await page.waitForChanges();
+    await openModal(page);
 
     const spy = jest.fn();
     page.root.addEventListener('chatHistoryChange', (e: Event) =>
       spy((e as CustomEvent<ChatHistoryChangeDetail>).detail),
     );
 
-    // User collapses — emit enabled=false but value is preserved.
-    const details = page.root.shadowRoot.querySelector(
-      'details',
-    ) as HTMLDetailsElement;
-    details.open = false;
-    details.dispatchEvent(new Event('toggle', { bubbles: true }));
+    setTextareaValue(getTextarea(page)!, '   ');
+    clickButtonWithText(page, 'Save');
     await page.waitForChanges();
 
-    expect(spy).toHaveBeenCalledWith({ enabled: false, value: 'keep me' });
+    expect(spy).toHaveBeenCalledWith({ enabled: false, value: '   ' });
+  });
+
+  it('discards the draft and does not emit an event on Cancel', async () => {
+    const page = await newSpecPage({
+      components: [ChatHistory],
+      html: '<chat-history chat-history-value="saved"></chat-history>',
+    });
+    await openModal(page);
+
+    setTextareaValue(getTextarea(page)!, 'unsaved edit');
+
+    const spy = jest.fn();
+    page.root.addEventListener('chatHistoryChange', (e: Event) =>
+      spy((e as CustomEvent<ChatHistoryChangeDetail>).detail),
+    );
+
+    clickButtonWithText(page, 'Cancel');
+    await page.waitForChanges();
+
+    expect(spy).not.toHaveBeenCalled();
+    expect(getBackdrop(page)).toBeNull();
+
+    // Reopening shows the original saved value, not the discarded edit.
+    await openModal(page);
+    expect(getTextareaValue(getTextarea(page)!)).toBe('saved');
+  });
+
+  it('closes without saving when the close (X) button is clicked', async () => {
+    const page = await newSpecPage({
+      components: [ChatHistory],
+      html: '<chat-history></chat-history>',
+    });
+    await openModal(page);
+
+    const spy = jest.fn();
+    page.root.addEventListener('chatHistoryChange', (e: Event) =>
+      spy((e as CustomEvent<ChatHistoryChangeDetail>).detail),
+    );
+
+    const closeButton = page.root.shadowRoot.querySelector(
+      '.chat-history-modal__header button',
+    ) as HTMLButtonElement;
+    closeButton.click();
+    await page.waitForChanges();
+
+    expect(spy).not.toHaveBeenCalled();
+    expect(getBackdrop(page)).toBeNull();
+  });
+
+  it('closes without saving when Escape is pressed', async () => {
+    const page = await newSpecPage({
+      components: [ChatHistory],
+      html: '<chat-history></chat-history>',
+    });
+    await openModal(page);
+
+    getBackdrop(page)!.dispatchEvent(
+      new KeyboardEvent('keydown', { key: 'Escape', bubbles: true }),
+    );
+    await page.waitForChanges();
+
+    expect(getBackdrop(page)).toBeNull();
+  });
+
+  it('closes without saving when the backdrop is clicked directly', async () => {
+    const page = await newSpecPage({
+      components: [ChatHistory],
+      html: '<chat-history></chat-history>',
+    });
+    await openModal(page);
+
+    const backdrop = getBackdrop(page)!;
+    backdrop.dispatchEvent(new MouseEvent('click', { bubbles: true }));
+    await page.waitForChanges();
+
+    expect(getBackdrop(page)).toBeNull();
   });
 });

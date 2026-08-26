@@ -195,77 +195,44 @@
 }
 
 /* ------------------------------------------------------------------ */
-/* Body (expanded — the existing 3-column editor)                     */
+/* Body (expanded)                                                    */
 /* ------------------------------------------------------------------ */
 
-/* Body — vertical stack: Input on top (always when expanded), Output +
- * Evaluation appear below as a 2-column grid only when the test has
- * been run (or is currently running). Fresh test cases stay compact. */
 .test-case-row__body {
   display: flex;
   flex-direction: column;
   border-top: var(--border-width) solid var(--border);
-  background: var(--background);
-}
-
-/* Output + Evaluation row — visually distinct from the input section
- * above. Sits on a muted "tray" with its own bordered, rounded sub-cards
- * for Output and Evaluation. The shift in background + the inset
- * sub-cards signal "this is the result of the test", separate from the
- * editor that produced it. */
-.test-case-row__results {
-  display: grid;
-  grid-template-columns: 1.5fr 1fr;
-  gap: var(--spacing-3);
-  padding: var(--spacing-3);
   background: var(--muted);
-  border-top: var(--border-width) solid var(--border);
 }
 
-.test-case-row__results > * {
-  min-width: 0;
+/* Left/right/bottom padding matches .test-case-row__input-content's 32px
+ * so the banner's edges line up with the card above it; top stays at 12px
+ * (see the padding-bottom override below for why). */
+.test-case-row__results {
+  padding: var(--spacing-3) var(--spacing-8) var(--spacing-8);
+  background: var(--muted);
 }
 
-/* Each panel: a small uppercase header strip + flexible content area. */
 .test-case-row__panel {
   display: flex;
   flex-direction: column;
   min-width: 0;
 }
 
-/* Panels inside the results tray become their own bordered sub-cards
- * with a white background — they "sit on" the muted tray. */
-.test-case-row__results .test-case-row__panel {
-  background: var(--background);
-  border: var(--border-width) solid var(--border);
-  border-radius: var(--radius-lg);
-  overflow: hidden;
-}
-
-.test-case-row__panel-header {
-  padding: var(--spacing-2) var(--spacing-4);
-  font-size: 11px;
-  font-weight: var(--font-weight-semibold);
-  text-transform: uppercase;
-  letter-spacing: var(--letter-spacing-wider);
-  color: var(--muted-foreground);
-  background: var(--muted);
-  border-bottom: var(--border-width) solid var(--border);
-}
-
-.test-case-row__panel-content {
-  flex: 1;
-  min-width: 0;
-}
-
-/* Input column keeps its own padding rules (the existing
- * input-content > textarea / chat-history / expected-outcome layout). */
 .test-case-row__input-content {
   flex: 1;
   padding: var(--spacing-8);
   display: flex;
   flex-direction: column;
   gap: var(--spacing-5);
+}
+
+/* When the results tray follows, its own top padding already provides
+ * separation — trim the input column's bottom padding so the two don't
+ * stack into an oversized gap (32px + 12px). Combined they land on the
+ * same 20px rhythm used between the question and expected-outcome. */
+.test-case-row__body:has(.test-case-row__results) .test-case-row__input-content {
+  padding-bottom: var(--spacing-2);
 }
 
 /* The Run footer that used to live at the bottom of the input column is
@@ -365,21 +332,6 @@
 /* ------------------------------------------------------------------ */
 /* Responsive                                                         */
 /* ------------------------------------------------------------------ */
-
-@media (max-width: 1200px) {
-  .test-case-row__results {
-    grid-template-columns: 1fr;
-  }
-
-  .test-case-row__results .test-case-row__panel {
-    border-right: none;
-    border-bottom: var(--border-width) solid var(--border);
-  }
-
-  .test-case-row__results .test-case-row__panel:last-child {
-    border-bottom: none;
-  }
-}
 
 @media (max-width: 768px) {
   .test-case-row__summary {

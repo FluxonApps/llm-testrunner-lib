@@ -1,7 +1,6 @@
 import { h, FunctionalComponent } from '@stencil/core';
 import { TestCase } from '../../../types/llm-test-runner';
-import { ResponseOutput } from './output/response-output';
-import { EvaluationSummary } from './evaluation/evaluation-summary';
+import { EvaluationResultBanner } from './evaluation/evaluation-result-banner';
 import { Button } from '../../../lib/ui/button/index';
 import { IconButton } from '../../../lib/ui/icon-button/index';
 import { Tooltip } from '../../../lib/ui/tooltip';
@@ -224,25 +223,10 @@ export const LLMTestCaseRow: FunctionalComponent<LLMTestCaseRowProps> = ({
         </section>
         {hasResults && (
           <div class="test-case-row__results">
-            <section class="test-case-row__panel">
-              <header class="test-case-row__panel-header">Output</header>
-              <div class="test-case-row__panel-content">
-                <ResponseOutput
-                  output={testCase.output}
-                  isRunning={testCase.isRunning}
-                />
-              </div>
-            </section>
-
-            <section class="test-case-row__panel">
-              <header class="test-case-row__panel-header">Evaluation</header>
-              <div class="test-case-row__panel-content">
-                <EvaluationSummary
-                  result={testCase.evaluationResult}
-                  isRunning={testCase.isRunning}
-                />
-              </div>
-            </section>
+            <EvaluationResultBanner
+              output={testCase.output}
+              result={testCase.evaluationResult}
+            />
           </div>
         )}
       </div>

@@ -121,8 +121,8 @@
   --popover: #ffffff;
   --popover-foreground: #0a0a0a;
 
-  --primary: #0a0a0a;
-  --primary-foreground: #fafafa;
+  --primary: #0e35ff;
+  --primary-foreground: #f9fafb;
 
   --secondary: #f4f4f5;
   --secondary-foreground: #0a0a0a;
@@ -181,8 +181,8 @@
   --popover: #171717;
   --popover-foreground: #fafafa;
 
-  --primary: #fafafa;
-  --primary-foreground: #0a0a0a;
+  --primary: #3b5bff;
+  --primary-foreground: #f9fafb;
 
   --secondary: #27272a;
   --secondary-foreground: #fafafa;

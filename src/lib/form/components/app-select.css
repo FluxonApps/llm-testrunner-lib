@@ -36,3 +36,15 @@
   border-color: var(--ring);
   box-shadow: 0 0 0 4px var(--ring-soft);
 }
+
+/* Compact — a small, inline pill (value + chevron, no visible label). Used
+ * where the select sits inline in a field header rather than a block form. */
+.app-select__select--compact {
+  width: auto;
+  min-width: 0;
+  padding: 4px 22px 4px 10px;
+  border-radius: var(--radius-md);
+  font-size: var(--font-size-xs);
+  background-size: 10px;
+  background-position: right 8px center;
+}

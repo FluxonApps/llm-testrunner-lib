@@ -61,8 +61,12 @@ export class AppTextarea {
 
         <textarea
           {...allowedAttrs}
-          class="textarea-element"
+          class={{
+            'textarea-element': true,
+            'textarea-element--invalid': !!c.invalid,
+          }}
           value={this.value}
+          aria-invalid={c.invalid ? 'true' : undefined}
           onInput={this.handleChange}
         ></textarea>
 

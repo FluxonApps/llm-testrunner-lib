@@ -25,12 +25,16 @@ export interface BaseInputFieldConfig {
   fieldType: FormFieldType;
   type?: string;
   label?: string;
+  /** Accessible name for the control when `label` is omitted for a compact, unlabeled layout. */
+  ariaLabel?: string;
   placeholder?: string;
   defaultValue?: any;
   autocomplete?: string;
   required?: boolean;
   disabled?: boolean;
   readOnly?: boolean;
+  /** Shows the field's invalid/error styling (e.g. a missing required value). */
+  invalid?: boolean;
   helpText?: string;
   validation?: InputFieldValidation;
   hidden?: boolean;

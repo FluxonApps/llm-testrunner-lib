@@ -71,6 +71,7 @@ function nextFrame(): Promise<void> {
     '../error-message/error-message.css',
     '../../lib/ui/button/button.css',
     '../../lib/ui/icon-button/icon-button.css',
+    '../../lib/ui/tooltip/tooltip.css',
   ],
   shadow: true,
 })

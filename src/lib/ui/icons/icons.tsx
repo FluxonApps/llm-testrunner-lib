@@ -141,3 +141,43 @@ export const XIcon: FunctionalComponent<IconProps> = ({ class: cls }) => (
     <line x1="6" y1="6" x2="18" y2="18" />
   </svg>
 );
+
+/** Circled "i" — used for inline field help. */
+export const InfoIcon: FunctionalComponent<IconProps> = ({ class: cls }) => (
+  <svg {...baseProps} class={cls}>
+    <circle cx="12" cy="12" r="10" />
+    <line x1="12" y1="16" x2="12" y2="11" />
+    <line x1="12" y1="8" x2="12.01" y2="8" />
+  </svg>
+);
+
+/** Clock over a document — used for the Chat history toggle. */
+export const FileClockIcon: FunctionalComponent<IconProps> = ({
+  class: cls,
+}) => (
+  <svg {...baseProps} class={cls}>
+    <path d="M16 22h2a2 2 0 0 0 2-2V7.5L14.5 2H6a2 2 0 0 0-2 2v3" />
+    <path d="M14 2v4a2 2 0 0 0 2 2h4" />
+    <circle cx="8" cy="16" r="6" />
+    <path d="M8 14v2l1 1" />
+  </svg>
+);
+
+/** Chevron pointing down — used for select affordances and disclosures. */
+export const ChevronDownIcon: FunctionalComponent<IconProps> = ({
+  class: cls,
+}) => (
+  <svg {...baseProps} class={cls}>
+    <polyline points="6 9 12 15 18 9" />
+  </svg>
+);
+
+/** Arrow pointing right — used to confirm/submit an inline entry. */
+export const ArrowRightIcon: FunctionalComponent<IconProps> = ({
+  class: cls,
+}) => (
+  <svg {...baseProps} class={cls}>
+    <line x1="5" y1="12" x2="19" y2="12" />
+    <polyline points="12 5 19 12 12 19" />
+  </svg>
+);

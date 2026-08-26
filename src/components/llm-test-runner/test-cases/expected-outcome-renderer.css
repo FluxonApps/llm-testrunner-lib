@@ -1,0 +1,266 @@
+/* ------------------------------------------------------------------ */
+/* Expected outcome fields — a primary card (always visible) plus any   */
+/* additional fields tucked behind a shared "More Options" disclosure.  */
+/* ------------------------------------------------------------------ */
+
+.expected-outcome-renderer {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-3);
+  width: 100%;
+}
+
+/* The outer card — holds the primary field (always visible) and, when
+ * present, the "More Options" disclosure for every field after it. Both
+ * live inside this one bordered container, not side-by-side cards. */
+.expected-outcome-renderer__outer-card {
+  display: flex;
+  flex-direction: column;
+  background: var(--background);
+  border: var(--border-width) solid var(--border);
+  border-radius: var(--radius-2xl);
+  /* No overflow:hidden here — it would clip tooltips that pop up above
+   * fields near the top of the card. Instead, whichever child ends up
+   * flush against the bottom edge rounds its own bottom corners below. */
+}
+
+.expected-outcome-renderer__primary {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-3);
+  padding: var(--spacing-4) var(--spacing-6) var(--spacing-2);
+}
+
+.expected-outcome-renderer__card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-5);
+  flex: 1;
+  min-width: 0;
+  padding: var(--spacing-6);
+  background: var(--background);
+  border: var(--border-width) solid var(--border);
+  border-radius: var(--radius-2xl);
+}
+
+.expected-outcome-renderer__card-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--spacing-3);
+}
+
+.expected-outcome-renderer__card-title {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-2);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-semibold);
+  color: var(--foreground);
+}
+
+.expected-outcome-renderer__info-icon {
+  display: inline-flex;
+  color: var(--muted-foreground);
+}
+
+.expected-outcome-renderer__info-icon svg {
+  width: 14px;
+  height: 14px;
+}
+
+.expected-outcome-renderer__card-controls {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-2);
+  flex-shrink: 0;
+}
+
+.expected-outcome-renderer__card-body {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-3);
+}
+
+.expected-outcome-renderer__mandatory-message {
+  /* Pull flush against the field above it — cancels the parent's 12px flex
+   * `gap` exactly (that gap is sized for spacing between full controls, not
+   * a hugging error message). Anything more negative than -12px would push
+   * this up into the field's own border. */
+  margin: -12px 0 0;
+  font-size: var(--font-size-xs);
+  color: var(--destructive-soft-fg);
+}
+
+.expected-outcome-renderer__chips-wrap--invalid {
+  padding: var(--spacing-2);
+  border-radius: var(--radius-lg);
+  border: var(--border-width) solid var(--destructive);
+  box-shadow: 0 0 0 3px var(--destructive-soft-bg);
+}
+
+.expected-outcome-renderer__text-input {
+  width: 100%;
+  box-sizing: border-box;
+  padding: var(--spacing-2) var(--spacing-3);
+  font-family: inherit;
+  font-size: var(--font-size-sm);
+  border: var(--border-width) solid var(--input);
+  border-radius: var(--radius-lg);
+  background: var(--background);
+  color: var(--foreground);
+  outline: none;
+  transition: border-color 150ms ease, box-shadow 150ms ease;
+}
+
+.expected-outcome-renderer__text-input:focus {
+  border-color: var(--ring);
+  box-shadow: 0 0 0 4px var(--ring-soft);
+}
+
+/* ------------------------------------------------------------------ */
+/* "More Options" — shared disclosure grouping every field after the    */
+/* first one, rendered as a row of cards on a muted tray.                */
+/* ------------------------------------------------------------------ */
+
+.expected-outcome-renderer__more-options-summary {
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-2);
+  padding: var(--spacing-2) var(--spacing-5) var(--spacing-4);
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-semibold);
+  color: var(--muted-foreground);
+  background: var(--background);
+  user-select: none;
+  list-style: none;
+  transition: color 150ms ease;
+}
+
+/* Whichever element ends up flush against the outer card's bottom edge
+ * rounds its own bottom corners to match it (see the note on
+ * .expected-outcome-renderer__outer-card for why we don't just clip). */
+.expected-outcome-renderer__more-options:not([open])
+  .expected-outcome-renderer__more-options-summary {
+  border-radius: 0 0 var(--radius-2xl) var(--radius-2xl);
+}
+
+.expected-outcome-renderer__more-options-summary:hover {
+  color: var(--foreground);
+}
+
+.expected-outcome-renderer__more-options-summary::-webkit-details-marker {
+  display: none;
+}
+
+.expected-outcome-renderer__more-options-summary::marker {
+  display: none;
+  content: '';
+}
+
+.expected-outcome-renderer__more-options-chevron {
+  width: 16px;
+  height: 16px;
+  transition: transform 200ms ease;
+}
+
+.expected-outcome-renderer__more-options[open]
+  .expected-outcome-renderer__more-options-chevron {
+  transform: rotate(180deg);
+}
+
+.expected-outcome-renderer__more-options-content {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: stretch;
+  gap: var(--spacing-3);
+  padding: var(--spacing-3);
+  background: var(--muted);
+  border-top: var(--border-width) solid var(--border);
+  border-radius: 0 0 var(--radius-2xl) var(--radius-2xl);
+}
+
+.expected-outcome-renderer__more-options-content
+  .expected-outcome-renderer__card {
+  flex: 1 1 260px;
+}
+
+/* ------------------------------------------------------------------ */
+/* Per-field advanced options (evaluation source/extractor, LLM-judge   */
+/* criteria) — a small, rarely-opened disclosure inside each card.      */
+/* ------------------------------------------------------------------ */
+
+.expected-outcome-renderer__options {
+  border: var(--border-width) solid var(--border);
+  border-radius: var(--radius-lg);
+  background: transparent;
+  overflow: hidden;
+  transition: border-color 150ms ease, background-color 150ms ease;
+}
+
+.expected-outcome-renderer__options[open] {
+  background: var(--muted);
+  border-color: var(--border-strong);
+}
+
+.expected-outcome-renderer__options-summary {
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 11px;
+  font-weight: var(--font-weight-semibold);
+  text-transform: uppercase;
+  letter-spacing: var(--letter-spacing-wider);
+  color: var(--muted-foreground);
+  padding: var(--spacing-3) var(--spacing-3);
+  user-select: none;
+  list-style: none;
+  transition: color 150ms ease;
+}
+
+.expected-outcome-renderer__options-summary:hover {
+  color: var(--foreground);
+}
+
+.expected-outcome-renderer__options-summary::-webkit-details-marker {
+  display: none;
+}
+
+.expected-outcome-renderer__options-summary::marker {
+  display: none;
+  content: '';
+}
+
+.expected-outcome-renderer__options-summary::before {
+  content: '';
+  display: inline-block;
+  width: 0;
+  height: 0;
+  border-top: 4px solid transparent;
+  border-bottom: 4px solid transparent;
+  border-left: 5px solid currentColor;
+  transition: transform 200ms ease;
+  transform-origin: 25% 50%;
+  flex-shrink: 0;
+}
+
+.expected-outcome-renderer__options[open]
+  .expected-outcome-renderer__options-summary::before {
+  transform: rotate(90deg);
+}
+
+.expected-outcome-renderer__options-content {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-3);
+  padding: 0 var(--spacing-3) var(--spacing-3);
+}
+
+@media (max-width: 768px) {
+  .expected-outcome-renderer__primary,
+  .expected-outcome-renderer__card {
+    padding: var(--spacing-4);
+  }
+}

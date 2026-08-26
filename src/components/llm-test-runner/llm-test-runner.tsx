@@ -36,6 +36,7 @@ import {
   resolveDynamicExpectedOutcomes,
 } from '../../lib/test-cases/dynamic-expected-outcome-resolver';
 import * as TestCaseMutations from '../../lib/test-cases/test-case-mutations';
+import { isTestCaseRunnable } from '../../lib/test-cases/test-case-validation';
 import { EvaluationService } from '../../lib/evaluation/evaluation-service';
 import { validateTestCaseInputArray } from '../../schemas/test-case';
 import {
@@ -363,7 +364,10 @@ export class LLMTestRunner {
     this.isRunningAll = true;
     const tasks = [];
     for (const testCase of this.testCases) {
-      if (!testCase.isRunning && testCase.question.trim()) {
+      if (
+        !testCase.isRunning &&
+        isTestCaseRunnable(testCase)
+      ) {
         tasks.push(() =>
           this.runSingleTest(testCase).catch(err => {
             console.error(`⚠️ Test case ${testCase.id} failed`, err);
@@ -470,6 +474,9 @@ export class LLMTestRunner {
           isExportingTestSuite={this.isExportingTestSuite}
           isExportingTestResults={this.isExportingTestResults}
           isRunningAll={this.isRunningAll}
+          canRunAny={this.testCases.some(tc =>
+            isTestCaseRunnable(tc),
+          )}
           useSave={this.useSave}
           isSaving={this.isSaving}
           usePromptEditor={this.usePromptEditor}

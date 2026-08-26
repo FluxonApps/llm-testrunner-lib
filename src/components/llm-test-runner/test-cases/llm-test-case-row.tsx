@@ -16,6 +16,7 @@ import {
   ExpectedOutcomeRenderer,
 } from './expected-outcome-renderer';
 import type { ChatHistoryChangeDetail } from './chat-history';
+import { isTestCaseRunnable } from '../../../lib/test-cases/test-case-validation';
 
 export type ChatHistoryRowChangeDetail = {
   testCaseId: string;
@@ -44,7 +45,7 @@ interface TestStatus {
 }
 
 const STATUS_LABEL: Record<StatusKind, string> = {
-  'not-run': 'Not run',
+  'not-run': 'Not tested',
   running: 'Running',
   passed: 'Passed',
   failed: 'Failed',
@@ -95,7 +96,7 @@ export const LLMTestCaseRow: FunctionalComponent<LLMTestCaseRowProps> = ({
   onExpectedOutcomeChange,
   onChatHistoryChange,
 }) => {
-  const canRun = !!testCase.question.trim();
+  const canRun = isTestCaseRunnable(testCase);
   const isRunning = testCase.isRunning;
   const status = computeTestStatus(testCase);
   const questionPreview = testCase.question.trim() || 'New test — click to add a question.';
@@ -129,7 +130,7 @@ export const LLMTestCaseRow: FunctionalComponent<LLMTestCaseRowProps> = ({
             disabled={isRunning || !canRun}
             loading={isRunning}
             icon={isRunning ? <SpinnerIcon /> : <PlayIcon />}
-            aria-label={canRun ? 'Run this test' : 'Enter a question first'}
+            aria-label={canRun ? 'Run this test' : 'Fill in the question and expected output first'}
           >
             {isRunning ? 'Running' : 'Run'}
           </Button>

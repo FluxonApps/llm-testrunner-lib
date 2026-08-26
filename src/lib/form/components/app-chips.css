@@ -21,20 +21,14 @@
   display: inline-flex;
   align-items: center;
   gap: var(--spacing-2);
-  padding: var(--spacing-1) var(--spacing-2);
-  font-size: var(--font-size-xs);
+  height: 32px;
+  padding: 5px var(--spacing-3);
+  font-size: var(--font-size-sm);
   font-weight: var(--font-weight-medium);
-  border-radius: var(--radius-md);
-  background: var(--accent);
+  color: color-mix(in srgb, var(--foreground) 55%, var(--muted-foreground));
+  border-radius: var(--radius-full);
+  background: var(--secondary);
   border: var(--border-width) solid var(--border);
-}
-
-/* Keyword-style chip override (non-URL chips) */
-.app-chips__chip:not(:has(a)) {
-  background: var(--info);
-  color: var(--info-foreground);
-  border: none;
-  border-radius: var(--radius-2xl);
 }
 
 .app-chips__link {
@@ -54,10 +48,9 @@
   background: none;
   border: none;
   cursor: pointer;
-  font-size: var(--font-size-xs);
   padding: 0;
-  width: var(--spacing-4);
-  height: var(--spacing-4);
+  width: 16px;
+  height: 16px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -66,9 +59,9 @@
   opacity: var(--opacity-muted);
 }
 
-.app-chips__chip:not(:has(a)) .app-chips__remove {
-  color: var(--info-foreground);
-  opacity: var(--opacity-hover);
+.app-chips__remove svg {
+  width: 14px;
+  height: 14px;
 }
 
 .app-chips__remove:hover {
@@ -76,22 +69,81 @@
   background: var(--muted);
 }
 
-.app-chips__chip:not(:has(a)) .app-chips__remove:hover {
-  background: rgba(255, 255, 255, 0.2);
+/* Add-chip pill — same shape/height as a regular chip, but holds a live
+ * input with an explicit cancel (X) and confirm (→) action instead of
+ * relying on blur to close it. */
+.app-chips__adding {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-1);
+  height: 32px;
+  min-width: 200px;
+  padding: 5px 5px 5px 13px;
+  border-radius: var(--radius-full);
+  background: var(--muted);
+  border: var(--border-width) solid var(--border);
+  /* A neutral focus ring, not the blue --ring-soft used for form-field
+   * focus elsewhere — this pill isn't a validation/focus state. */
+  box-shadow: 0 0 0 3px rgb(115 115 115 / 0.35);
 }
 
 .app-chips__input {
-  border: var(--border-width) solid var(--input);
-  border-radius: var(--radius-md);
-  padding: var(--spacing-2);
-  font-size: var(--font-size-xs);
+  flex: 1;
+  min-width: 0;
+  border: none;
   outline: none;
-  min-width: 120px;
-  background: var(--background);
+  background: transparent;
+  padding: 0;
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+  color: color-mix(in srgb, var(--foreground) 55%, var(--muted-foreground));
+}
+
+.app-chips__cancel {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 16px;
+  height: 16px;
+  padding: 0;
+  border: none;
+  background: none;
+  color: var(--muted-foreground);
+  cursor: pointer;
+}
+
+.app-chips__cancel svg {
+  width: 14px;
+  height: 14px;
+}
+
+.app-chips__cancel:hover {
   color: var(--foreground);
 }
 
-.app-chips__input:focus {
-  border-color: var(--ring);
-  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.1);
+.app-chips__confirm {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  padding: 0;
+  border: none;
+  border-radius: var(--radius-full);
+  background: var(--primary);
+  color: var(--primary-foreground);
+  cursor: pointer;
+  transition: opacity 120ms ease;
+}
+
+.app-chips__confirm svg {
+  width: 14px;
+  height: 14px;
+}
+
+.app-chips__confirm:disabled {
+  opacity: var(--opacity-disabled);
+  cursor: not-allowed;
 }

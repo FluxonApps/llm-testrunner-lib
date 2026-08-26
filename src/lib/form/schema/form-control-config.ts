@@ -18,4 +18,6 @@ export interface ChipsConfig extends BaseInputFieldConfig {
 export interface SelectConfig extends BaseInputFieldConfig {
   fieldType: FormFieldType.SELECT;
   optionList: string[];
+  /** Renders as a small, label-less inline pill instead of the default full-width block control. */
+  compact?: boolean;
 }

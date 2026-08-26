@@ -22,6 +22,8 @@ export interface ThresholdInputProps {
   min?: number;
   max?: number;
   inputId?: string;
+  /** Renders as a small, label-less inline field instead of the default block layout. */
+  compact?: boolean;
 }
 
 @Component({
@@ -36,6 +38,7 @@ export class ThresholdInput implements ThresholdInputProps {
   @Prop() min?: number = 0;
   @Prop() max?: number = 1;
   @Prop() inputId?: string;
+  @Prop() compact?: boolean = false;
 
   /**
    * What the user has typed. Kept separate from `value` so that an invalid
@@ -140,8 +143,8 @@ export class ThresholdInput implements ThresholdInputProps {
     const isInvalid = this.errorMessage !== null;
 
     return (
-      <div class="threshold-input">
-        {this.label && (
+      <div class={{ 'threshold-input': true, 'threshold-input--compact': this.compact }}>
+        {this.label && !this.compact && (
           <label class="threshold-input__label" htmlFor={id}>
             {this.label}
           </label>
@@ -151,6 +154,7 @@ export class ThresholdInput implements ThresholdInputProps {
             id={id}
             class={{
               'threshold-input__input': true,
+              'threshold-input__input--compact': this.compact,
               'threshold-input__input--invalid': isInvalid,
             }}
             type="number"
@@ -159,6 +163,7 @@ export class ThresholdInput implements ThresholdInputProps {
             min={this.min}
             max={this.max}
             value={this.draft}
+            aria-label={this.compact ? (this.label || 'Threshold') : undefined}
             aria-invalid={isInvalid ? 'true' : 'false'}
             aria-describedby={this.errorMessage ? messageId : undefined}
             onInput={this.handleInput}

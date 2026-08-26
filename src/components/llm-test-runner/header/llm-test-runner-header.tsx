@@ -15,6 +15,7 @@ export interface LLMTestRunnerHeaderProps {
   isExportingTestSuite: boolean;
   isExportingTestResults: boolean;
   isRunningAll: boolean;
+  canRunAny: boolean;
   useSave?: boolean;
   isSaving?: boolean;
   usePromptEditor?: boolean;
@@ -34,6 +35,7 @@ export const LLMTestRunnerHeader: FunctionalComponent<
   isExportingTestSuite,
   isExportingTestResults,
   isRunningAll,
+  canRunAny,
   useSave = false,
   isSaving = false,
   usePromptEditor = false,
@@ -143,7 +145,7 @@ export const LLMTestRunnerHeader: FunctionalComponent<
           variant="primary"
           size="md"
           onClick={onRunAll}
-          disabled={isRunningAll}
+          disabled={isRunningAll || !canRunAny}
           loading={isRunningAll}
           icon={isRunningAll ? <SpinnerIcon /> : <PlayIcon />}
         >

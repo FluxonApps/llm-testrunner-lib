@@ -1,112 +1,136 @@
 :host {
-  display: block;
+  display: inline-flex;
 }
 
-/*
- * Chat history is now a disclosure (<details>) — the same pattern as the
- * "More options" panel in the field renderer, so the row has consistent
- * affordances for optional content. Collapsed = enabled false, expanded =
- * enabled true. The textarea value is preserved across collapses so the
- * user can hide it without losing their input.
- */
 .chat-history {
-  border: var(--border-width) solid var(--border);
-  border-radius: var(--radius-lg);
-  background: var(--background);
-  overflow: hidden;
-  transition: border-color 150ms ease;
+  display: inline-flex;
 }
 
-.chat-history[open] {
-  border-color: var(--border-strong);
-}
-
-.chat-history:focus-within {
-  border-color: var(--border-strong);
-}
-
-.chat-history__summary {
-  cursor: pointer;
-  display: flex;
+/* Collapsed: a plain 32×32 icon button. Highlighted once chat history has
+ * been saved, so the row shows at a glance that it's in use. */
+.chat-history__trigger {
+  display: inline-flex;
   align-items: center;
-  gap: 8px;
-  padding: 10px 12px;
-  font-size: 11px;
-  font-weight: var(--font-weight-semibold);
-  text-transform: uppercase;
-  letter-spacing: var(--letter-spacing-wider);
-  color: var(--muted-foreground);
-  user-select: none;
-  list-style: none;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  border: none;
+  border-radius: var(--radius-md);
   background: transparent;
+  color: var(--muted-foreground);
+  cursor: pointer;
   transition: color 150ms ease, background-color 150ms ease;
 }
 
-.chat-history__summary:hover {
+.chat-history__trigger:hover {
   color: var(--foreground);
   background: var(--muted);
 }
 
-.chat-history[open] .chat-history__summary {
-  color: var(--foreground);
-  border-bottom: var(--border-width) solid var(--border);
-  background: var(--muted);
-}
-
-/* Hide native disclosure markers — we draw a custom chevron via ::before. */
-.chat-history__summary::-webkit-details-marker {
-  display: none;
-}
-
-.chat-history__summary::marker {
-  display: none;
-  content: '';
-}
-
-/* Custom chevron — rotates 90° on open, matching the More options panel. */
-.chat-history__summary::before {
-  content: '';
-  display: inline-block;
-  width: 0;
-  height: 0;
-  border-top: 4px solid transparent;
-  border-bottom: 4px solid transparent;
-  border-left: 5px solid currentColor;
-  transition: transform 200ms ease;
-  transform-origin: 25% 50%;
-  flex-shrink: 0;
-}
-
-.chat-history[open] .chat-history__summary::before {
-  transform: rotate(90deg);
+.chat-history__trigger--active {
+  background: var(--ring-soft);
+  color: var(--ring);
 }
 
 .chat-history__icon {
-  flex-shrink: 0;
-  /* Slight muting so the icon doesn't compete with the chevron. */
-  opacity: 0.7;
+  width: 16px;
+  height: 16px;
 }
 
-.chat-history__label {
-  /* Span is stylistic — letter-spacing already comes from the summary. */
+/* ------------------------------------------------------------------ */
+/* Modal                                                               */
+/* ------------------------------------------------------------------ */
+
+.chat-history-modal__backdrop {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--spacing-5);
+  background: rgb(0 0 0 / 0.4);
+  z-index: var(--z-modal);
 }
 
-.chat-history__content {
-  padding: 0;
-  background: var(--background);
-}
-
-.chat-history__textarea {
+.chat-history-modal {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-8);
   width: 100%;
-  box-sizing: border-box;
-  padding: var(--spacing-2) var(--spacing-3);
-  border: none;
-  font-family: var(--font-family-mono);
+  max-width: 560px;
+  max-height: calc(100vh - var(--spacing-8) * 2);
+  padding: var(--spacing-6) var(--spacing-8);
+  background: var(--background);
+  border-radius: var(--radius-3xl);
+  box-shadow: var(--shadow-lg);
+  overflow-y: auto;
+}
+
+.chat-history-modal__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--spacing-3);
+}
+
+.chat-history-modal__title {
+  margin: 0;
+  font-size: var(--font-size-xl);
+  font-weight: var(--font-weight-medium);
+  color: var(--foreground);
+}
+
+.chat-history-modal__subtitle {
+  margin: 0;
+  font-size: var(--font-size-sm);
+  color: var(--muted-foreground);
+}
+
+.chat-history-modal__field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-2);
+}
+
+.chat-history-modal__label {
   font-size: var(--font-size-xs);
-  line-height: 1.55;
-  resize: vertical;
-  min-height: 8rem;
+  font-weight: var(--font-weight-medium);
+  color: var(--foreground);
+}
+
+.chat-history-modal__textarea {
+  box-sizing: border-box;
+  width: 100%;
+  min-height: 220px;
+  padding: var(--spacing-3);
+  border: var(--border-width) solid var(--input);
+  border-radius: var(--radius-lg);
   background: var(--background);
   color: var(--foreground);
+  font-family: var(--font-family-mono);
+  font-size: var(--font-size-sm);
+  line-height: 1.55;
+  resize: vertical;
   outline: none;
+  transition: border-color 150ms ease, box-shadow 150ms ease;
+}
+
+.chat-history-modal__textarea:focus {
+  border-color: var(--ring);
+  box-shadow: 0 0 0 4px var(--ring-soft);
+}
+
+.chat-history-modal__footer {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: var(--spacing-2);
+}
+
+@media (max-width: 640px) {
+  .chat-history-modal {
+    padding: var(--spacing-5);
+    gap: var(--spacing-5);
+  }
 }

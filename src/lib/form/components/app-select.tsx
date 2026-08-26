@@ -23,7 +23,7 @@ export class AppSelect {
       autocomplete: c.autocomplete,
     };
     return (
-      <div class="app-select">
+      <div class={{ 'app-select': true, 'app-select--compact': !!c.compact }}>
         {c.label && (
           <label class="app-select__label" htmlFor={c.name}>
             {c.label}
@@ -33,7 +33,11 @@ export class AppSelect {
         <div>
           <select
             {...allowedAttrs}
-            class="app-select__select"
+            aria-label={c.label ? undefined : c.ariaLabel}
+            class={{
+              'app-select__select': true,
+              'app-select__select--compact': !!c.compact,
+            }}
             onInput={(e: Event) => {
               const raw = (e.target as HTMLSelectElement).value;
               const matched = c.optionList.find(opt => String(opt) === raw);

@@ -11,6 +11,11 @@ import {
 } from '../../../lib/evaluation/constants';
 import { getAllowedApproachesForFieldType } from '../../../lib/evaluation/field-evaluation-approach';
 import { ExpectedOutcomeChange } from '../../../lib/test-cases/test-case-mutations';
+import { ChevronDownIcon, InfoIcon } from '../../../lib/ui/icons/icons';
+import { Tooltip } from '../../../lib/ui/tooltip';
+import { isPrimaryExpectedOutcomeMissing } from '../../../lib/test-cases/test-case-validation';
+
+const MANDATORY_FIELD_MESSAGE = 'This field is mandatory';
 
 export type ExpectedOutcomeChangeDetail = {
   testCaseId: string;
@@ -25,6 +30,9 @@ interface ExpectedOutcomeRendererProps {
     e: CustomEvent<ExpectedOutcomeChangeDetail>,
   ) => void;
 }
+
+const EVALUATION_APPROACH_HELP =
+  "How this value is compared against the model's response.";
 
 export const ExpectedOutcomeRenderer: FunctionalComponent<ExpectedOutcomeRendererProps> = ({
   testCaseId,
@@ -47,7 +55,8 @@ export const ExpectedOutcomeRenderer: FunctionalComponent<ExpectedOutcomeRendere
   ): SelectConfig => ({
     name: `expectedOutcomeEvaluation-${index}`,
     fieldType: FormFieldType.SELECT,
-    label: 'Evaluation Approach',
+    ariaLabel: 'Evaluation approach',
+    compact: true,
     placeholder: 'Select evaluation approach…',
     required: true,
     optionList,
@@ -114,6 +123,36 @@ export const ExpectedOutcomeRenderer: FunctionalComponent<ExpectedOutcomeRendere
     );
   };
 
+  const renderThresholdInput = (
+    field: ExpectedOutcomeField,
+    index: number,
+  ) => {
+    const approach = field.evaluationParameters?.approach;
+
+    if (!approach || approach === EvaluationApproach.EXACT) {
+      return null;
+    }
+
+    const defaultThreshold = getDefaultPassScoreForApproach(approach);
+    return (
+      <threshold-input
+        inputId={`expectedOutcomeThreshold-${index}`}
+        label="Threshold"
+        compact
+        value={field.evaluationParameters?.threshold}
+        defaultValue={defaultThreshold}
+        onThresholdChange={(e) =>
+          emit({
+            testCaseId,
+            index,
+            operation: 'set-evaluation-threshold',
+            value: e.detail.value,
+          })
+        }
+      />
+    );
+  };
+
   const renderEvaluationSourceSelector = (
     field: ExpectedOutcomeField,
     index: number,
@@ -159,34 +198,6 @@ export const ExpectedOutcomeRenderer: FunctionalComponent<ExpectedOutcomeRendere
     );
   };
 
-  const renderThresholdInput = (
-    field: ExpectedOutcomeField,
-    index: number,
-  ) => {
-    const approach = field.evaluationParameters?.approach;
-
-    if (!approach || approach === EvaluationApproach.EXACT) {
-      return null;
-    }
-
-    const defaultThreshold = getDefaultPassScoreForApproach(approach);
-    return (
-      <threshold-input
-        inputId={`expectedOutcomeThreshold-${index}`}
-        value={field.evaluationParameters?.threshold}
-        defaultValue={defaultThreshold}
-        onThresholdChange={(e) =>
-          emit({
-            testCaseId,
-            index,
-            operation: 'set-evaluation-threshold',
-            value: e.detail.value,
-          })
-        }
-      />
-    );
-  };
-
   const renderCriteriaInput = (
     field: ExpectedOutcomeField,
     index: number,
@@ -209,174 +220,268 @@ export const ExpectedOutcomeRenderer: FunctionalComponent<ExpectedOutcomeRendere
     );
   };
 
-  const renderEvaluationOptions = (field: ExpectedOutcomeField, index: number) => (
-    <details class="expected-outcome-renderer__options">
-      <summary class="expected-outcome-renderer__options-summary">
-        More options
-      </summary>
-      <div class="expected-outcome-renderer__options-content">
-        {renderEvaluationSelector(field, index)}
-        {renderThresholdInput(field, index)}
-        {renderEvaluationSourceSelector(field, index)}
-        {renderCriteriaInput(field, index)}
+  /** Advanced, rarely-touched config (evaluation source/extractor, LLM-judge
+   * criteria) — tucked behind its own disclosure so the card header can stay
+   * to just approach + threshold. */
+  const renderAdvancedOptions = (field: ExpectedOutcomeField, index: number) => {
+    const sourceSelector = renderEvaluationSourceSelector(field, index);
+    const criteriaInput = renderCriteriaInput(field, index);
+    if (!sourceSelector && !criteriaInput) return null;
+
+    return (
+      <details class="expected-outcome-renderer__options">
+        <summary class="expected-outcome-renderer__options-summary">
+          More options
+        </summary>
+        <div class="expected-outcome-renderer__options-content">
+          {sourceSelector}
+          {criteriaInput}
+        </div>
+      </details>
+    );
+  };
+
+  const renderFieldBody = (
+    field: ExpectedOutcomeField,
+    index: number,
+    isPrimary: boolean,
+  ) => {
+    if (field.type === 'textarea') {
+      const isDynamic =
+        dynamicResolutionSupported && field.outcomeMode === 'dynamic';
+      const isMissing =
+        isPrimary && isPrimaryExpectedOutcomeMissing([field]);
+      const config: TextAreaConfig = {
+        name: `expectedOutcome-${index}`,
+        fieldType: FormFieldType.TEXT_AREA,
+        placeholder: isDynamic ? 'Resolved on run' : field.placeholder,
+        required: !isDynamic,
+        readOnly: isDynamic,
+        invalid: isMissing,
+        helpText: isDynamic
+          ? 'Filled automatically when the test is run'
+          : undefined,
+        rows: field.rows || 3,
+        // The copy button renders in the card header instead of here, since
+        // the header already carries the field's label.
+        is_copyable: false,
+      };
+      return (
+        <div class="expected-outcome-renderer__card-body">
+          <app-textarea
+            config={config}
+            value={field.value}
+            onValueChange={(e) =>
+              emit({
+                testCaseId,
+                index,
+                operation: 'set-value',
+                value: e.detail.value,
+              })
+            }
+          />
+          {isMissing && (
+            <p class="expected-outcome-renderer__mandatory-message">
+              {MANDATORY_FIELD_MESSAGE}
+            </p>
+          )}
+          {dynamicResolutionSupported && (
+            <app-select
+              config={buildOutcomeModeConfig(index)}
+              value={field.outcomeMode || 'static'}
+              onValueChange={(e) =>
+                emit({
+                  testCaseId,
+                  index,
+                  operation: 'set-outcome-mode',
+                  value: e.detail.value as ExpectedOutcomeMode,
+                })
+              }
+            />
+          )}
+          {dynamicResolutionSupported && field.outcomeMode === 'dynamic' && (
+            <app-textarea
+              config={buildResolutionQueryConfig(index)}
+              value={field.resolutionQuery || ''}
+              onValueChange={(e) =>
+                emit({
+                  testCaseId,
+                  index,
+                  operation: 'set-resolution-query',
+                  value: e.detail.value,
+                })
+              }
+            />
+          )}
+        </div>
+      );
+    }
+
+    if (field.type === 'chips-input') {
+      const isMissing =
+        isPrimary && isPrimaryExpectedOutcomeMissing([field]);
+      const config: ChipsConfig = {
+        name: `expectedOutcome-${index}`,
+        fieldType: FormFieldType.CHIPS,
+        placeholder: field.placeholder,
+        required: true,
+      };
+
+      return (
+        <div class="expected-outcome-renderer__card-body">
+          <div
+            class={{
+              'expected-outcome-renderer__chips-wrap': true,
+              'expected-outcome-renderer__chips-wrap--invalid': isMissing,
+            }}
+          >
+            <app-chips
+              config={config}
+              value={field.value}
+              onAddChip={(e) =>
+                emit({
+                  testCaseId,
+                  index,
+                  operation: 'add-chip',
+                  value: e.detail.value,
+                })
+              }
+              onRemoveChip={(e) =>
+                emit({
+                  testCaseId,
+                  index,
+                  operation: 'remove-chip',
+                  value: e.detail.value,
+                })
+              }
+            />
+          </div>
+          {isMissing && (
+            <p class="expected-outcome-renderer__mandatory-message">
+              {MANDATORY_FIELD_MESSAGE}
+            </p>
+          )}
+        </div>
+      );
+    }
+
+    if (field.type === 'select') {
+      const config: SelectConfig = {
+        name: `expectedOutcome-${index}`,
+        fieldType: FormFieldType.SELECT,
+        placeholder: field.placeholder,
+        required: true,
+        optionList: field.options,
+      };
+
+      return (
+        <div class="expected-outcome-renderer__card-body">
+          <app-select
+            config={config}
+            value={field.value}
+            onValueChange={(e) =>
+              emit({
+                testCaseId,
+                index,
+                operation: 'set-value',
+                value: e.detail.value,
+              })
+            }
+          />
+        </div>
+      );
+    }
+
+    return (
+      <div class="expected-outcome-renderer__card-body">
+        <input
+          class="expected-outcome-renderer__text-input"
+          type="text"
+          value={field.value}
+          placeholder={field.placeholder}
+          aria-label={field.label}
+          onInput={(e) =>
+            emit({
+              testCaseId,
+              index,
+              operation: 'set-value',
+              value: (e.target as HTMLInputElement).value,
+            })
+          }
+        />
       </div>
-    </details>
+    );
+  };
+
+  const renderFieldSections = (
+    field: ExpectedOutcomeField,
+    index: number,
+    isPrimary: boolean,
+  ) => {
+    const isDynamic =
+      dynamicResolutionSupported && field.type === 'textarea' && field.outcomeMode === 'dynamic';
+
+    return [
+      <div class="expected-outcome-renderer__card-header">
+        <span class="expected-outcome-renderer__card-title">
+          {field.label}
+        </span>
+        {!isDynamic && (
+          <div class="expected-outcome-renderer__card-controls">
+            {field.type === 'textarea' && (
+              <copy-button value={field.value} label={`Copy ${field.label}`} />
+            )}
+            <Tooltip content={EVALUATION_APPROACH_HELP} class="expected-outcome-renderer__info-icon">
+              <InfoIcon />
+            </Tooltip>
+            {renderEvaluationSelector(field, index)}
+            {renderThresholdInput(field, index)}
+          </div>
+        )}
+      </div>,
+      renderFieldBody(field, index, isPrimary),
+      !isDynamic && renderAdvancedOptions(field, index),
+    ];
+  };
+
+  /** The first field — always visible, sharing one outer card with the
+   * "More Options" disclosure below it (not a card of its own). It's also
+   * the only field that gates Run — see isPrimaryExpectedOutcomeMissing. */
+  const renderPrimarySection = (field: ExpectedOutcomeField, index: number) => (
+    <div class="expected-outcome-renderer__primary">
+      {renderFieldSections(field, index, true)}
+    </div>
   );
+
+  /** Every field after the first — rendered as its own bordered card inside
+   * the shared "More Options" tray. */
+  const renderSecondaryCard = (field: ExpectedOutcomeField, index: number) => (
+    <div class="expected-outcome-renderer__card" key={`${field.label}-${index}`}>
+      {renderFieldSections(field, index, false)}
+    </div>
+  );
+
+  const [primaryField, ...secondaryFields] = fields || [];
 
   return (
     <div class="expected-outcome-renderer">
-      {(fields || []).map((field, index) => {
-        if (field.type === 'textarea') {
-          const isDynamic =
-            dynamicResolutionSupported && field.outcomeMode === 'dynamic';
-          const config: TextAreaConfig = {
-            name: `expectedOutcome-${index}`,
-            fieldType: FormFieldType.TEXT_AREA,
-            label: field.label,
-            placeholder: isDynamic ? 'Resolved on run' : field.placeholder,
-            required: !isDynamic,
-            readOnly: isDynamic,
-            helpText: isDynamic
-              ? 'Filled automatically when the test is run'
-              : undefined,
-            rows: field.rows || 2,
-            is_copyable: true,
-          };
-          return (
-            <div class="expected-outcome-renderer__group">
-              <app-textarea
-                config={config}
-                value={field.value}
-                onValueChange={(e) =>
-                  emit({
-                    testCaseId,
-                    index,
-                    operation: 'set-value',
-                    value: e.detail.value,
-                  })
-                }
-              />
-              {dynamicResolutionSupported && (
-                <app-select
-                  config={buildOutcomeModeConfig(index)}
-                  value={field.outcomeMode || 'static'}
-                  onValueChange={(e) =>
-                    emit({
-                      testCaseId,
-                      index,
-                      operation: 'set-outcome-mode',
-                      value: e.detail.value as ExpectedOutcomeMode,
-                    })
-                  }
-                />
-              )}
-              {dynamicResolutionSupported &&
-                field.outcomeMode === 'dynamic' && (
-                  <app-textarea
-                    config={buildResolutionQueryConfig(index)}
-                    value={field.resolutionQuery || ''}
-                    onValueChange={(e) =>
-                      emit({
-                        testCaseId,
-                        index,
-                        operation: 'set-resolution-query',
-                        value: e.detail.value,
-                      })
-                    }
-                  />
-                )}
-              {!isDynamic && renderEvaluationOptions(field, index)}
-            </div>
-          );
-        }
+      {primaryField && (
+        <div class="expected-outcome-renderer__outer-card">
+          {renderPrimarySection(primaryField, 0)}
 
-        if (field.type === 'chips-input') {
-          const config: ChipsConfig = {
-            name: `expectedOutcome-${index}`,
-            fieldType: FormFieldType.CHIPS,
-            label: field.label,
-            placeholder: field.placeholder,
-            required: true,
-          };
-
-          return (
-            <div class="expected-outcome-renderer__group">
-              <app-chips
-                config={config}
-                value={field.value}
-                onAddChip={(e) =>
-                  emit({
-                    testCaseId,
-                    index,
-                    operation: 'add-chip',
-                    value: e.detail.value,
-                  })
-                }
-                onRemoveChip={(e) =>
-                  emit({
-                    testCaseId,
-                    index,
-                    operation: 'remove-chip',
-                    value: e.detail.value,
-                  })
-                }
-              />
-              {renderEvaluationOptions(field, index)}
-            </div>
-          );
-        }
-
-        if (field.type === 'select') {
-          const config: SelectConfig = {
-            name: `expectedOutcome-${index}`,
-            fieldType: FormFieldType.SELECT,
-            label: field.label,
-            placeholder: field.placeholder,
-            required: true,
-            optionList: field.options,
-          };
-
-          return (
-            <div class="expected-outcome-renderer__group">
-              <app-select
-                config={config}
-                value={field.value}
-                onValueChange={(e) =>
-                  emit({
-                    testCaseId,
-                    index,
-                    operation: 'set-value',
-                    value: e.detail.value,
-                  })
-                }
-              />
-              {renderEvaluationOptions(field, index)}
-            </div>
-          );
-        }
-
-        return (
-          <div class="expected-outcome-renderer__group">
-            <div class="expected-outcome-renderer__text">
-              <label>{field.label}</label>
-              <input
-                type="text"
-                value={field.value}
-                placeholder={field.placeholder}
-                onInput={(e) =>
-                  emit({
-                    testCaseId,
-                    index,
-                    operation: 'set-value',
-                    value: (e.target as HTMLInputElement).value,
-                  })
-                }
-              />
-            </div>
-            {renderEvaluationOptions(field, index)}
-          </div>
-        );
-      })}
+          {secondaryFields.length > 0 && (
+            <details class="expected-outcome-renderer__more-options">
+              <summary class="expected-outcome-renderer__more-options-summary">
+                <ChevronDownIcon class="expected-outcome-renderer__more-options-chevron" />
+                More Options
+              </summary>
+              <div class="expected-outcome-renderer__more-options-content">
+                {secondaryFields.map((field, i) => renderSecondaryCard(field, i + 1))}
+              </div>
+            </details>
+          )}
+        </div>
+      )}
     </div>
   );
 };

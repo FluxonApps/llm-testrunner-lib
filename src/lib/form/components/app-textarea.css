@@ -47,6 +47,12 @@
   box-shadow: 0 0 0 4px var(--ring-soft);
 }
 
+.textarea-element--invalid,
+.textarea-element--invalid:focus {
+  border-color: var(--destructive);
+  box-shadow: 0 0 0 3px var(--destructive-soft-bg);
+}
+
 .textarea-wrapper--read-only .textarea-label {
   color: var(--muted-foreground);
 }

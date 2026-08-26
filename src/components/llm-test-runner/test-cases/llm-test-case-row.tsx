@@ -1,16 +1,22 @@
 import { h, FunctionalComponent } from '@stencil/core';
 import { TestCase } from '../../../types/llm-test-runner';
-import { ResponseOutput } from './output/response-output';
-import { EvaluationSummary } from './evaluation/evaluation-summary';
+import { EvaluationResultBanner } from './evaluation/evaluation-result-banner';
 import { Button } from '../../../lib/ui/button/index';
 import { IconButton } from '../../../lib/ui/icon-button/index';
-import { PlayIcon, SpinnerIcon, TrashIcon } from '../../../lib/ui/icons/icons';
-import { FormFieldType, TextAreaConfig } from '../../../lib/form/schema';
+import { Tooltip } from '../../../lib/ui/tooltip';
+import {
+  InfoIcon,
+  PlayIcon,
+  SpinnerIcon,
+  TrashIcon,
+  XIcon,
+} from '../../../lib/ui/icons/icons';
 import {
   ExpectedOutcomeChangeDetail,
   ExpectedOutcomeRenderer,
 } from './expected-outcome-renderer';
 import type { ChatHistoryChangeDetail } from './chat-history';
+import { isTestCaseRunnable } from '../../../lib/test-cases/test-case-validation';
 
 export type ChatHistoryRowChangeDetail = {
   testCaseId: string;
@@ -39,7 +45,7 @@ interface TestStatus {
 }
 
 const STATUS_LABEL: Record<StatusKind, string> = {
-  'not-run': 'Not run',
+  'not-run': 'Not tested',
   running: 'Running',
   passed: 'Passed',
   failed: 'Failed',
@@ -90,17 +96,7 @@ export const LLMTestCaseRow: FunctionalComponent<LLMTestCaseRowProps> = ({
   onExpectedOutcomeChange,
   onChatHistoryChange,
 }) => {
-  const questionConfig: TextAreaConfig = {
-    name: 'question',
-    fieldType: FormFieldType.TEXT_AREA,
-    type: 'text',
-    label: 'Question',
-    placeholder: 'Enter your question here...',
-    required: true,
-    rows: 3,
-  };
-
-  const canRun = !!testCase.question.trim();
+  const canRun = isTestCaseRunnable(testCase);
   const isRunning = testCase.isRunning;
   const status = computeTestStatus(testCase);
   const questionPreview = testCase.question.trim() || 'New test — click to add a question.';
@@ -134,7 +130,7 @@ export const LLMTestCaseRow: FunctionalComponent<LLMTestCaseRowProps> = ({
             disabled={isRunning || !canRun}
             loading={isRunning}
             icon={isRunning ? <SpinnerIcon /> : <PlayIcon />}
-            aria-label={canRun ? 'Run this test' : 'Enter a question first'}
+            aria-label={canRun ? 'Run this test' : 'Fill in the question and expected output first'}
           >
             {isRunning ? 'Running' : 'Run'}
           </Button>
@@ -153,36 +149,70 @@ export const LLMTestCaseRow: FunctionalComponent<LLMTestCaseRowProps> = ({
 
       <div class="test-case-row__body">
         <section class="test-case-row__panel test-case-row__panel--input">
-          <header class="test-case-row__panel-header">Input</header>
           <div class="test-case-row__input-content">
-            <app-textarea
-              config={questionConfig}
-              value={testCase.question}
-              onValueChange={(e) =>
-                handleTestCaseChange({
-                  detail: {
-                    testCaseId: testCase.id,
-                    key: 'question',
-                    value: e.detail.value,
-                  },
-                } as CustomEvent<{ testCaseId: string; key: string; value: string }>)
-              }
-            />
-            <chat-history
-              chatHistoryEnabled={testCase.chatHistory?.enabled ?? false}
-              chatHistoryValue={testCase.chatHistory?.value ?? ''}
-              onChatHistoryChange={(e: Event) => {
-                const { enabled, value } = (e as CustomEvent<ChatHistoryChangeDetail>)
-                  .detail;
-                onChatHistoryChange({
-                  detail: {
-                    testCaseId: testCase.id,
-                    enabled,
-                    value,
-                  },
-                } as CustomEvent<ChatHistoryRowChangeDetail>);
-              }}
-            />
+            <div class="test-case-row__question">
+              <span class="test-case-row__question-label">
+                Add your question (prompt)
+                <Tooltip
+                  content="The prompt sent to the model for this test case."
+                  class="test-case-row__question-info"
+                >
+                  <InfoIcon />
+                </Tooltip>
+              </span>
+              <div class="test-case-row__question-row">
+                <div class="test-case-row__question-input-wrap">
+                  <input
+                    type="text"
+                    class="test-case-row__question-input"
+                    placeholder="Enter your question here..."
+                    value={testCase.question}
+                    onInput={(e) =>
+                      handleTestCaseChange({
+                        detail: {
+                          testCaseId: testCase.id,
+                          key: 'question',
+                          value: (e.target as HTMLInputElement).value,
+                        },
+                      } as CustomEvent<{ testCaseId: string; key: string; value: string }>)
+                    }
+                  />
+                  {!!testCase.question && (
+                    <button
+                      type="button"
+                      class="test-case-row__question-clear"
+                      aria-label="Clear question"
+                      onClick={() =>
+                        handleTestCaseChange({
+                          detail: {
+                            testCaseId: testCase.id,
+                            key: 'question',
+                            value: '',
+                          },
+                        } as CustomEvent<{ testCaseId: string; key: string; value: string }>)
+                      }
+                    >
+                      <XIcon />
+                    </button>
+                  )}
+                </div>
+                <chat-history
+                  chatHistoryEnabled={testCase.chatHistory?.enabled ?? false}
+                  chatHistoryValue={testCase.chatHistory?.value ?? ''}
+                  onChatHistoryChange={(e: Event) => {
+                    const { enabled, value } = (e as CustomEvent<ChatHistoryChangeDetail>)
+                      .detail;
+                    onChatHistoryChange({
+                      detail: {
+                        testCaseId: testCase.id,
+                        enabled,
+                        value,
+                      },
+                    } as CustomEvent<ChatHistoryRowChangeDetail>);
+                  }}
+                />
+              </div>
+            </div>
             <ExpectedOutcomeRenderer
               testCaseId={testCase.id}
               fields={testCase.expectedOutcome || []}
@@ -194,25 +224,10 @@ export const LLMTestCaseRow: FunctionalComponent<LLMTestCaseRowProps> = ({
         </section>
         {hasResults && (
           <div class="test-case-row__results">
-            <section class="test-case-row__panel">
-              <header class="test-case-row__panel-header">Output</header>
-              <div class="test-case-row__panel-content">
-                <ResponseOutput
-                  output={testCase.output}
-                  isRunning={testCase.isRunning}
-                />
-              </div>
-            </section>
-
-            <section class="test-case-row__panel">
-              <header class="test-case-row__panel-header">Evaluation</header>
-              <div class="test-case-row__panel-content">
-                <EvaluationSummary
-                  result={testCase.evaluationResult}
-                  isRunning={testCase.isRunning}
-                />
-              </div>
-            </section>
+            <EvaluationResultBanner
+              output={testCase.output}
+              result={testCase.evaluationResult}
+            />
           </div>
         )}
       </div>

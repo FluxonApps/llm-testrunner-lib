@@ -1,13 +1,13 @@
 /* Test Cases — vertical stack of self-contained collapsible cards, one
  * per test case. Cards collapse to a compact summary (question preview +
  * status badge + Run / Delete) and expand to reveal the full editor and
- * results in a 3-column layout. */
+ * results in a 3-column layout. No background of its own — controlled
+ * by whatever the host page provides (see llm-test-runner.css/:host). */
 .test-cases {
   display: flex;
   flex-direction: column;
   gap: var(--spacing-3);
   padding: var(--spacing-5);
-  background: var(--muted);
   padding-top: var(--spacing-2);
 }
 

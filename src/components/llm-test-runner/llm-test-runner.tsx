@@ -45,13 +45,10 @@ import {
   validateExpectedOutcomeSchema,
 } from '../../schemas/expected-outcome';
 import { LLMTestRunnerHeader } from './header/llm-test-runner-header';
-import {
-  LLMTestRunnerSummary,
-  computeSummaryStats,
-} from './summary/llm-test-runner-summary';
 import { LLMTestCases } from './test-cases/llm-test-cases';
 import { TestCasesToolbar } from './test-cases/test-cases-toolbar';
 import {
+  computeSummaryStats,
   filterTestCasesByStatus,
   filterTestCasesByQuery,
   type StatusFilter,
@@ -72,7 +69,6 @@ function nextFrame(): Promise<void> {
     '../../styles/tokens.css',
     'llm-test-runner.css',
     'header/llm-test-runner-header.css',
-    'summary/llm-test-runner-summary.css',
     'test-cases/llm-test-cases.css',
     'test-cases/test-cases-toolbar.css',
     'test-cases/llm-test-case-row.css',
@@ -119,7 +115,6 @@ export class LLMTestRunner {
   @State() isExportingTestSuite: boolean = false;
   @State() isExportingTestResults: boolean = false;
   @State() isSaving: boolean = false;
-  @State() showSummary: boolean = true;
   @State() activeFilter: StatusFilter = 'all';
   @State() searchQuery: string = '';
   @State() isSearchExpanded: boolean = false;
@@ -485,7 +480,6 @@ export class LLMTestRunner {
     return (
       <div class="test-runner-container">
         <LLMTestRunnerHeader
-          isExportingTestSuite={this.isExportingTestSuite}
           isExportingTestResults={this.isExportingTestResults}
           isRunningAll={this.isRunningAll}
           canRunAny={this.testCases.some(tc =>
@@ -494,18 +488,10 @@ export class LLMTestRunner {
           useSave={this.useSave}
           isSaving={this.isSaving}
           usePromptEditor={this.usePromptEditor}
-          showSummary={this.showSummary}
-          onImport={file => this.handleImport(file)}
-          onExportSuite={() => this.handleExportTestSuite()}
           onExportResults={() => this.handleExportTestResults()}
           onRunAll={() => this.runAllTests()}
           onSave={() => this.handleSave()}
-          onAddTestCase={() => this.addNewTestCase()}
-          onToggleSummary={(show) => (this.showSummary = show)}
         />
-        {this.showSummary && (
-          <LLMTestRunnerSummary testCases={this.testCases} />
-        )}
         <ErrorMessage message={this.error} onClear={() => (this.error = '')} />
         <div class="test-runner-container__content">
           <TestCasesToolbar

@@ -7,6 +7,16 @@
   --page-padding-y: clamp(16px, 3vw, 32px);
 }
 
+/* Without this, an element's own padding/border adds to its width/height
+ * instead of being included in it — bit twice in this file already
+ * (.container overflowing body's padding, then body's own min-height:
+ * 100vh growing 64px too tall from its top+bottom padding). */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
 html,
 body {
   min-height: 100%;
@@ -14,6 +24,9 @@ body {
 
 body {
   margin: 0;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
   padding: var(--page-padding-y) var(--page-padding-x);
   background: #fafafa;
   color: #18181b;
@@ -35,7 +48,23 @@ body {
    * constricting the test runner. */
   max-width: none;
   width: 100%;
+  /* Without this, the padding below adds 40px on top of the 100% width
+   * (content-box is the default), overflowing past body's own padding
+   * on the right instead of being subtracted from the 100%. */
+  box-sizing: border-box;
   margin: 0 auto;
+  /* Matches --spacing-5 (20px) in the library's own tokens.css, which is
+   * how far <llm-test-runner> insets its own header/toolbar/list content
+   * from its outer edge — without this, "Example" (zero inset here)
+   * doesn't line up with "N Questions" / the buttons (20px inset inside
+   * the component). #runner-host bleeds back out to cancel it, since the
+   * component provides its own matching inset. */
+  padding: 0 20px;
+  /* Lets #runner-host's flex: 1 below stretch its background down to the
+   * bottom of the viewport, not just wrap tightly around its content. */
+  flex: 1;
+  display: flex;
+  flex-direction: column;
 }
 
 .demo-section {
@@ -44,6 +73,9 @@ body {
   padding: 0;
   border-radius: 0;
   box-shadow: none;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
 }
 
 h1 {
@@ -123,4 +155,25 @@ h2 {
 
 #runner-host {
   min-height: 80px;
+  box-sizing: border-box;
+  /* Bleeds past both .container's own 20px padding and body's own
+   * --page-padding-x, so the background below reaches the actual
+   * viewport edges instead of stopping at the page's padded content
+   * width. The matching padding pushes <llm-test-runner>'s content
+   * back in by the same amount, so it stays aligned with "Example". */
+  margin: 0 calc(-1 * (var(--page-padding-x) + 20px));
+  padding: 0 calc(var(--page-padding-x) + 20px);
+  /* Stretches to fill the remaining viewport height (see body/.container/
+   * .demo-section's flex: 1 column chain above) rather than wrapping
+   * tightly around the test-case list. It's the last thing on the page,
+   * so unlike the left/right bleed there's nothing below it to realign —
+   * just bleed straight through body's own bottom padding too. */
+  flex: 1;
+  margin-bottom: calc(-1 * var(--page-padding-y));
+  padding-bottom: var(--page-padding-y);
+  /* <llm-test-runner> no longer sets any background of its own (see
+   * llm-test-runner.css/:host) — this is the host page's own choice,
+   * matching the Figma design's page-level tray color behind the
+   * whole toolbar + test-case list area. */
+  background: var(--tailwind-colors-slate-200, #e2e8f0);
 }

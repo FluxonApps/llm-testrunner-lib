@@ -118,6 +118,10 @@ export class LLMTestRunner {
   @State() activeFilter: StatusFilter = 'all';
   @State() searchQuery: string = '';
   @State() isSearchExpanded: boolean = false;
+  // testCase ids whose primary expected-outcome field has been blurred at
+  // least once — gates the mandatory-field error state so it doesn't show
+  // on a brand-new, untouched test case (see markPrimaryFieldTouched).
+  @State() touchedPrimaryFieldIds: Set<string> = new Set();
 
   private evaluationService: EvaluationService;
 
@@ -201,6 +205,13 @@ export class LLMTestRunner {
     this.updateTestCase(testCaseId, {
       chatHistory: { enabled, value },
     });
+  };
+
+  private markPrimaryFieldTouched = (testCaseId: string) => {
+    if (this.touchedPrimaryFieldIds.has(testCaseId)) return;
+    this.touchedPrimaryFieldIds = new Set(this.touchedPrimaryFieldIds).add(
+      testCaseId,
+    );
   };
 
   private addNewTestCase() {
@@ -519,6 +530,9 @@ export class LLMTestRunner {
             extractorIds={getExtractorIds(this.evaluationSourceExtractors)}
             onRun={testCase => this.runSingleTest(testCase).catch(() => {})}
             onDelete={id => this.deleteTestCase(id)}
+            onAddTestCase={() => this.addNewTestCase()}
+            touchedPrimaryFieldIds={this.touchedPrimaryFieldIds}
+            onPrimaryFieldTouch={this.markPrimaryFieldTouched}
             handleTestCaseChange={this.handleTestCaseChange}
             onExpectedOutcomeChange={this.handleExpectedOutcomeChange}
             onChatHistoryChange={this.handleChatHistoryChange}

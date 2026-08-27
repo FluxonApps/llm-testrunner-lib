@@ -44,7 +44,6 @@ import {
   validateExpectedOutcomeArrayWithExtractors,
   validateExpectedOutcomeSchema,
 } from '../../schemas/expected-outcome';
-import { LLMTestRunnerHeader } from './header/llm-test-runner-header';
 import { LLMTestCases } from './test-cases/llm-test-cases';
 import { TestCasesToolbar } from './test-cases/test-cases-toolbar';
 import {
@@ -68,7 +67,6 @@ function nextFrame(): Promise<void> {
   styleUrls: [
     '../../styles/tokens.css',
     'llm-test-runner.css',
-    'header/llm-test-runner-header.css',
     'test-cases/llm-test-cases.css',
     'test-cases/test-cases-toolbar.css',
     'test-cases/llm-test-case-row.css',
@@ -479,19 +477,6 @@ export class LLMTestRunner {
     const stats = computeSummaryStats(this.testCases);
     return (
       <div class="test-runner-container">
-        <LLMTestRunnerHeader
-          isExportingTestResults={this.isExportingTestResults}
-          isRunningAll={this.isRunningAll}
-          canRunAny={this.testCases.some(tc =>
-            isTestCaseRunnable(tc),
-          )}
-          useSave={this.useSave}
-          isSaving={this.isSaving}
-          usePromptEditor={this.usePromptEditor}
-          onExportResults={() => this.handleExportTestResults()}
-          onRunAll={() => this.runAllTests()}
-          onSave={() => this.handleSave()}
-        />
         <ErrorMessage message={this.error} onClear={() => (this.error = '')} />
         <div class="test-runner-container__content">
           <TestCasesToolbar
@@ -501,11 +486,22 @@ export class LLMTestRunner {
             passedCount={stats.passed}
             activeFilter={this.activeFilter}
             isExportingTestSuite={this.isExportingTestSuite}
+            isExportingTestResults={this.isExportingTestResults}
+            isRunningAll={this.isRunningAll}
+            canRunAny={this.testCases.some(tc =>
+              isTestCaseRunnable(tc),
+            )}
+            useSave={this.useSave}
+            isSaving={this.isSaving}
+            usePromptEditor={this.usePromptEditor}
             searchQuery={this.searchQuery}
             isSearchExpanded={this.isSearchExpanded}
             onAddTestCase={() => this.addNewTestCase()}
             onImport={file => this.handleImport(file)}
             onExportSuite={() => this.handleExportTestSuite()}
+            onExportResults={() => this.handleExportTestResults()}
+            onRunAll={() => this.runAllTests()}
+            onSave={() => this.handleSave()}
             onFilterChange={filter => (this.activeFilter = filter)}
             onSearchQueryChange={query => (this.searchQuery = query)}
             onSearchExpandedChange={expanded => (this.isSearchExpanded = expanded)}

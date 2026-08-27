@@ -205,6 +205,7 @@ export const ExpectedOutcomeRenderer: FunctionalComponent<ExpectedOutcomeRendere
   const renderCriteriaInput = (
     field: ExpectedOutcomeField,
     index: number,
+    hideLabel: boolean,
   ) => {
     if (field.evaluationParameters?.approach !== EvaluationApproach.LLM_JUDGE) {
       return null;
@@ -212,6 +213,7 @@ export const ExpectedOutcomeRenderer: FunctionalComponent<ExpectedOutcomeRendere
     return (
       <criteria-input
         criteria={field.evaluationParameters?.criteria}
+        hideLabel={hideLabel}
         onCriteriaChange={(e) =>
           emit({
             testCaseId,
@@ -229,13 +231,17 @@ export const ExpectedOutcomeRenderer: FunctionalComponent<ExpectedOutcomeRendere
    * to just approach + threshold. */
   const renderAdvancedOptions = (field: ExpectedOutcomeField, index: number) => {
     const sourceSelector = renderEvaluationSourceSelector(field, index);
-    const criteriaInput = renderCriteriaInput(field, index);
+    // When criteria is the only thing behind the disclosure, name it for
+    // what it actually holds instead of the generic "More options" — avoids
+    // a redundant "More options" -> "LLM Judge Criteria (JSON)" double label.
+    const criteriaOnly = !sourceSelector;
+    const criteriaInput = renderCriteriaInput(field, index, criteriaOnly);
     if (!sourceSelector && !criteriaInput) return null;
 
     return (
       <details class="expected-outcome-renderer__options">
         <summary class="expected-outcome-renderer__options-summary">
-          More options
+          {criteriaOnly ? 'LLM Judge Criteria (JSON)' : 'More options'}
         </summary>
         <div class="expected-outcome-renderer__options-content">
           {sourceSelector}

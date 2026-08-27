@@ -209,10 +209,8 @@
   display: flex;
   align-items: center;
   gap: 8px;
-  font-size: 11px;
+  font-size: var(--font-size-xs);
   font-weight: var(--font-weight-semibold);
-  text-transform: uppercase;
-  letter-spacing: var(--letter-spacing-wider);
   color: var(--muted-foreground);
   padding: var(--spacing-3) var(--spacing-3);
   user-select: none;

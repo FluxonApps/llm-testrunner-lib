@@ -75,6 +75,26 @@ describe('CriteriaInput', () => {
       });
       expect(getError(page)).toBeNull();
     });
+
+    it('renders the "LLM Judge Criteria (JSON)" label by default', async () => {
+      const page = await newSpecPage({
+        components: [CriteriaInput],
+        html: '<criteria-input></criteria-input>',
+      });
+      expect(
+        page.root!.shadowRoot!.querySelector('.criteria-input__label'),
+      ).not.toBeNull();
+    });
+
+    it('omits the label when hideLabel is set', async () => {
+      const page = await newSpecPage({
+        components: [CriteriaInput],
+        html: '<criteria-input hide-label></criteria-input>',
+      });
+      expect(
+        page.root!.shadowRoot!.querySelector('.criteria-input__label'),
+      ).toBeNull();
+    });
   });
 
   describe('valid input', () => {

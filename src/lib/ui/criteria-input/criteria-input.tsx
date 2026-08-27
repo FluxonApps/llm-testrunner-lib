@@ -68,6 +68,11 @@ function validateCriteriaArray(
 })
 export class CriteriaInput {
   @Prop() criteria?: Criterion[];
+  /** Suppresses the visible "Criteria (JSON)" label — for a host that
+   * already surfaces that same text itself (e.g. a disclosure summary
+   * with no other content), so the two don't stack redundantly. The
+   * textarea keeps its aria-label regardless, for accessibility. */
+  @Prop() hideLabel?: boolean = false;
 
   @Event({ bubbles: true, composed: true })
   criteriaChange: EventEmitter<CriteriaInputChangeDetail>;
@@ -129,9 +134,11 @@ export class CriteriaInput {
   render() {
     return (
       <div class="criteria-input">
-        <label class="criteria-input__label" htmlFor="criteria-input-textarea">
-          Criteria (JSON)
-        </label>
+        {!this.hideLabel && (
+          <label class="criteria-input__label" htmlFor="criteria-input-textarea">
+            LLM Judge Criteria (JSON)
+          </label>
+        )}
         <textarea
           id="criteria-input-textarea"
           class={
@@ -140,7 +147,7 @@ export class CriteriaInput {
           }
           rows={8}
           placeholder={PLACEHOLDER}
-          aria-label="Criteria JSON"
+          aria-label="LLM Judge Criteria JSON"
           aria-invalid={this.error ? 'true' : 'false'}
           aria-describedby={this.error ? 'criteria-input-error' : undefined}
           value={this.text}

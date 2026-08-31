@@ -1,0 +1,359 @@
+.evaluation-result-banner {
+  display: flex;
+  flex-direction: column;
+  background: var(--muted);
+  border: var(--border-width) solid var(--border);
+  border-radius: var(--radius-3xl);
+  overflow: hidden;
+}
+
+.evaluation-result-banner__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--spacing-3);
+  padding: var(--spacing-4) var(--spacing-5);
+  border-radius: 24px 24px 0 0;
+  color: var(--primary-foreground);
+}
+
+/* Exact Figma values — deliberately not the softer --success/--destructive
+ * tokens used for badges elsewhere in the app. */
+.evaluation-result-banner--passed .evaluation-result-banner__header {
+  background: #15803d;
+}
+
+.evaluation-result-banner--failed .evaluation-result-banner__header {
+  background: #dc2626;
+}
+
+.evaluation-result-banner--skeleton .evaluation-result-banner__header {
+  background: var(--muted-foreground);
+}
+
+.evaluation-result-banner__title {
+  font-size: var(--font-size-base);
+  font-weight: var(--font-weight-semibold);
+}
+
+/* Solid light pill, not the translucent soft-bg badge tokens, so it stays
+ * legible sitting directly on the colored banner. */
+.evaluation-result-banner__badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  width: fit-content;
+  padding: 4px 12px;
+  border-radius: var(--radius-full);
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-medium);
+  white-space: nowrap;
+}
+
+.evaluation-result-banner__badge::before {
+  content: '';
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: currentColor;
+  flex-shrink: 0;
+}
+
+.evaluation-result-banner__badge--passed {
+  background: #dcfce7;
+  color: #15803d;
+}
+
+.evaluation-result-banner__badge--failed {
+  background: #fee2e2;
+  color: #b91c1c;
+}
+
+.evaluation-result-banner__body {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--spacing-3);
+  padding: var(--spacing-5);
+}
+
+.evaluation-result-banner__output-col {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-4);
+  flex: 1;
+  min-width: 0;
+  align-self: stretch;
+}
+
+.evaluation-result-banner__output-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.evaluation-result-banner__output-label {
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-semibold);
+  color: var(--foreground);
+}
+
+.evaluation-result-banner__output-box {
+  flex: 1;
+  min-height: 120px;
+  padding: var(--spacing-3);
+  background: var(--background);
+  border: var(--border-width) solid var(--input);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
+  font-size: var(--font-size-sm);
+  line-height: var(--line-height-relaxed);
+  color: var(--foreground);
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  overflow-y: auto;
+  max-height: 250px;
+}
+
+.evaluation-result-banner__extracted-row {
+  display: flex;
+  gap: var(--spacing-4);
+}
+
+.evaluation-result-banner__extracted-col {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-2);
+  flex: 1;
+  min-width: 0;
+}
+
+.evaluation-result-banner__extracted-label {
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-semibold);
+  color: var(--foreground);
+}
+
+.evaluation-result-banner__extracted-chip {
+  display: inline-flex;
+  align-items: center;
+  align-self: flex-start;
+  height: 32px;
+  padding: 5px var(--spacing-3);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+  color: var(--muted-foreground);
+  background: var(--secondary);
+  border: var(--border-width) solid var(--border);
+  border-radius: var(--radius-full);
+  opacity: 0.8;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.evaluation-result-banner__score-col {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-4);
+  width: 280px;
+  flex-shrink: 0;
+}
+
+.evaluation-result-banner__score-card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-3);
+  padding: var(--spacing-4);
+  background: var(--background);
+  border: var(--border-width) solid var(--border);
+  border-radius: var(--radius-lg);
+}
+
+.evaluation-result-banner__score-card-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--spacing-3);
+}
+
+.evaluation-result-banner__score-card-title {
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-semibold);
+  color: var(--foreground);
+}
+
+.evaluation-result-banner__metrics {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-1);
+  font-size: var(--font-size-xs);
+}
+
+.evaluation-result-banner__metric-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.evaluation-result-banner__metric-label {
+  color: var(--muted-foreground);
+}
+
+.evaluation-result-banner__metric-value {
+  font-weight: var(--font-weight-semibold);
+  color: var(--foreground);
+  font-variant-numeric: tabular-nums;
+}
+
+.evaluation-result-banner__metric-value--failed {
+  color: var(--destructive-soft-fg);
+}
+
+.evaluation-result-banner__criteria {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-1);
+  margin-top: var(--spacing-1);
+}
+
+.evaluation-result-banner__criteria-label {
+  font-size: 10px;
+  font-weight: var(--font-weight-semibold);
+  color: var(--muted-foreground);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.evaluation-result-banner__criteria-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+/* 1fr | auto so the id column can shrink and ellipsize while the score stays put. */
+.evaluation-result-banner__criteria-item {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: var(--spacing-2);
+  font-size: var(--font-size-xs);
+  line-height: 1.3;
+}
+
+.evaluation-result-banner__criteria-id {
+  font-family: var(--font-family-mono);
+  color: var(--foreground);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.evaluation-result-banner__criteria-score {
+  font-weight: var(--font-weight-semibold);
+  color: var(--foreground);
+  font-variant-numeric: tabular-nums;
+}
+
+.evaluation-result-banner__score-card-error {
+  margin: 0;
+  font-size: var(--font-size-xs);
+  color: var(--destructive);
+}
+
+.evaluation-result-banner__score-card-warning {
+  margin: 0;
+  font-size: var(--font-size-xs);
+  color: var(--warning-soft-fg);
+  background: var(--warning-soft-bg);
+  border: var(--border-width) solid var(--warning-soft-border);
+  padding: 6px 10px;
+  border-radius: var(--radius-md);
+  line-height: 1.4;
+}
+
+.evaluation-result-banner__skeleton-badge {
+  width: 70px;
+  height: 22px;
+  border-radius: var(--radius-full);
+  background: rgba(255, 255, 255, 0.3);
+}
+
+.evaluation-result-banner__skeleton-output {
+  flex: 1;
+  min-height: 120px;
+  background: var(--background);
+  border: var(--border-width) solid var(--input);
+  border-radius: var(--radius-lg);
+  padding: var(--spacing-3);
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.evaluation-result-banner__skeleton-card {
+  height: 96px;
+  background: var(--background);
+  border: var(--border-width) solid var(--border);
+  border-radius: var(--radius-lg);
+  background-image:
+    linear-gradient(
+      90deg,
+      rgba(0, 0, 0, 0.03) 0%,
+      rgba(0, 0, 0, 0.07) 50%,
+      rgba(0, 0, 0, 0.03) 100%
+    );
+  background-size: 200% 100%;
+  animation: evaluation-result-banner-shimmer 1.4s ease-in-out infinite;
+}
+
+.skeleton-line {
+  height: 12px;
+  border-radius: var(--radius-full);
+  background:
+    linear-gradient(
+      90deg,
+      rgba(0, 0, 0, 0.06) 0%,
+      rgba(0, 0, 0, 0.12) 50%,
+      rgba(0, 0, 0, 0.06) 100%
+    );
+  background-size: 200% 100%;
+  animation: evaluation-result-banner-shimmer 1.4s ease-in-out infinite;
+}
+
+.skeleton-line--w-100 { width: 100%; }
+.skeleton-line--w-95  { width: 95%; }
+.skeleton-line--w-70  { width: 70%; }
+
+@keyframes evaluation-result-banner-shimmer {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .evaluation-result-banner__skeleton-card,
+  .skeleton-line {
+    animation: none;
+    opacity: 0.7;
+  }
+}
+
+@media (max-width: 900px) {
+  .evaluation-result-banner__body {
+    flex-direction: column;
+  }
+
+  .evaluation-result-banner__score-col {
+    width: 100%;
+  }
+}
+
+@media (max-width: 768px) {
+  .evaluation-result-banner__header,
+  .evaluation-result-banner__body {
+    padding: var(--spacing-4);
+  }
+}

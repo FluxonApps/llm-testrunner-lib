@@ -53,6 +53,8 @@ export interface FieldEvaluationResult {
   label: string;
   type: ExpectedOutcomeFieldType;
   expectedValue: string;
+  /** The value compared against `expectedValue`. Absent when resolution failed (see `error`). */
+  actualValue?: string;
   passed: boolean;
   keywordMatches: KeywordMatch[];
   evaluationParameters: EvaluationParameters;

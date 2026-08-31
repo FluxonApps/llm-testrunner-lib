@@ -6,8 +6,7 @@
   display: inline-flex;
 }
 
-/* Collapsed: a plain 32×32 icon button. Highlighted once chat history has
- * been saved, so the row shows at a glance that it's in use. */
+/* Highlighted once chat history has been saved, so it reads as in-use at a glance. */
 .chat-history__trigger {
   display: inline-flex;
   align-items: center;
@@ -37,10 +36,6 @@
   width: 16px;
   height: 16px;
 }
-
-/* ------------------------------------------------------------------ */
-/* Modal                                                               */
-/* ------------------------------------------------------------------ */
 
 .chat-history-modal__backdrop {
   position: fixed;

@@ -205,9 +205,8 @@
   background: var(--muted);
 }
 
-/* Left/right/bottom padding matches .test-case-row__input-content's 32px
- * so the banner's edges line up with the card above it; top stays at 12px
- * (see the padding-bottom override below for why). */
+/* Left/right/bottom padding matches .test-case-row__input-content's 32px so
+ * edges line up with the card above; top stays at 12px (see padding-bottom below). */
 .test-case-row__results {
   padding: var(--spacing-3) var(--spacing-8) var(--spacing-8);
   background: var(--muted);
@@ -227,21 +226,11 @@
   gap: var(--spacing-5);
 }
 
-/* When the results tray follows, its own top padding already provides
- * separation — trim the input column's bottom padding so the two don't
- * stack into an oversized gap (32px + 12px). Combined they land on the
- * same 20px rhythm used between the question and expected-outcome. */
+/* Trims the input column's bottom padding when a results tray follows, so the
+ * two don't stack into an oversized gap (32px + 12px). */
 .test-case-row__body:has(.test-case-row__results) .test-case-row__input-content {
   padding-bottom: var(--spacing-2);
 }
-
-/* The Run footer that used to live at the bottom of the input column is
- * removed — the Run button is now in the summary, always reachable
- * without expanding the card. */
-
-/* ------------------------------------------------------------------ */
-/* Question / prompt input                                            */
-/* ------------------------------------------------------------------ */
 
 .test-case-row__question {
   display: flex;

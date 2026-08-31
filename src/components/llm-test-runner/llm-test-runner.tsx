@@ -45,8 +45,17 @@ import {
   validateExpectedOutcomeSchema,
 } from '../../schemas/expected-outcome';
 import { LLMTestRunnerHeader } from './header/llm-test-runner-header';
-import { LLMTestRunnerSummary } from './summary/llm-test-runner-summary';
+import {
+  LLMTestRunnerSummary,
+  computeSummaryStats,
+} from './summary/llm-test-runner-summary';
 import { LLMTestCases } from './test-cases/llm-test-cases';
+import { TestCasesToolbar } from './test-cases/test-cases-toolbar';
+import {
+  filterTestCasesByStatus,
+  filterTestCasesByQuery,
+  type StatusFilter,
+} from './test-cases/test-case-filtering';
 import { ExpectedOutcomeChangeDetail } from './test-cases/expected-outcome-renderer';
 import type { ChatHistoryRowChangeDetail } from './test-cases/llm-test-case-row';
 
@@ -65,6 +74,7 @@ function nextFrame(): Promise<void> {
     'header/llm-test-runner-header.css',
     'summary/llm-test-runner-summary.css',
     'test-cases/llm-test-cases.css',
+    'test-cases/test-cases-toolbar.css',
     'test-cases/llm-test-case-row.css',
     'test-cases/expected-outcome-renderer.css',
     'test-cases/actions/row-actions.css',
@@ -110,6 +120,9 @@ export class LLMTestRunner {
   @State() isExportingTestResults: boolean = false;
   @State() isSaving: boolean = false;
   @State() showSummary: boolean = true;
+  @State() activeFilter: StatusFilter = 'all';
+  @State() searchQuery: string = '';
+  @State() isSearchExpanded: boolean = false;
 
   private evaluationService: EvaluationService;
 
@@ -468,6 +481,7 @@ export class LLMTestRunner {
   }
 
   render() {
+    const stats = computeSummaryStats(this.testCases);
     return (
       <div class="test-runner-container">
         <LLMTestRunnerHeader
@@ -494,8 +508,27 @@ export class LLMTestRunner {
         )}
         <ErrorMessage message={this.error} onClear={() => (this.error = '')} />
         <div class="test-runner-container__content">
+          <TestCasesToolbar
+            totalCount={this.testCases.length}
+            notTestedCount={stats.notRun}
+            failedCount={stats.failed}
+            passedCount={stats.passed}
+            activeFilter={this.activeFilter}
+            isExportingTestSuite={this.isExportingTestSuite}
+            searchQuery={this.searchQuery}
+            isSearchExpanded={this.isSearchExpanded}
+            onAddTestCase={() => this.addNewTestCase()}
+            onImport={file => this.handleImport(file)}
+            onExportSuite={() => this.handleExportTestSuite()}
+            onFilterChange={filter => (this.activeFilter = filter)}
+            onSearchQueryChange={query => (this.searchQuery = query)}
+            onSearchExpandedChange={expanded => (this.isSearchExpanded = expanded)}
+          />
           <LLMTestCases
-            testCases={this.testCases}
+            testCases={filterTestCasesByQuery(
+              filterTestCasesByStatus(this.testCases, this.activeFilter),
+              this.searchQuery,
+            )}
             dynamicResolutionSupported={!!this.resolveExpectedOutcome}
             extractorIds={getExtractorIds(this.evaluationSourceExtractors)}
             onRun={testCase => this.runSingleTest(testCase).catch(() => {})}

@@ -181,3 +181,10 @@ export const ArrowRightIcon: FunctionalComponent<IconProps> = ({
     <polyline points="12 5 19 12 12 19" />
   </svg>
 );
+
+export const SearchIcon: FunctionalComponent<IconProps> = ({ class: cls }) => (
+  <svg {...baseProps} class={cls}>
+    <circle cx="11" cy="11" r="8" />
+    <line x1="21" y1="21" x2="16.65" y2="16.65" />
+  </svg>
+);

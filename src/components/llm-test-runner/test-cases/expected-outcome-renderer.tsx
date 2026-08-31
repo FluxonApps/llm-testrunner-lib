@@ -282,9 +282,8 @@ export const ExpectedOutcomeRenderer: FunctionalComponent<ExpectedOutcomeRendere
                 value: e.detail.value,
               })
             }
-            // focusout bubbles + is composed (unlike blur), so this fires
-            // even though the actual blur happens on the native <textarea>
-            // inside app-textarea's own shadow root.
+            // focusout bubbles + is composed (unlike blur), so this fires despite
+            // app-textarea's own shadow root.
             onFocusout={isPrimary ? onPrimaryFieldTouch : undefined}
           />
           {isMissing && (

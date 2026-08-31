@@ -15,8 +15,6 @@
   }
 }
 
-/* Dashed "Add question" card — always the last item in the list, a
- * bigger/more discoverable companion to the toolbar's own "+" button. */
 .test-cases__add-card {
   display: flex;
   flex-direction: column;

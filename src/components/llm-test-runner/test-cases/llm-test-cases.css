@@ -1,8 +1,5 @@
-/* Test Cases — vertical stack of self-contained collapsible cards, one
- * per test case. Cards collapse to a compact summary (question preview +
- * status badge + Run / Delete) and expand to reveal the full editor and
- * results in a 3-column layout. No background of its own — controlled
- * by whatever the host page provides (see llm-test-runner.css/:host). */
+/* No background of its own — controlled by whatever the host page provides
+ * (see llm-test-runner.css/:host). */
 .test-cases {
   display: flex;
   flex-direction: column;
@@ -18,8 +15,6 @@
   }
 }
 
-/* Dashed "Add question" card — always the last item in the list, a
- * bigger/more discoverable companion to the toolbar's own "+" button. */
 .test-cases__add-card {
   display: flex;
   flex-direction: column;

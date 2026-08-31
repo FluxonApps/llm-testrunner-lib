@@ -226,9 +226,6 @@ export const ExpectedOutcomeRenderer: FunctionalComponent<ExpectedOutcomeRendere
     );
   };
 
-  /** Advanced, rarely-touched config (evaluation source/extractor, LLM-judge
-   * criteria) — tucked behind its own disclosure so the card header can stay
-   * to just approach + threshold. */
   const renderAdvancedOptions = (field: ExpectedOutcomeField, index: number) => {
     const sourceSelector = renderEvaluationSourceSelector(field, index);
     // When criteria is the only thing behind the disclosure, name it for
@@ -291,9 +288,8 @@ export const ExpectedOutcomeRenderer: FunctionalComponent<ExpectedOutcomeRendere
                 value: e.detail.value,
               })
             }
-            // focusout bubbles + is composed (unlike blur), so this fires
-            // even though the actual blur happens on the native <textarea>
-            // inside app-textarea's own shadow root.
+            // focusout bubbles + is composed (unlike blur), so this fires despite
+            // app-textarea's own shadow root.
             onFocusout={isPrimary ? onPrimaryFieldTouch : undefined}
           />
           {isMissing && (
@@ -463,17 +459,13 @@ export const ExpectedOutcomeRenderer: FunctionalComponent<ExpectedOutcomeRendere
     ];
   };
 
-  /** The first field — always visible, sharing one outer card with the
-   * "More Options" disclosure below it (not a card of its own). It's also
-   * the only field that gates Run — see isPrimaryExpectedOutcomeMissing. */
+  // Only the primary field gates Run — see isPrimaryExpectedOutcomeMissing.
   const renderPrimarySection = (field: ExpectedOutcomeField, index: number) => (
     <div class="expected-outcome-renderer__primary">
       {renderFieldSections(field, index, true)}
     </div>
   );
 
-  /** Every field after the first — rendered as its own bordered card inside
-   * the shared "More Options" tray. */
   const renderSecondaryCard = (field: ExpectedOutcomeField, index: number) => (
     <div class="expected-outcome-renderer__card" key={`${field.label}-${index}`}>
       {renderFieldSections(field, index, false)}

@@ -29,8 +29,8 @@ export class ChatHistory {
   @Event({ bubbles: true, composed: true })
   chatHistoryChange: EventEmitter<ChatHistoryChangeDetail>;
 
-  /** Local draft — edits only take effect once the user clicks Save. */
   @State() isOpen = false;
+  /** Edits only take effect once the user clicks Save. */
   @State() draft = '';
 
   private openModal = () => {

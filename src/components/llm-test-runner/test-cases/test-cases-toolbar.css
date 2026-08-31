@@ -1,14 +1,6 @@
-/* ------------------------------------------------------------------ */
-/* Test cases toolbar — question count, add/import/export actions,     */
-/* quick status filters, and search, sitting above the test-case list. */
-/* ------------------------------------------------------------------ */
-
-/* Shares .test-cases's horizontal padding so the toolbar's content lines
- * up with the cards below it. No background of its own — this sits on
- * whatever background the host page provides, same as the rest of the
- * component (see llm-test-runner.css/:host). Sticky (via --llmtr-sticky-top,
- * set from the stickyOffset prop) now that this — not the removed header —
- * holds Run all and the other primary actions. */
+/* No background of its own — sits on whatever the host page provides, same as
+ * the rest of the component (see llm-test-runner.css/:host). Sticky via
+ * --llmtr-sticky-top since it now holds Run all and the other primary actions. */
 .test-cases-toolbar {
   display: flex;
   align-items: start;
@@ -56,10 +48,8 @@
   border-left: var(--border-width) solid var(--border-strong);
 }
 
-/* Inactive pills use --background (white), not --secondary — --secondary
- * resolves to the same value as --muted in this token set, which is a
- * likely host-page background for this toolbar and would make an
- * inactive pill invisible against it. */
+/* --secondary resolves to the same value as --muted in this token set — a
+ * likely host-page background — which would make an inactive pill invisible. */
 .test-cases-toolbar__filter-pill {
   display: inline-flex;
   align-items: center;
@@ -96,9 +86,7 @@
   color: var(--primary-foreground);
 }
 
-/* Search + Create report + Run all, grouped so .test-cases-toolbar keeps
- * exactly two flex children (__left / __right) for justify-content:
- * space-between to push this group to the far right as a unit. */
+/* Grouped as one flex child so justify-content: space-between pushes it right as a unit. */
 .test-cases-toolbar__right {
   display: flex;
   align-items: center;

@@ -152,10 +152,8 @@ export const TestCasesToolbar: FunctionalComponent<TestCasesToolbarProps> = ({
               onSearchQueryChange((e.target as HTMLInputElement).value)
             }
             onBlur={e => {
-              // Read the live DOM value rather than the searchQuery prop —
-              // Stencil's re-render after onInput is async, so a fast
-              // clear-then-blur can fire before this closure's prop
-              // updates, which would otherwise leave the input stuck open.
+              // Read the live DOM value, not the searchQuery prop — Stencil's async
+              // re-render can lag a fast clear-then-blur, leaving the input stuck open.
               if (!(e.target as HTMLInputElement).value.trim()) {
                 onSearchExpandedChange(false);
               }

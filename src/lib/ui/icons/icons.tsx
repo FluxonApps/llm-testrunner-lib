@@ -182,7 +182,6 @@ export const ArrowRightIcon: FunctionalComponent<IconProps> = ({
   </svg>
 );
 
-/** Magnifying glass — used to search the test-case list. */
 export const SearchIcon: FunctionalComponent<IconProps> = ({ class: cls }) => (
   <svg {...baseProps} class={cls}>
     <circle cx="11" cy="11" r="8" />

@@ -3,11 +3,8 @@ import { computeTestStatus } from './llm-test-case-row';
 
 export type StatusFilter = 'all' | 'not-tested' | 'failed' | 'passed';
 
-/**
- * Buckets match the ones computeSummaryStats already uses: 'not-tested'
- * covers both 'not-run' and the transient 'running' state, 'failed'
- * covers both 'failed' and 'partial'.
- */
+/** Buckets match computeSummaryStats: 'not-tested' covers 'not-run' + 'running',
+ * 'failed' covers 'failed' + 'partial'. */
 export function filterTestCasesByStatus(
   testCases: TestCase[],
   filter: StatusFilter,
@@ -22,7 +19,6 @@ export function filterTestCasesByStatus(
   });
 }
 
-/** Case-insensitive substring match on the question text. */
 export function filterTestCasesByQuery(
   testCases: TestCase[],
   query: string,

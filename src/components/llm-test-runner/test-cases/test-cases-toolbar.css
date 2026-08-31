@@ -1,11 +1,5 @@
-/* ------------------------------------------------------------------ */
-/* Test cases toolbar — question count, add/import/export actions,     */
-/* quick status filters, and search, sitting above the test-case list. */
-/* ------------------------------------------------------------------ */
-
-/* Shares .test-cases's background + horizontal padding so the two sit
- * on one continuous tray with no seam, and the toolbar's content lines
- * up with the cards below it. */
+/* Shares .test-cases's background + horizontal padding so the two sit on one
+ * continuous tray with no seam. */
 .test-cases-toolbar {
   display: flex;
   align-items: center;
@@ -51,9 +45,8 @@
   border-left: var(--border-width) solid var(--border-strong);
 }
 
-/* Inactive pills use --background (white), not --secondary — --secondary
- * resolves to the same value as this toolbar's --muted background in
- * this token set, which would make an inactive pill invisible. */
+/* --secondary resolves to this toolbar's --muted background in this token
+ * set, which would make an inactive pill invisible — use --background instead. */
 .test-cases-toolbar__filter-pill {
   display: inline-flex;
   align-items: center;

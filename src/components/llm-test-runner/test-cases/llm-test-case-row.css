@@ -268,13 +268,91 @@
   gap: var(--spacing-5);
 }
 
-/* The Run footer that used to live at the bottom of the input column is
- * removed — the Run button is now in the summary, always reachable
- * without expanding the card. */
+.test-case-row__question {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--spacing-3);
+}
 
-/* ------------------------------------------------------------------ */
-/* Responsive                                                         */
-/* ------------------------------------------------------------------ */
+.test-case-row__question-label {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-2);
+  font-size: var(--font-size-lg);
+  color: var(--foreground);
+}
+
+.test-case-row__question-info {
+  display: inline-flex;
+  color: var(--muted-foreground);
+}
+
+.test-case-row__question-info svg {
+  width: 16px;
+  height: 16px;
+}
+
+.test-case-row__question-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--spacing-1);
+  width: 100%;
+}
+
+.test-case-row__question-input-wrap {
+  position: relative;
+  flex: 1 1 320px;
+  min-width: 0;
+}
+
+.test-case-row__question-input {
+  width: 100%;
+  box-sizing: border-box;
+  height: 48px;
+  padding: var(--spacing-2) 36px var(--spacing-2) var(--spacing-4);
+  border: var(--border-width) solid var(--input);
+  border-radius: var(--radius-full);
+  background: var(--background);
+  box-shadow: var(--shadow-sm);
+  font-family: inherit;
+  font-size: var(--font-size-sm);
+  color: var(--foreground);
+  outline: none;
+  transition: border-color 150ms ease, box-shadow 150ms ease;
+}
+
+.test-case-row__question-input:focus {
+  border-color: var(--ring);
+  box-shadow: 0 0 0 4px var(--ring-soft);
+}
+
+.test-case-row__question-clear {
+  position: absolute;
+  top: 50%;
+  right: var(--spacing-4);
+  transform: translateY(-50%);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 16px;
+  height: 16px;
+  padding: 0;
+  border: none;
+  background: transparent;
+  color: var(--muted-foreground);
+  cursor: pointer;
+}
+
+.test-case-row__question-clear svg {
+  width: 14px;
+  height: 14px;
+}
+
+.test-case-row__question-clear:hover {
+  color: var(--foreground);
+}
 
 @media (max-width: 1200px) {
   .test-case-row__results {

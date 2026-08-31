@@ -268,14 +268,6 @@
   gap: var(--spacing-5);
 }
 
-/* The Run footer that used to live at the bottom of the input column is
- * removed — the Run button is now in the summary, always reachable
- * without expanding the card. */
-
-/* ------------------------------------------------------------------ */
-/* Question / prompt input                                            */
-/* ------------------------------------------------------------------ */
-
 .test-case-row__question {
   display: flex;
   flex-direction: column;

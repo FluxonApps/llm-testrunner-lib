@@ -433,6 +433,12 @@ export class LLMTestRunner {
   }
 
   private async handleExportTestSuite() {
+    if (this.testCases.some(tc => !isTestCaseRunnable(tc))) {
+      this.error = 'Fill in every question and expected output before exporting.';
+      return;
+    }
+
+    this.error = '';
     this.isExportingTestSuite = true;
     try {
       const jsonContent = formatTestSuiteAsJson(this.testCases);
@@ -498,9 +504,6 @@ export class LLMTestRunner {
             isExportingTestResults={this.isExportingTestResults}
             isRunningAll={this.isRunningAll}
             canRunAny={this.testCases.some(tc =>
-              isTestCaseRunnable(tc),
-            )}
-            canExportSuite={this.testCases.every(tc =>
               isTestCaseRunnable(tc),
             )}
             useSave={this.useSave}

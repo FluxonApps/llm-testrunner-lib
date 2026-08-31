@@ -68,10 +68,8 @@ function validateCriteriaArray(
 })
 export class CriteriaInput {
   @Prop() criteria?: Criterion[];
-  /** Suppresses the visible "Criteria (JSON)" label — for a host that
-   * already surfaces that same text itself (e.g. a disclosure summary
-   * with no other content), so the two don't stack redundantly. The
-   * textarea keeps its aria-label regardless, for accessibility. */
+  /** For a host that already surfaces "Criteria (JSON)" itself (e.g. a disclosure
+   * summary), so the two don't stack. The aria-label is kept regardless. */
   @Prop() hideLabel?: boolean = false;
 
   @Event({ bubbles: true, composed: true })

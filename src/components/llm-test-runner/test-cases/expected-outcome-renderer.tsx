@@ -228,9 +228,8 @@ export const ExpectedOutcomeRenderer: FunctionalComponent<ExpectedOutcomeRendere
 
   const renderAdvancedOptions = (field: ExpectedOutcomeField, index: number) => {
     const sourceSelector = renderEvaluationSourceSelector(field, index);
-    // When criteria is the only thing behind the disclosure, name it for
-    // what it actually holds instead of the generic "More options" — avoids
-    // a redundant "More options" -> "LLM Judge Criteria (JSON)" double label.
+    // Name the disclosure for what it holds when criteria is the only thing
+    // behind it, instead of a redundant "More options" -> "LLM Judge Criteria" double label.
     const criteriaOnly = !sourceSelector;
     const criteriaInput = renderCriteriaInput(field, index, criteriaOnly);
     if (!sourceSelector && !criteriaInput) return null;

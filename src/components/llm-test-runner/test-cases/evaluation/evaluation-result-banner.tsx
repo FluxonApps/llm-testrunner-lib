@@ -99,15 +99,11 @@ export const EvaluationResultBanner: FunctionalComponent<EvaluationResultBannerP
   output,
   result,
 }) => {
-  // The model response and the evaluation result land at different times —
-  // `output` arrives first, `result` can lag well behind it (e.g. an
-  // llm-judge field awaiting the caller's judge callback). Each column
-  // shows real data as soon as it has it, independent of the other.
+  // `result` can lag well behind `output` (e.g. an llm-judge field awaiting
+  // the caller's judge callback) — each column shows data as soon as it has it.
   const hasOutput = !!output?.text;
   const fieldResults = result?.fieldResults || [];
-  // The first field's actual value is the raw response text already shown
-  // in Output — only fields after it (typically custom-extractor fields
-  // like an invoked tool name) get their own extracted-value chip.
+  // The first field's value is the raw response text already shown in Output.
   const extractedFields = fieldResults.slice(1);
 
   return (

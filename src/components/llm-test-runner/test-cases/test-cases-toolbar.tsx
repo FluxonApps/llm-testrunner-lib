@@ -25,6 +25,7 @@ export interface TestCasesToolbarProps {
   isExportingTestResults: boolean;
   isRunningAll: boolean;
   canRunAny: boolean;
+  canExportSuite: boolean;
   useSave?: boolean;
   isSaving?: boolean;
   usePromptEditor?: boolean;
@@ -58,6 +59,7 @@ export const TestCasesToolbar: FunctionalComponent<TestCasesToolbarProps> = ({
   isExportingTestResults,
   isRunningAll,
   canRunAny,
+  canExportSuite,
   useSave = false,
   isSaving = false,
   usePromptEditor = false,
@@ -135,12 +137,19 @@ export const TestCasesToolbar: FunctionalComponent<TestCasesToolbarProps> = ({
               <UploadIcon />
             </IconButton>
           </Tooltip>
-          <Tooltip content="Export test suite">
+          <Tooltip
+            content={
+              canExportSuite
+                ? 'Export test suite'
+                : 'Fill in every question and expected output before exporting'
+            }
+          >
             <IconButton
               variant="outline"
               class="test-cases-toolbar__icon-btn"
               onClick={onExportSuite}
               loading={isExportingTestSuite}
+              disabled={!canExportSuite}
             >
               <DownloadIcon />
             </IconButton>

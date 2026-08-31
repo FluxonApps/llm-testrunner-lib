@@ -65,3 +65,17 @@
 .threshold-input__message--error {
   color: var(--destructive);
 }
+
+/* Compact — a small inline field (no label, no reserved bottom margin).
+ * Used where the threshold sits inline in a field header. */
+.threshold-input--compact {
+  margin-bottom: 0;
+  display: inline-flex;
+}
+
+.threshold-input__input--compact {
+  width: 56px;
+  padding: 4px 8px;
+  font-size: var(--font-size-xs);
+  border-radius: var(--radius-md);
+}

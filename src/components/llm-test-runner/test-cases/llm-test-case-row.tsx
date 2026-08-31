@@ -28,6 +28,8 @@ export interface LLMTestCaseRowProps {
   extractorIds?: string[];
   onRun: (testCase: TestCase) => void;
   onDelete: (id: string) => void;
+  isPrimaryFieldTouched: boolean;
+  onPrimaryFieldTouch: () => void;
   handleTestCaseChange: (
     e: CustomEvent<{ testCaseId: string; key: string; value: string }>,
   ) => void;
@@ -92,6 +94,8 @@ export const LLMTestCaseRow: FunctionalComponent<LLMTestCaseRowProps> = ({
   extractorIds = [],
   onRun,
   onDelete,
+  isPrimaryFieldTouched,
+  onPrimaryFieldTouch,
   handleTestCaseChange,
   onExpectedOutcomeChange,
   onChatHistoryChange,
@@ -218,6 +222,8 @@ export const LLMTestCaseRow: FunctionalComponent<LLMTestCaseRowProps> = ({
               fields={testCase.expectedOutcome || []}
               dynamicResolutionSupported={dynamicResolutionSupported}
               extractorIds={extractorIds}
+              isPrimaryFieldTouched={isPrimaryFieldTouched}
+              onPrimaryFieldTouch={onPrimaryFieldTouch}
               onExpectedOutcomeChange={onExpectedOutcomeChange}
             />
           </div>

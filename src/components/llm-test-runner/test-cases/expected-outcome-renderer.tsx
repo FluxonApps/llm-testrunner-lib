@@ -26,6 +26,8 @@ interface ExpectedOutcomeRendererProps {
   fields: ExpectedOutcomeField[];
   dynamicResolutionSupported?: boolean;
   extractorIds?: string[];
+  isPrimaryFieldTouched: boolean;
+  onPrimaryFieldTouch: () => void;
   onExpectedOutcomeChange: (
     e: CustomEvent<ExpectedOutcomeChangeDetail>,
   ) => void;
@@ -39,6 +41,8 @@ export const ExpectedOutcomeRenderer: FunctionalComponent<ExpectedOutcomeRendere
   fields,
   dynamicResolutionSupported = false,
   extractorIds = [],
+  isPrimaryFieldTouched,
+  onPrimaryFieldTouch,
   onExpectedOutcomeChange,
 }) => {
   const hasExtractorOptions = extractorIds.length > 0;
@@ -247,7 +251,9 @@ export const ExpectedOutcomeRenderer: FunctionalComponent<ExpectedOutcomeRendere
       const isDynamic =
         dynamicResolutionSupported && field.outcomeMode === 'dynamic';
       const isMissing =
-        isPrimary && isPrimaryExpectedOutcomeMissing([field]);
+        isPrimary &&
+        isPrimaryFieldTouched &&
+        isPrimaryExpectedOutcomeMissing([field]);
       const config: TextAreaConfig = {
         name: `expectedOutcome-${index}`,
         fieldType: FormFieldType.TEXT_AREA,
@@ -276,6 +282,9 @@ export const ExpectedOutcomeRenderer: FunctionalComponent<ExpectedOutcomeRendere
                 value: e.detail.value,
               })
             }
+            // focusout bubbles + is composed (unlike blur), so this fires despite
+            // app-textarea's own shadow root.
+            onFocusout={isPrimary ? onPrimaryFieldTouch : undefined}
           />
           {isMissing && (
             <p class="expected-outcome-renderer__mandatory-message">
@@ -316,7 +325,9 @@ export const ExpectedOutcomeRenderer: FunctionalComponent<ExpectedOutcomeRendere
 
     if (field.type === 'chips-input') {
       const isMissing =
-        isPrimary && isPrimaryExpectedOutcomeMissing([field]);
+        isPrimary &&
+        isPrimaryFieldTouched &&
+        isPrimaryExpectedOutcomeMissing([field]);
       const config: ChipsConfig = {
         name: `expectedOutcome-${index}`,
         fieldType: FormFieldType.CHIPS,
@@ -331,6 +342,7 @@ export const ExpectedOutcomeRenderer: FunctionalComponent<ExpectedOutcomeRendere
               'expected-outcome-renderer__chips-wrap': true,
               'expected-outcome-renderer__chips-wrap--invalid': isMissing,
             }}
+            onFocusout={isPrimary ? onPrimaryFieldTouch : undefined}
           >
             <app-chips
               config={config}

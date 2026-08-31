@@ -2,6 +2,7 @@ import { h, FunctionalComponent } from '@stencil/core';
 import { TestCase } from '../../../types/llm-test-runner';
 import { LLMTestCaseRow, ChatHistoryRowChangeDetail } from './llm-test-case-row';
 import { ExpectedOutcomeChangeDetail } from './expected-outcome-renderer';
+import { PlusIcon } from '../../../lib/ui/icons/icons';
 
 export interface LLMTestCasesProps {
   testCases: TestCase[];
@@ -9,6 +10,9 @@ export interface LLMTestCasesProps {
   extractorIds?: string[];
   onRun: (testCase: TestCase) => void;
   onDelete: (id: string) => void;
+  onAddTestCase: () => void;
+  touchedPrimaryFieldIds: Set<string>;
+  onPrimaryFieldTouch: (testCaseId: string) => void;
   handleTestCaseChange: (
     e: CustomEvent<{ testCaseId: string; key: string; value: string }>,
   ) => void;
@@ -24,6 +28,9 @@ export const LLMTestCases: FunctionalComponent<LLMTestCasesProps> = ({
   extractorIds = [],
   onRun,
   onDelete,
+  onAddTestCase,
+  touchedPrimaryFieldIds,
+  onPrimaryFieldTouch,
   handleTestCaseChange,
   onExpectedOutcomeChange,
   onChatHistoryChange,
@@ -37,11 +44,19 @@ export const LLMTestCases: FunctionalComponent<LLMTestCasesProps> = ({
           extractorIds={extractorIds}
           onRun={onRun}
           onDelete={onDelete}
+          isPrimaryFieldTouched={touchedPrimaryFieldIds.has(testCase.id)}
+          onPrimaryFieldTouch={() => onPrimaryFieldTouch(testCase.id)}
           handleTestCaseChange={handleTestCaseChange}
           onExpectedOutcomeChange={onExpectedOutcomeChange}
           onChatHistoryChange={onChatHistoryChange}
         />
       ))}
+      <button type="button" class="test-cases__add-card" onClick={onAddTestCase}>
+        <span class="test-cases__add-card-icon">
+          <PlusIcon />
+        </span>
+        <span class="test-cases__add-card-label">Add question</span>
+      </button>
     </div>
   );
 };

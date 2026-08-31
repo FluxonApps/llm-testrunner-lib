@@ -116,6 +116,8 @@ export class LLMTestRunner {
   @State() activeFilter: StatusFilter = 'all';
   @State() searchQuery: string = '';
   @State() isSearchExpanded: boolean = false;
+  // Gates the mandatory-field error so it doesn't show on an untouched test case.
+  @State() touchedPrimaryFieldIds: Set<string> = new Set();
 
   private evaluationService: EvaluationService;
 
@@ -199,6 +201,13 @@ export class LLMTestRunner {
     this.updateTestCase(testCaseId, {
       chatHistory: { enabled, value },
     });
+  };
+
+  private markPrimaryFieldTouched = (testCaseId: string) => {
+    if (this.touchedPrimaryFieldIds.has(testCaseId)) return;
+    this.touchedPrimaryFieldIds = new Set(this.touchedPrimaryFieldIds).add(
+      testCaseId,
+    );
   };
 
   private addNewTestCase() {
@@ -424,6 +433,12 @@ export class LLMTestRunner {
   }
 
   private async handleExportTestSuite() {
+    if (this.testCases.some(tc => !isTestCaseRunnable(tc))) {
+      this.error = 'Fill in every question and expected output before exporting.';
+      return;
+    }
+
+    this.error = '';
     this.isExportingTestSuite = true;
     try {
       const jsonContent = formatTestSuiteAsJson(this.testCases);
@@ -515,6 +530,9 @@ export class LLMTestRunner {
             extractorIds={getExtractorIds(this.evaluationSourceExtractors)}
             onRun={testCase => this.runSingleTest(testCase).catch(() => {})}
             onDelete={id => this.deleteTestCase(id)}
+            onAddTestCase={() => this.addNewTestCase()}
+            touchedPrimaryFieldIds={this.touchedPrimaryFieldIds}
+            onPrimaryFieldTouch={this.markPrimaryFieldTouched}
             handleTestCaseChange={this.handleTestCaseChange}
             onExpectedOutcomeChange={this.handleExpectedOutcomeChange}
             onChatHistoryChange={this.handleChatHistoryChange}

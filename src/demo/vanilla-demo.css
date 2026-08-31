@@ -7,6 +7,12 @@
   --page-padding-y: clamp(16px, 3vw, 32px);
 }
 
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
 html,
 body {
   min-height: 100%;
@@ -14,6 +20,9 @@ body {
 
 body {
   margin: 0;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
   padding: var(--page-padding-y) var(--page-padding-x);
   background: #fafafa;
   color: #18181b;
@@ -35,7 +44,15 @@ body {
    * constricting the test runner. */
   max-width: none;
   width: 100%;
+  box-sizing: border-box;
   margin: 0 auto;
+  /* Matches --spacing-5 (20px) in tokens.css, how far <llm-test-runner> insets its
+   * own content — keeps "Example" aligned with "N Questions" below it.
+   * #runner-host bleeds back out to cancel this. */
+  padding: 0 20px;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
 }
 
 .demo-section {
@@ -44,6 +61,9 @@ body {
   padding: 0;
   border-radius: 0;
   box-shadow: none;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
 }
 
 h1 {
@@ -123,4 +143,17 @@ h2 {
 
 #runner-host {
   min-height: 80px;
+  box-sizing: border-box;
+  /* Bleeds past .container's + body's padding so the background reaches the
+   * viewport edge; the matching padding pushes content back in to stay aligned. */
+  margin: 0 calc(-1 * (var(--page-padding-x) + 20px));
+  padding: 0 calc(var(--page-padding-x) + 20px);
+  /* Fills remaining viewport height; it's the last element, so bleed straight
+   * through body's bottom padding too (nothing below to realign against). */
+  flex: 1;
+  margin-bottom: calc(-1 * var(--page-padding-y));
+  padding-bottom: var(--page-padding-y);
+  /* <llm-test-runner> no longer sets its own background (see llm-test-runner.css/:host) —
+   * this is the host page's choice, matching the Figma page-level tray color. */
+  background: var(--tailwind-colors-slate-200, #e2e8f0);
 }

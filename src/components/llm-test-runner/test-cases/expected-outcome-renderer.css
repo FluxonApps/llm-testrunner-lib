@@ -1,8 +1,3 @@
-/* ------------------------------------------------------------------ */
-/* Expected outcome fields — a primary card (always visible) plus any   */
-/* additional fields tucked behind a shared "More Options" disclosure.  */
-/* ------------------------------------------------------------------ */
-
 .expected-outcome-renderer {
   display: flex;
   flex-direction: column;
@@ -10,18 +5,13 @@
   width: 100%;
 }
 
-/* The outer card — holds the primary field (always visible) and, when
- * present, the "More Options" disclosure for every field after it. Both
- * live inside this one bordered container, not side-by-side cards. */
 .expected-outcome-renderer__outer-card {
   display: flex;
   flex-direction: column;
   background: var(--background);
   border: var(--border-width) solid var(--border);
   border-radius: var(--radius-2xl);
-  /* No overflow:hidden here — it would clip tooltips that pop up above
-   * fields near the top of the card. Instead, whichever child ends up
-   * flush against the bottom edge rounds its own bottom corners below. */
+  /* No overflow:hidden — it would clip tooltips popping up above top fields. */
 }
 
 .expected-outcome-renderer__primary {
@@ -83,10 +73,7 @@
 }
 
 .expected-outcome-renderer__mandatory-message {
-  /* Pull flush against the field above it — cancels the parent's 12px flex
-   * `gap` exactly (that gap is sized for spacing between full controls, not
-   * a hugging error message). Anything more negative than -12px would push
-   * this up into the field's own border. */
+  /* Cancels the parent's 12px flex gap to sit flush against the field above. */
   margin: -12px 0 0;
   font-size: var(--font-size-xs);
   color: var(--destructive-soft-fg);
@@ -118,11 +105,6 @@
   box-shadow: 0 0 0 4px var(--ring-soft);
 }
 
-/* ------------------------------------------------------------------ */
-/* "More Options" — shared disclosure grouping every field after the    */
-/* first one, rendered as a row of cards on a muted tray.                */
-/* ------------------------------------------------------------------ */
-
 .expected-outcome-renderer__more-options-summary {
   cursor: pointer;
   display: flex;
@@ -138,9 +120,7 @@
   transition: color 150ms ease;
 }
 
-/* Whichever element ends up flush against the outer card's bottom edge
- * rounds its own bottom corners to match it (see the note on
- * .expected-outcome-renderer__outer-card for why we don't just clip). */
+/* Rounds bottom corners to match the outer card when this sits flush against it. */
 .expected-outcome-renderer__more-options:not([open])
   .expected-outcome-renderer__more-options-summary {
   border-radius: 0 0 var(--radius-2xl) var(--radius-2xl);
@@ -185,11 +165,6 @@
   .expected-outcome-renderer__card {
   flex: 1 1 260px;
 }
-
-/* ------------------------------------------------------------------ */
-/* Per-field advanced options (evaluation source/extractor, LLM-judge   */
-/* criteria) — a small, rarely-opened disclosure inside each card.      */
-/* ------------------------------------------------------------------ */
 
 .expected-outcome-renderer__options {
   border: var(--border-width) solid var(--border);

@@ -224,9 +224,6 @@ export const ExpectedOutcomeRenderer: FunctionalComponent<ExpectedOutcomeRendere
     );
   };
 
-  /** Advanced, rarely-touched config (evaluation source/extractor, LLM-judge
-   * criteria) — tucked behind its own disclosure so the card header can stay
-   * to just approach + threshold. */
   const renderAdvancedOptions = (field: ExpectedOutcomeField, index: number) => {
     const sourceSelector = renderEvaluationSourceSelector(field, index);
     const criteriaInput = renderCriteriaInput(field, index);
@@ -457,17 +454,13 @@ export const ExpectedOutcomeRenderer: FunctionalComponent<ExpectedOutcomeRendere
     ];
   };
 
-  /** The first field — always visible, sharing one outer card with the
-   * "More Options" disclosure below it (not a card of its own). It's also
-   * the only field that gates Run — see isPrimaryExpectedOutcomeMissing. */
+  // Only the primary field gates Run — see isPrimaryExpectedOutcomeMissing.
   const renderPrimarySection = (field: ExpectedOutcomeField, index: number) => (
     <div class="expected-outcome-renderer__primary">
       {renderFieldSections(field, index, true)}
     </div>
   );
 
-  /** Every field after the first — rendered as its own bordered card inside
-   * the shared "More Options" tray. */
   const renderSecondaryCard = (field: ExpectedOutcomeField, index: number) => (
     <div class="expected-outcome-renderer__card" key={`${field.label}-${index}`}>
       {renderFieldSections(field, index, false)}

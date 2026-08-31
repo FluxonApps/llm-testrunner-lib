@@ -11,16 +11,7 @@ export interface SummaryStats {
   passRate: number;
 }
 
-/**
- * Aggregate per-test statuses into summary counts.
- *
- * Buckets:
- *  - passed  → fully passed
- *  - failed  → has results but didn't fully pass (includes 'partial')
- *  - notRun  → no completed evaluation yet (includes currently running)
- *
- * passRate is passed / total, rounded to nearest integer.
- */
+/** failed includes 'partial'; notRun includes the transient running/evaluating states. */
 export function computeSummaryStats(testCases: TestCase[]): SummaryStats {
   const total = testCases.length;
   let passed = 0;
@@ -34,7 +25,6 @@ export function computeSummaryStats(testCases: TestCase[]): SummaryStats {
     } else if (kind === 'failed' || kind === 'partial') {
       failed += 1;
     } else {
-      // 'not-run' | 'running' | 'evaluating'
       notRun += 1;
     }
   }
@@ -43,11 +33,8 @@ export function computeSummaryStats(testCases: TestCase[]): SummaryStats {
   return { total, passed, failed, notRun, passRate };
 }
 
-/**
- * Buckets match computeSummaryStats: 'not-tested' covers both 'not-run'
- * and the transient 'running' state, 'failed' covers both 'failed' and
- * 'partial'.
- */
+/** Buckets match computeSummaryStats: 'not-tested' covers 'not-run' + 'running',
+ * 'failed' covers 'failed' + 'partial'. */
 export function filterTestCasesByStatus(
   testCases: TestCase[],
   filter: StatusFilter,
@@ -62,7 +49,6 @@ export function filterTestCasesByStatus(
   });
 }
 
-/** Case-insensitive substring match on the question text. */
 export function filterTestCasesByQuery(
   testCases: TestCase[],
   query: string,

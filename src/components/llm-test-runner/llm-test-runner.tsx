@@ -65,6 +65,7 @@ function nextFrame(): Promise<void> {
     'summary/llm-test-runner-summary.css',
     'test-cases/llm-test-cases.css',
     'test-cases/llm-test-case-row.css',
+    'test-cases/expected-outcome-renderer.css',
     'test-cases/actions/row-actions.css',
     'test-cases/evaluation/evaluation-summary.css',
     'test-cases/output/response-output.css',

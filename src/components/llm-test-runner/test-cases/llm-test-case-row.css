@@ -262,108 +262,15 @@
  * input-content > textarea / chat-history / expected-outcome layout). */
 .test-case-row__input-content {
   flex: 1;
-  padding: var(--spacing-5);
+  padding: var(--spacing-8);
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-3);
+  gap: var(--spacing-5);
 }
 
 /* The Run footer that used to live at the bottom of the input column is
  * removed — the Run button is now in the summary, always reachable
  * without expanding the card. */
-
-/* ------------------------------------------------------------------ */
-/* Expected outcome renderer (within input column)                    */
-/* ------------------------------------------------------------------ */
-
-.expected-outcome-renderer {
-  display: flex;
-  flex-direction: column;
-  gap: var(--spacing-3);
-  margin-top: var(--spacing-2);
-}
-
-.expected-outcome-renderer__group {
-  display: flex;
-  flex-direction: column;
-  gap: var(--spacing-2);
-  padding: var(--spacing-3);
-  border: var(--border-width) solid var(--border);
-  border-radius: var(--radius-lg);
-  background: var(--background);
-  transition: border-color 150ms ease;
-}
-
-.expected-outcome-renderer__group:focus-within {
-  border-color: var(--border-strong);
-}
-
-.expected-outcome-renderer__options {
-  border: var(--border-width) solid var(--border);
-  border-radius: var(--radius-lg);
-  background: transparent;
-  overflow: hidden;
-  transition: border-color 150ms ease, background-color 150ms ease;
-}
-
-.expected-outcome-renderer__options[open] {
-  background: var(--muted);
-  border-color: var(--border-strong);
-}
-
-.expected-outcome-renderer__options-summary {
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  font-size: 11px;
-  font-weight: var(--font-weight-semibold);
-  text-transform: uppercase;
-  letter-spacing: var(--letter-spacing-wider);
-  color: var(--muted-foreground);
-  padding: var(--spacing-3) var(--spacing-3);
-  user-select: none;
-  list-style: none;
-  transition: color 150ms ease;
-}
-
-.expected-outcome-renderer__options-summary:hover {
-  color: var(--foreground);
-}
-
-.expected-outcome-renderer__options-summary::-webkit-details-marker {
-  display: none;
-}
-
-.expected-outcome-renderer__options-summary::marker {
-  display: none;
-  content: '';
-}
-
-.expected-outcome-renderer__options-summary::before {
-  content: '';
-  display: inline-block;
-  width: 0;
-  height: 0;
-  border-top: 4px solid transparent;
-  border-bottom: 4px solid transparent;
-  border-left: 5px solid currentColor;
-  transition: transform 200ms ease;
-  transform-origin: 25% 50%;
-  flex-shrink: 0;
-}
-
-.expected-outcome-renderer__options[open]
-  .expected-outcome-renderer__options-summary::before {
-  transform: rotate(90deg);
-}
-
-.expected-outcome-renderer__options-content {
-  display: flex;
-  flex-direction: column;
-  gap: var(--spacing-3);
-  padding: 0 var(--spacing-3) var(--spacing-3);
-}
 
 /* ------------------------------------------------------------------ */
 /* Responsive                                                         */

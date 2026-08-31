@@ -2,6 +2,21 @@
 
 All notable changes to this project are documented in this file. The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 2.3.0
+
+### 🚀 What's new
+
+- Chat history view for test case conversations
+- Question card for reviewing individual test cases
+- Export-suite validation
+- Primary expected-outcome field gating helper
+
+### 🔧 Changed
+
+- Test-runner UI redesigned with new evaluation banner, toolbar, and shared UI primitives (replacing the old header/summary chrome)
+- LLM-judge criteria disclosure renamed to reflect what it holds
+- Bump the dev-dependencies group with 13 updates (jest/puppeteer pinned for Stencil compatibility)
+
 ## 2.2.2
 
 ### 🔧 Changed

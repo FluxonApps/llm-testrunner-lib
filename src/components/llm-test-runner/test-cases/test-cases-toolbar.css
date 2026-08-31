@@ -1,0 +1,119 @@
+/* No background of its own — sits on whatever the host page provides, same as
+ * the rest of the component (see llm-test-runner.css/:host). Sticky via
+ * --llmtr-sticky-top since it now holds Run all and the other primary actions. */
+.test-cases-toolbar {
+  display: flex;
+  align-items: start;
+  justify-content: space-between;
+  gap: var(--spacing-2);
+  padding: var(--spacing-3) var(--spacing-5) var(--spacing-2);
+  position: sticky;
+  top: var(--llmtr-sticky-top, 0px);
+  z-index: var(--z-sticky);
+}
+
+.test-cases-toolbar__left {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-4);
+  min-width: 0;
+  flex-wrap: wrap;
+}
+
+.test-cases-toolbar__count {
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-semibold);
+  color: var(--muted-foreground);
+  white-space: nowrap;
+}
+
+.test-cases-toolbar__actions {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-1);
+  padding-left: var(--spacing-4);
+  border-left: var(--border-width) solid var(--border-strong);
+}
+
+.test-cases-toolbar__file-input {
+  display: none;
+}
+
+.test-cases-toolbar__filters {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-2);
+  height: 32px;
+  padding-left: var(--spacing-4);
+  border-left: var(--border-width) solid var(--border-strong);
+}
+
+/* --secondary resolves to the same value as --muted in this token set — a
+ * likely host-page background — which would make an inactive pill invisible. */
+.test-cases-toolbar__filter-pill {
+  display: inline-flex;
+  align-items: center;
+  height: 100%;
+  padding: 5px 17px;
+  border-radius: var(--radius-full);
+  border: var(--border-width) solid var(--border-strong);
+  background: var(--background);
+  color: var(--muted-foreground);
+  font-family: inherit;
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+  white-space: nowrap;
+  cursor: pointer;
+  transition:
+    background-color 120ms ease,
+    border-color 120ms ease,
+    color 120ms ease;
+}
+
+.test-cases-toolbar__filter-pill:hover:not(.test-cases-toolbar__filter-pill--active) {
+  border-color: var(--ring);
+  color: var(--foreground);
+}
+
+.test-cases-toolbar__filter-pill:focus-visible {
+  outline: 2px solid var(--ring);
+  outline-offset: 2px;
+}
+
+.test-cases-toolbar__filter-pill--active {
+  background: var(--primary);
+  border-color: var(--primary);
+  color: var(--primary-foreground);
+}
+
+/* Grouped as one flex child so justify-content: space-between pushes it right as a unit. */
+.test-cases-toolbar__right {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-2);
+  flex-shrink: 0;
+}
+
+.test-cases-toolbar__search {
+  flex-shrink: 0;
+}
+
+.test-cases-toolbar__search-input {
+  width: 160px;
+  height: 32px;
+  box-sizing: border-box;
+  padding: 0 var(--spacing-3);
+  border: var(--border-width) solid var(--input);
+  border-radius: var(--radius-full);
+  background: var(--background);
+  font-family: inherit;
+  font-size: var(--font-size-sm);
+  color: var(--foreground);
+  outline: none;
+  transition: border-color 150ms ease, box-shadow 150ms ease;
+}
+
+.test-cases-toolbar__search-input:focus {
+  border-color: var(--ring);
+  box-shadow: 0 0 0 4px var(--ring-soft);
+}

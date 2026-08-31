@@ -25,7 +25,7 @@ describe('computeTestStatus', () => {
 
   it('returns "not-run" when there is no evaluation result', () => {
     const status = computeTestStatus(makeTestCase({}));
-    expect(status).toEqual({ kind: 'not-run', label: 'Not run' });
+    expect(status).toEqual({ kind: 'not-run', label: 'Not tested' });
   });
 
   it('returns "passed" for a single-field result that passed', () => {

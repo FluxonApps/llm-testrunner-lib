@@ -47,16 +47,15 @@ export const DownloadIcon: FunctionalComponent<IconProps> = ({
   </svg>
 );
 
-/** Document with text lines — used for Export Test Results. */
-export const FileTextIcon: FunctionalComponent<IconProps> = ({
+/** Three ascending bars — used for Create report. */
+export const BarChart3Icon: FunctionalComponent<IconProps> = ({
   class: cls,
 }) => (
   <svg {...baseProps} class={cls}>
-    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
-    <polyline points="14 2 14 8 20 8" />
-    <line x1="16" y1="13" x2="8" y2="13" />
-    <line x1="16" y1="17" x2="8" y2="17" />
-    <polyline points="10 9 9 9 8 9" />
+    <path d="M3 3v18h18" />
+    <path d="M18 17V9" />
+    <path d="M13 17V5" />
+    <path d="M8 17v-3" />
   </svg>
 );
 
@@ -179,5 +178,12 @@ export const ArrowRightIcon: FunctionalComponent<IconProps> = ({
   <svg {...baseProps} class={cls}>
     <line x1="5" y1="12" x2="19" y2="12" />
     <polyline points="12 5 19 12 12 19" />
+  </svg>
+);
+
+export const SearchIcon: FunctionalComponent<IconProps> = ({ class: cls }) => (
+  <svg {...baseProps} class={cls}>
+    <circle cx="11" cy="11" r="8" />
+    <line x1="21" y1="21" x2="16.65" y2="16.65" />
   </svg>
 );

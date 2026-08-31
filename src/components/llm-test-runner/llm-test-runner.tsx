@@ -500,9 +500,6 @@ export class LLMTestRunner {
             canRunAny={this.testCases.some(tc =>
               isTestCaseRunnable(tc),
             )}
-            canExportSuite={this.testCases.every(tc =>
-              isTestCaseRunnable(tc),
-            )}
             useSave={this.useSave}
             isSaving={this.isSaving}
             usePromptEditor={this.usePromptEditor}

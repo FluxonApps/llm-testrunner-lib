@@ -53,10 +53,7 @@ export interface FieldEvaluationResult {
   label: string;
   type: ExpectedOutcomeFieldType;
   expectedValue: string;
-  /** The resolved value actually compared against `expectedValue` — the raw
-   * response text for the default 'text' source, or whatever a custom
-   * evaluationSource extractor returned. Absent when resolution failed
-   * (see `error`). */
+  /** The value compared against `expectedValue`. Absent when resolution failed (see `error`). */
   actualValue?: string;
   passed: boolean;
   keywordMatches: KeywordMatch[];

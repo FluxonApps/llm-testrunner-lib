@@ -57,6 +57,7 @@ import type { ChatHistoryRowChangeDetail } from './test-cases/llm-test-case-row'
 
 const HIGHLIGHT_VISIBLE_MS = 2000;
 const ELEMENT_LOOKUP_MAX_FRAMES = 10;
+const STUCK_GAP_TOLERANCE_PX = 0.5;
 
 function nextFrame(): Promise<void> {
   return new Promise(resolve => requestAnimationFrame(() => resolve()));
@@ -161,10 +162,16 @@ export class LLMTestRunner {
     }
     this.toolbarStuckObserver = new IntersectionObserver(
       ([entry]) => {
-        // isIntersecting is also false below the fold, which isn't stuck.
-        const rootTop = entry.rootBounds?.top ?? 0;
+        const toolbar = this.el.shadowRoot?.querySelector(
+          '.test-cases-toolbar',
+        );
+        if (!toolbar) {
+          return;
+        }
+        // Shared coordinate space, so this works in any scroll container.
         this.isToolbarStuck =
-          !entry.isIntersecting && entry.boundingClientRect.top <= rootTop;
+          toolbar.getBoundingClientRect().top >
+          entry.boundingClientRect.bottom + STUCK_GAP_TOLERANCE_PX;
       },
       { rootMargin: `-${(this.stickyOffset ?? 0) + 1}px 0px 0px 0px` },
     );

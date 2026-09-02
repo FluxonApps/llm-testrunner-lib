@@ -57,7 +57,6 @@ import type { ChatHistoryRowChangeDetail } from './test-cases/llm-test-case-row'
 
 const HIGHLIGHT_VISIBLE_MS = 2000;
 const ELEMENT_LOOKUP_MAX_FRAMES = 10;
-const STUCK_GAP_TOLERANCE_PX = 0.5;
 
 function nextFrame(): Promise<void> {
   return new Promise(resolve => requestAnimationFrame(() => resolve()));
@@ -122,8 +121,9 @@ export class LLMTestRunner {
   @State() isToolbarStuck: boolean = false;
 
   private evaluationService: EvaluationService;
+  private isTrackingToolbarStuck = false;
+  private toolbarStuckFrame?: number;
   private toolbarSentinelEl?: HTMLElement;
-  private toolbarStuckObserver?: IntersectionObserver;
 
   private getResolvedExpectedOutcomeSchema(): ExpectedOutcomeSchema {
     if (this.defaultExpectedOutcomeSchema === undefined) {
@@ -137,45 +137,90 @@ export class LLMTestRunner {
   @Watch('stickyOffset')
   stickyOffsetChanged(newVal: number) {
     this.el.style.setProperty('--llmtr-sticky-top', `${newVal}px`);
-    this.setupToolbarStuckObserver();
+    this.updateToolbarStuck();
   }
 
   componentDidLoad() {
     this.el.style.setProperty('--llmtr-sticky-top', `${this.stickyOffset ?? 0}px`);
-    this.setupToolbarStuckObserver();
+    this.startToolbarStuckTracking();
   }
 
   // Covers reattach; componentDidLoad only fires once.
   connectedCallback() {
-    this.setupToolbarStuckObserver();
+    this.startToolbarStuckTracking();
   }
 
   disconnectedCallback() {
-    this.toolbarStuckObserver?.disconnect();
+    this.stopToolbarStuckTracking();
   }
 
-  private setupToolbarStuckObserver() {
-    this.toolbarStuckObserver?.disconnect();
-    // Absent in Node, where the hydrate build runs this.
-    if (!this.toolbarSentinelEl || typeof IntersectionObserver === 'undefined') {
+  // Capture phase so scrolling in any ancestor container is caught too.
+  private startToolbarStuckTracking() {
+    if (typeof window === 'undefined' || this.isTrackingToolbarStuck) {
       return;
     }
-    this.toolbarStuckObserver = new IntersectionObserver(
-      ([entry]) => {
-        const toolbar = this.el.shadowRoot?.querySelector(
-          '.test-cases-toolbar',
-        );
-        if (!toolbar) {
-          return;
-        }
-        // Shared coordinate space, so this works in any scroll container.
-        this.isToolbarStuck =
-          toolbar.getBoundingClientRect().top >
-          entry.boundingClientRect.bottom + STUCK_GAP_TOLERANCE_PX;
-      },
-      { rootMargin: `-${(this.stickyOffset ?? 0) + 1}px 0px 0px 0px` },
-    );
-    this.toolbarStuckObserver.observe(this.toolbarSentinelEl);
+    this.isTrackingToolbarStuck = true;
+    window.addEventListener('scroll', this.scheduleToolbarStuckUpdate, {
+      capture: true,
+      passive: true,
+    });
+    window.addEventListener('resize', this.scheduleToolbarStuckUpdate, {
+      passive: true,
+    });
+    this.updateToolbarStuck();
+  }
+
+  private stopToolbarStuckTracking() {
+    if (typeof window === 'undefined' || !this.isTrackingToolbarStuck) {
+      return;
+    }
+    this.isTrackingToolbarStuck = false;
+    window.removeEventListener('scroll', this.scheduleToolbarStuckUpdate, {
+      capture: true,
+    });
+    window.removeEventListener('resize', this.scheduleToolbarStuckUpdate);
+    if (this.toolbarStuckFrame !== undefined) {
+      cancelAnimationFrame(this.toolbarStuckFrame);
+      this.toolbarStuckFrame = undefined;
+    }
+  }
+
+  private scheduleToolbarStuckUpdate = () => {
+    if (this.toolbarStuckFrame !== undefined) {
+      return;
+    }
+    this.toolbarStuckFrame = requestAnimationFrame(() => {
+      this.toolbarStuckFrame = undefined;
+      this.updateToolbarStuck();
+    });
+  };
+
+  private updateToolbarStuck() {
+    if (!this.toolbarSentinelEl) {
+      return;
+    }
+    const scrollRoot = this.findScrollRoot();
+    const rootTop = scrollRoot ? scrollRoot.getBoundingClientRect().top : 0;
+    // The sentinel stays in normal flow, so it passing the sticky line is
+    // what tells us the toolbar has pinned rather than sitting there itself.
+    // Strict: at rest the two are equal, and any tolerance either flashes
+    // transparent on pin or paints the toolbar stuck at the top of a panel.
+    this.isToolbarStuck =
+      this.toolbarSentinelEl.getBoundingClientRect().bottom <
+      rootTop + (this.stickyOffset ?? 0);
+  }
+
+  // position: sticky pins to this, so the sticky line is measured from it.
+  private findScrollRoot(): Element | null {
+    let node = this.el.parentElement;
+    while (node) {
+      const { overflowY } = getComputedStyle(node);
+      if (overflowY === 'auto' || overflowY === 'scroll') {
+        return node;
+      }
+      node = node.parentElement;
+    }
+    return null;
   }
 
   componentWillLoad() {

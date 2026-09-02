@@ -1,6 +1,5 @@
-/* 1px, not 0 — zero-area targets are an IntersectionObserver edge case. */
 .test-cases-toolbar-sentinel {
-  height: 1px;
+  height: 0;
 }
 
 .test-cases-toolbar {

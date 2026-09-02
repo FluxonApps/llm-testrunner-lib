@@ -62,7 +62,7 @@
 }
 
 .ui-icon-button--primary:hover:not(:disabled):not(.ui-icon-button--loading) {
-  opacity: 0.9;
+  background: var(--primary-hover);
   transform: translateY(-1px);
   box-shadow: var(--shadow-sm);
 }

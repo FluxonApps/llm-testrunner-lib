@@ -145,6 +145,12 @@ export class LLMTestRunner {
     this.startToolbarStuckTracking();
   }
 
+  // Catches shifts that move the sentinel without scrolling, such as the
+  // error message above the toolbar appearing.
+  componentDidRender() {
+    this.scheduleToolbarStuckUpdate();
+  }
+
   // Covers reattach; componentDidLoad only fires once.
   connectedCallback() {
     this.startToolbarStuckTracking();
@@ -200,7 +206,10 @@ export class LLMTestRunner {
       return;
     }
     const scrollRoot = this.findScrollRoot();
-    const rootTop = scrollRoot ? scrollRoot.getBoundingClientRect().top : 0;
+    // clientTop: sticky insets start at the scrollport, inside the border.
+    const rootTop = scrollRoot
+      ? scrollRoot.getBoundingClientRect().top + scrollRoot.clientTop
+      : 0;
     // The sentinel stays in normal flow, so it passing the sticky line is
     // what tells us the toolbar has pinned rather than sitting there itself.
     // Strict: at rest the two are equal, and any tolerance either flashes

@@ -39,6 +39,31 @@ describe('LLMTestRunner toolbar stuck state', () => {
     });
   });
 
+  // Mounting into an already-scrolled container fires no scroll event, so the
+  // first measurement has to come from the component itself.
+  it('measures on first render without waiting for a scroll', async () => {
+    const proto = (global as unknown as { HTMLElement: typeof HTMLElement })
+      .HTMLElement.prototype;
+    const original = proto.getBoundingClientRect;
+    proto.getBoundingClientRect = function () {
+      const sentinel = this.classList?.contains('test-cases-toolbar-sentinel');
+      return { top: 0, bottom: sentinel ? -40 : 0 } as DOMRect;
+    };
+
+    try {
+      const mounted = await newSpecPage({
+        components: [LLMTestRunner],
+        html: '<llm-test-runner></llm-test-runner>',
+      });
+      await new Promise(resolve => requestAnimationFrame(resolve));
+      await mounted.waitForChanges();
+
+      expect(mounted.rootInstance.isToolbarStuck).toBe(true);
+    } finally {
+      proto.getBoundingClientRect = original;
+    }
+  });
+
   it('is not stuck while the sentinel is still at or below the sticky line', async () => {
     positionSentinel(0);
     await scroll();

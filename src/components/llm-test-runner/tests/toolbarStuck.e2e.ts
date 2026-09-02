@@ -11,7 +11,7 @@ async function isStuck(page: Awaited<ReturnType<typeof newE2EPage>>) {
   }, STUCK_CLASS);
 }
 
-// IntersectionObserver delivers asynchronously, after layout.
+// Lets the rAF-throttled handler run and Stencil render the result.
 async function settle(page: Awaited<ReturnType<typeof newE2EPage>>) {
   await page.evaluate(
     () =>

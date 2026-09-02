@@ -192,7 +192,10 @@ export class LLMTestRunner {
   }
 
   private scheduleToolbarStuckUpdate = () => {
-    if (this.toolbarStuckFrame !== undefined) {
+    if (
+      typeof requestAnimationFrame === 'undefined' ||
+      this.toolbarStuckFrame !== undefined
+    ) {
       return;
     }
     this.toolbarStuckFrame = requestAnimationFrame(() => {

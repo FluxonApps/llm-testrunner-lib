@@ -1,5 +1,6 @@
+/* 1px, not 0 — zero-area targets are an IntersectionObserver edge case. */
 .test-cases-toolbar-sentinel {
-  height: 0;
+  height: 1px;
 }
 
 /* Opaque only while pinned — otherwise rows scrolling underneath show through. */
@@ -12,7 +13,9 @@
   position: sticky;
   top: var(--llmtr-sticky-top, 0px);
   z-index: var(--z-sticky);
-  transition: background-color 150ms ease, box-shadow 150ms ease;
+  /* Background is deliberately not transitioned — fading up from transparent
+   * would let rows show through for the length of the transition. */
+  transition: box-shadow 150ms ease;
 }
 
 .test-cases-toolbar--stuck {

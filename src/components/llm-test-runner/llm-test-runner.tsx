@@ -144,6 +144,11 @@ export class LLMTestRunner {
     this.setupToolbarStuckObserver();
   }
 
+  // Re-runs on every reattach; componentDidLoad only fires once.
+  connectedCallback() {
+    this.setupToolbarStuckObserver();
+  }
+
   disconnectedCallback() {
     this.toolbarStuckObserver?.disconnect();
   }
@@ -156,7 +161,11 @@ export class LLMTestRunner {
     }
     this.toolbarStuckObserver = new IntersectionObserver(
       ([entry]) => {
-        this.isToolbarStuck = !entry.isIntersecting;
+        // The sentinel is also outside the root while the whole component sits
+        // below the fold, so isIntersecting alone would read as stuck there.
+        const rootTop = entry.rootBounds?.top ?? 0;
+        this.isToolbarStuck =
+          !entry.isIntersecting && entry.boundingClientRect.top <= rootTop;
       },
       { rootMargin: `-${(this.stickyOffset ?? 0) + 1}px 0px 0px 0px` },
     );

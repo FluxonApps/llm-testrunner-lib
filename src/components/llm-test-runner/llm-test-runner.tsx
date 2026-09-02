@@ -118,8 +118,11 @@ export class LLMTestRunner {
   @State() isSearchExpanded: boolean = false;
   // Gates the mandatory-field error so it doesn't show on an untouched test case.
   @State() touchedPrimaryFieldIds: Set<string> = new Set();
+  @State() isToolbarStuck: boolean = false;
 
   private evaluationService: EvaluationService;
+  private toolbarSentinelEl?: HTMLElement;
+  private toolbarStuckObserver?: IntersectionObserver;
 
   private getResolvedExpectedOutcomeSchema(): ExpectedOutcomeSchema {
     if (this.defaultExpectedOutcomeSchema === undefined) {
@@ -133,10 +136,31 @@ export class LLMTestRunner {
   @Watch('stickyOffset')
   stickyOffsetChanged(newVal: number) {
     this.el.style.setProperty('--llmtr-sticky-top', `${newVal}px`);
+    this.setupToolbarStuckObserver();
   }
 
   componentDidLoad() {
     this.el.style.setProperty('--llmtr-sticky-top', `${this.stickyOffset ?? 0}px`);
+    this.setupToolbarStuckObserver();
+  }
+
+  disconnectedCallback() {
+    this.toolbarStuckObserver?.disconnect();
+  }
+
+  private setupToolbarStuckObserver() {
+    this.toolbarStuckObserver?.disconnect();
+    // Absent in Node — the hydrate/SSR build and the jsdom test env both run this.
+    if (!this.toolbarSentinelEl || typeof IntersectionObserver === 'undefined') {
+      return;
+    }
+    this.toolbarStuckObserver = new IntersectionObserver(
+      ([entry]) => {
+        this.isToolbarStuck = !entry.isIntersecting;
+      },
+      { rootMargin: `-${(this.stickyOffset ?? 0) + 1}px 0px 0px 0px` },
+    );
+    this.toolbarStuckObserver.observe(this.toolbarSentinelEl);
   }
 
   componentWillLoad() {
@@ -494,7 +518,12 @@ export class LLMTestRunner {
       <div class="test-runner-container">
         <ErrorMessage message={this.error} onClear={() => (this.error = '')} />
         <div class="test-runner-container__content">
+          <div
+            class="test-cases-toolbar-sentinel"
+            ref={el => (this.toolbarSentinelEl = el)}
+          />
           <TestCasesToolbar
+            isStuck={this.isToolbarStuck}
             totalCount={this.testCases.length}
             notTestedCount={stats.notRun}
             failedCount={stats.failed}

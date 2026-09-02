@@ -16,6 +16,7 @@ import {
 import type { StatusFilter } from './test-case-filtering';
 
 export interface TestCasesToolbarProps {
+  isStuck?: boolean;
   totalCount: number;
   notTestedCount: number;
   failedCount: number;
@@ -49,6 +50,7 @@ const FILTERS: { value: StatusFilter; label: string }[] = [
 ];
 
 export const TestCasesToolbar: FunctionalComponent<TestCasesToolbarProps> = ({
+  isStuck = false,
   totalCount,
   notTestedCount,
   failedCount,
@@ -104,7 +106,12 @@ export const TestCasesToolbar: FunctionalComponent<TestCasesToolbarProps> = ({
   const noun = totalCount === 1 ? 'Question' : 'Questions';
 
   return (
-    <div class="test-cases-toolbar">
+    <div
+      class={{
+        'test-cases-toolbar': true,
+        'test-cases-toolbar--stuck': isStuck,
+      }}
+    >
       <div class="test-cases-toolbar__left">
         <span class="test-cases-toolbar__count">
           {totalCount} {noun}

@@ -144,7 +144,7 @@ export class LLMTestRunner {
     this.setupToolbarStuckObserver();
   }
 
-  // Re-runs on every reattach; componentDidLoad only fires once.
+  // Covers reattach; componentDidLoad only fires once.
   connectedCallback() {
     this.setupToolbarStuckObserver();
   }
@@ -155,14 +155,13 @@ export class LLMTestRunner {
 
   private setupToolbarStuckObserver() {
     this.toolbarStuckObserver?.disconnect();
-    // Absent in Node — the hydrate/SSR build and the jsdom test env both run this.
+    // Absent in Node, where the hydrate build runs this.
     if (!this.toolbarSentinelEl || typeof IntersectionObserver === 'undefined') {
       return;
     }
     this.toolbarStuckObserver = new IntersectionObserver(
       ([entry]) => {
-        // The sentinel is also outside the root while the whole component sits
-        // below the fold, so isIntersecting alone would read as stuck there.
+        // isIntersecting is also false below the fold, which isn't stuck.
         const rootTop = entry.rootBounds?.top ?? 0;
         this.isToolbarStuck =
           !entry.isIntersecting && entry.boundingClientRect.top <= rootTop;

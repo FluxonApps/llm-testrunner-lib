@@ -3,7 +3,6 @@
   height: 1px;
 }
 
-/* Opaque only while pinned — otherwise rows scrolling underneath show through. */
 .test-cases-toolbar {
   display: flex;
   align-items: start;
@@ -13,8 +12,7 @@
   position: sticky;
   top: var(--llmtr-sticky-top, 0px);
   z-index: var(--z-sticky);
-  /* Background is deliberately not transitioned — fading up from transparent
-   * would let rows show through for the length of the transition. */
+  /* Not background — fading up from transparent lets rows show through. */
   transition: box-shadow 150ms ease;
 }
 

@@ -1,6 +1,5 @@
-/* No background of its own — sits on whatever the host page provides, same as
- * the rest of the component (see llm-test-runner.css/:host). Sticky via
- * --llmtr-sticky-top since it now holds Run all and the other primary actions. */
+/* Sticky via --llmtr-sticky-top since it holds Run all and the other primary
+ * actions. Opaque so rows scrolling underneath don't show through it. */
 .test-cases-toolbar {
   display: flex;
   align-items: start;
@@ -10,6 +9,10 @@
   position: sticky;
   top: var(--llmtr-sticky-top, 0px);
   z-index: var(--z-sticky);
+  background: var(--background);
+  border-bottom: var(--border-width) solid var(--border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
 }
 
 .test-cases-toolbar__left {

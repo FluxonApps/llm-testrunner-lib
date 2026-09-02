@@ -147,7 +147,7 @@ h2 {
   /* Bleeds past .container's + body's padding so the background reaches the
    * viewport edge; the matching padding pushes content back in to stay aligned. */
   margin: 0 calc(-1 * (var(--page-padding-x) + 20px));
-  padding: 0 calc(var(--page-padding-x) + 20px);
+  padding: 8px calc(var(--page-padding-x) + 20px) 0;
   /* Fills remaining viewport height; it's the last element, so bleed straight
    * through body's bottom padding too (nothing below to realign against). */
   flex: 1;

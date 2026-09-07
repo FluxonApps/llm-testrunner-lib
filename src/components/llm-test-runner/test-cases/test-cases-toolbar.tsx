@@ -30,6 +30,7 @@ export interface TestCasesToolbarProps {
   usePromptEditor?: boolean;
   searchQuery: string;
   isSearchExpanded: boolean;
+  readOnly?: boolean;
   onAddTestCase: () => void;
   onImport: (file: File) => void;
   onExportSuite: () => void;
@@ -63,6 +64,7 @@ export const TestCasesToolbar: FunctionalComponent<TestCasesToolbarProps> = ({
   usePromptEditor = false,
   searchQuery,
   isSearchExpanded,
+  readOnly = false,
   onAddTestCase,
   onImport,
   onExportSuite,
@@ -117,24 +119,28 @@ export const TestCasesToolbar: FunctionalComponent<TestCasesToolbarProps> = ({
             onChange={handleFileChange}
             accept=".json,application/json"
           />
-          <Tooltip content="Add question">
-            <IconButton
-              variant="outline"
-              class="test-cases-toolbar__icon-btn"
-              onClick={onAddTestCase}
-            >
-              <PlusIcon />
-            </IconButton>
-          </Tooltip>
-          <Tooltip content="Import test suite">
-            <IconButton
-              variant="outline"
-              class="test-cases-toolbar__icon-btn"
-              onClick={handleFileSelect}
-            >
-              <UploadIcon />
-            </IconButton>
-          </Tooltip>
+          {!readOnly && (
+            <Tooltip content="Add question">
+              <IconButton
+                variant="outline"
+                class="test-cases-toolbar__icon-btn"
+                onClick={onAddTestCase}
+              >
+                <PlusIcon />
+              </IconButton>
+            </Tooltip>
+          )}
+          {!readOnly && (
+            <Tooltip content="Import test suite">
+              <IconButton
+                variant="outline"
+                class="test-cases-toolbar__icon-btn"
+                onClick={handleFileSelect}
+              >
+                <UploadIcon />
+              </IconButton>
+            </Tooltip>
+          )}
           <Tooltip content="Export test suite">
             <IconButton
               variant="outline"

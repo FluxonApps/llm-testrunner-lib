@@ -8,6 +8,7 @@ export interface LLMTestCasesProps {
   testCases: TestCase[];
   dynamicResolutionSupported?: boolean;
   extractorIds?: string[];
+  readOnly?: boolean;
   onRun: (testCase: TestCase) => void;
   onDelete: (id: string) => void;
   onAddTestCase: () => void;
@@ -26,6 +27,7 @@ export const LLMTestCases: FunctionalComponent<LLMTestCasesProps> = ({
   testCases,
   dynamicResolutionSupported = false,
   extractorIds = [],
+  readOnly = false,
   onRun,
   onDelete,
   onAddTestCase,
@@ -42,6 +44,7 @@ export const LLMTestCases: FunctionalComponent<LLMTestCasesProps> = ({
           testCase={testCase}
           dynamicResolutionSupported={dynamicResolutionSupported}
           extractorIds={extractorIds}
+          readOnly={readOnly}
           onRun={onRun}
           onDelete={onDelete}
           isPrimaryFieldTouched={touchedPrimaryFieldIds.has(testCase.id)}
@@ -51,12 +54,14 @@ export const LLMTestCases: FunctionalComponent<LLMTestCasesProps> = ({
           onChatHistoryChange={onChatHistoryChange}
         />
       ))}
-      <button type="button" class="test-cases__add-card" onClick={onAddTestCase}>
-        <span class="test-cases__add-card-icon">
-          <PlusIcon />
-        </span>
-        <span class="test-cases__add-card-label">Add question</span>
-      </button>
+      {!readOnly && (
+        <button type="button" class="test-cases__add-card" onClick={onAddTestCase}>
+          <span class="test-cases__add-card-icon">
+            <PlusIcon />
+          </span>
+          <span class="test-cases__add-card-label">Add question</span>
+        </button>
+      )}
     </div>
   );
 };

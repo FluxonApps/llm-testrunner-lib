@@ -26,6 +26,7 @@ export interface LLMTestCaseRowProps {
   testCase: TestCase;
   dynamicResolutionSupported?: boolean;
   extractorIds?: string[];
+  readOnly?: boolean;
   onRun: (testCase: TestCase) => void;
   onDelete: (id: string) => void;
   isPrimaryFieldTouched: boolean;
@@ -92,6 +93,7 @@ export const LLMTestCaseRow: FunctionalComponent<LLMTestCaseRowProps> = ({
   testCase,
   dynamicResolutionSupported = false,
   extractorIds = [],
+  readOnly = false,
   onRun,
   onDelete,
   isPrimaryFieldTouched,
@@ -138,20 +140,22 @@ export const LLMTestCaseRow: FunctionalComponent<LLMTestCaseRowProps> = ({
           >
             {isRunning ? 'Running' : 'Run'}
           </Button>
-          <IconButton
-            variant="outline"
-            onClick={(e) => {
-              stopToggle(e as MouseEvent);
-              onDelete(testCase.id);
-            }}
-            title="Delete this test"
-          >
-            <TrashIcon />
-          </IconButton>
+          {!readOnly && (
+            <IconButton
+              variant="outline"
+              onClick={(e) => {
+                stopToggle(e as MouseEvent);
+                onDelete(testCase.id);
+              }}
+              title="Delete this test"
+            >
+              <TrashIcon />
+            </IconButton>
+          )}
         </div>
       </summary>
 
-      <div class="test-case-row__body">
+      <div class="test-case-row__body" inert={readOnly}>
         <section class="test-case-row__panel test-case-row__panel--input">
           <div class="test-case-row__input-content">
             <div class="test-case-row__question">

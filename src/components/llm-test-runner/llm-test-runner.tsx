@@ -93,6 +93,7 @@ export class LLMTestRunner {
   @Prop() initialTestCases?: TestCase[];
   @Prop() defaultExpectedOutcomeSchema?: ExpectedOutcomeSchema;
   @Prop() llmJudge?: LlmJudge;
+  @Prop() readOnly?: boolean = false;
   @State() testCases: TestCase[] = [
     {
       id: '1',
@@ -188,6 +189,7 @@ export class LLMTestRunner {
   private handleTestCaseChange = (
     event: CustomEvent<{ testCaseId: string; key: string; value: string }>,
   ) => {
+    if (this.readOnly) return;
     const { testCaseId, key, value } = event.detail;
     this.testCases = this.testCases.map(tc =>
       tc.id === testCaseId ? { ...tc, [key]: value } : tc,
@@ -197,6 +199,7 @@ export class LLMTestRunner {
   private handleChatHistoryChange = (
     event: CustomEvent<ChatHistoryRowChangeDetail>,
   ) => {
+    if (this.readOnly) return;
     const { testCaseId, enabled, value } = event.detail;
     this.updateTestCase(testCaseId, {
       chatHistory: { enabled, value },
@@ -211,6 +214,7 @@ export class LLMTestRunner {
   };
 
   private addNewTestCase() {
+    if (this.readOnly) return;
     try {
       const schema = this.getResolvedExpectedOutcomeSchema();
       const newTestCase = createTestCase(schema);
@@ -345,12 +349,14 @@ export class LLMTestRunner {
   }
 
   private deleteTestCase(id: string) {
+    if (this.readOnly) return;
     this.testCases = this.testCases.filter(tc => tc.id !== id);
   }
 
   private handleExpectedOutcomeChange = (
     event: CustomEvent<ExpectedOutcomeChangeDetail>,
   ) => {
+    if (this.readOnly) return;
     const { testCaseId, ...change } = event.detail;
 
     this.testCases = this.testCases.map(tc => {
@@ -400,6 +406,7 @@ export class LLMTestRunner {
   }
 
   private async handleImport(file: File): Promise<void> {
+    if (this.readOnly) return;
     const isJsonType = file.type === 'application/json';
     const isJsonExtension = file.name.toLowerCase().endsWith('.json');
 
@@ -421,6 +428,9 @@ export class LLMTestRunner {
         this.error = result.error || 'Unknown error occurred during import.';
         return;
       }
+
+      // Re-check: readOnly may have been toggled on while the file was being read.
+      if (this.readOnly) return;
 
       this.testCases = result.testCases || [];
     } catch (err) {
@@ -511,6 +521,7 @@ export class LLMTestRunner {
             usePromptEditor={this.usePromptEditor}
             searchQuery={this.searchQuery}
             isSearchExpanded={this.isSearchExpanded}
+            readOnly={this.readOnly}
             onAddTestCase={() => this.addNewTestCase()}
             onImport={file => this.handleImport(file)}
             onExportSuite={() => this.handleExportTestSuite()}
@@ -528,6 +539,7 @@ export class LLMTestRunner {
             )}
             dynamicResolutionSupported={!!this.resolveExpectedOutcome}
             extractorIds={getExtractorIds(this.evaluationSourceExtractors)}
+            readOnly={this.readOnly}
             onRun={testCase => this.runSingleTest(testCase).catch(() => {})}
             onDelete={id => this.deleteTestCase(id)}
             onAddTestCase={() => this.addNewTestCase()}

@@ -172,6 +172,8 @@ How you get either response is up to you: REST, SDK, or local inference. Same pa
 
 **Saving** — Set `useSave={true}` to show the Save button. When the user clicks it, the component emits a `save` event with `{ timestamp, testCases }`. Persist that in your backend (e.g. Firebase or your API). After the save completes, call `runnerRef.current.resetSavingState()` so the button leaves the loading state. If you don’t call it, a failsafe resets it after 10 seconds.
 
+**Read-only** — Set `readOnly={true}` to lock the whole instance (e.g. a seeded demo project you don't want users to edit). This hides the Add/Import/Delete controls and disables every question and expected-outcome field; running tests (Run / Run all) still works so users can try the suite. `readOnly` doesn't gate `useSave` — disable Save on your side if you don't want results persisted from a locked instance.
+
 ---
 
 ## Evaluation: pick the right approach
@@ -217,6 +219,7 @@ When you pass `initialTestCases`, use an array of objects with `type`, `label`, 
 |------|-----------|------|---------|-------------|
 | `delayMs` | `delay-ms` | `number` | `500` | Delay (ms) between API calls when running all tests (rate limiting). |
 | `useSave` | `use-save` | `boolean` | `false` | Show Save button and emit `save` events. |
+| `readOnly` | `read-only` | `boolean` | `false` | Lock the instance: hides Add/Import/Delete and disables editing. Running tests still works; Save is not gated by this. |
 | `initialTestCases` | — | `TestCase[]` | `undefined` | Preload test cases. See [types](#types) below. |
 | `defaultExpectedOutcomeSchema` | — | `ExpectedOutcomeSchema` | built-in | Schema for new test cases (field types and labels). |
 | `evaluationSourceExtractors` | — | `EvaluationSourceExtractors` | `undefined` | Registry of named extractors used by per-field `evaluationSource: { type: 'custom', extractorId }`. |

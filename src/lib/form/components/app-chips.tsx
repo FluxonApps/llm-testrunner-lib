@@ -123,6 +123,7 @@ export class AppChips {
               <button
                 class="app-chips__remove"
                 type="button"
+                disabled={c.disabled}
                 aria-label={`Remove ${chip}`}
                 onClick={() => this.emitRemoveChip(chip)}
               >
@@ -168,6 +169,7 @@ export class AppChips {
               variant="outline"
               class="app-chips__add"
               title="Add"
+              disabled={c.disabled}
               onClick={this.openAdding}
             >
               <PlusIcon />

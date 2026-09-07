@@ -205,6 +205,12 @@
   background: var(--muted);
 }
 
+.test-case-row__input-content--locked .test-case-row__question-input,
+.test-case-row__input-content--locked chat-history,
+.test-case-row__input-content--locked .expected-outcome-renderer {
+  opacity: 0.7;
+}
+
 /* Left/right/bottom padding matches .test-case-row__input-content's 32px so
  * edges line up with the card above; top stays at 12px (see padding-bottom below). */
 .test-case-row__results {

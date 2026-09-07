@@ -26,6 +26,7 @@ export interface LLMTestCaseRowProps {
   testCase: TestCase;
   dynamicResolutionSupported?: boolean;
   extractorIds?: string[];
+  readOnly?: boolean;
   onRun: (testCase: TestCase) => void;
   onDelete: (id: string) => void;
   isPrimaryFieldTouched: boolean;
@@ -92,6 +93,7 @@ export const LLMTestCaseRow: FunctionalComponent<LLMTestCaseRowProps> = ({
   testCase,
   dynamicResolutionSupported = false,
   extractorIds = [],
+  readOnly = false,
   onRun,
   onDelete,
   isPrimaryFieldTouched,
@@ -138,22 +140,29 @@ export const LLMTestCaseRow: FunctionalComponent<LLMTestCaseRowProps> = ({
           >
             {isRunning ? 'Running' : 'Run'}
           </Button>
-          <IconButton
-            variant="outline"
-            onClick={(e) => {
-              stopToggle(e as MouseEvent);
-              onDelete(testCase.id);
-            }}
-            title="Delete this test"
-          >
-            <TrashIcon />
-          </IconButton>
+          {!readOnly && (
+            <IconButton
+              variant="outline"
+              onClick={(e) => {
+                stopToggle(e as MouseEvent);
+                onDelete(testCase.id);
+              }}
+              title="Delete this test"
+            >
+              <TrashIcon />
+            </IconButton>
+          )}
         </div>
       </summary>
 
       <div class="test-case-row__body">
         <section class="test-case-row__panel test-case-row__panel--input">
-          <div class="test-case-row__input-content">
+          <div
+            class={{
+              'test-case-row__input-content': true,
+              'test-case-row__input-content--locked': readOnly,
+            }}
+          >
             <div class="test-case-row__question">
               <span class="test-case-row__question-label">
                 Add your question (prompt)
@@ -171,6 +180,7 @@ export const LLMTestCaseRow: FunctionalComponent<LLMTestCaseRowProps> = ({
                     class="test-case-row__question-input"
                     placeholder="Enter your question here..."
                     value={testCase.question}
+                    readOnly={readOnly}
                     onInput={(e) =>
                       handleTestCaseChange({
                         detail: {
@@ -181,7 +191,7 @@ export const LLMTestCaseRow: FunctionalComponent<LLMTestCaseRowProps> = ({
                       } as CustomEvent<{ testCaseId: string; key: string; value: string }>)
                     }
                   />
-                  {!!testCase.question && (
+                  {!!testCase.question && !readOnly && (
                     <button
                       type="button"
                       class="test-case-row__question-clear"
@@ -203,6 +213,7 @@ export const LLMTestCaseRow: FunctionalComponent<LLMTestCaseRowProps> = ({
                 <chat-history
                   chatHistoryEnabled={testCase.chatHistory?.enabled ?? false}
                   chatHistoryValue={testCase.chatHistory?.value ?? ''}
+                  disabled={readOnly}
                   onChatHistoryChange={(e: Event) => {
                     const { enabled, value } = (e as CustomEvent<ChatHistoryChangeDetail>)
                       .detail;
@@ -224,6 +235,7 @@ export const LLMTestCaseRow: FunctionalComponent<LLMTestCaseRowProps> = ({
               extractorIds={extractorIds}
               isPrimaryFieldTouched={isPrimaryFieldTouched}
               onPrimaryFieldTouch={onPrimaryFieldTouch}
+              readOnly={readOnly}
               onExpectedOutcomeChange={onExpectedOutcomeChange}
             />
           </div>

@@ -69,12 +69,42 @@ describe('LLMTestRunner readOnly', () => {
       expect(deleteBtn).toBeUndefined();
     });
 
-    it('marks the editable input content inert but leaves the row body interactive', () => {
+    it('locks the editable controls without using inert (which cannot exempt non-mutating content)', () => {
       const root = page.root!.shadowRoot!;
-      const inputContent = root.querySelector('.test-case-row__input-content');
-      const body = root.querySelector('.test-case-row__body');
-      expect(inputContent?.hasAttribute('inert')).toBe(true);
-      expect(body?.hasAttribute('inert')).toBe(false);
+
+      // Regression guard: inert can't be selectively un-inerted, so it must not
+      // be reintroduced as a blanket lock over content that includes non-mutating
+      // controls (copy buttons, links) or readable results.
+      expect(root.querySelector('[inert]')).toBeNull();
+
+      const questionInput = root.querySelector(
+        '.test-case-row__question-input',
+      ) as HTMLInputElement;
+      expect(questionInput.readOnly).toBe(true);
+
+      const chatHistoryEl = root.querySelector('chat-history')!;
+      expect(
+        chatHistoryEl.hasAttribute('disabled') ||
+          (chatHistoryEl as unknown as { disabled?: boolean }).disabled === true,
+      ).toBe(true);
+
+      const evaluationSelect = root.querySelector(
+        'app-select',
+      ) as unknown as { config?: { disabled?: boolean } };
+      expect(evaluationSelect.config?.disabled).toBe(true);
+
+      const outcomeTextarea = root.querySelector(
+        'app-textarea',
+      ) as unknown as { config?: { readOnly?: boolean } };
+      expect(outcomeTextarea.config?.readOnly).toBe(true);
+    });
+
+    it('leaves non-mutating controls (the expected-value copy button) interactive', () => {
+      const root = page.root!.shadowRoot!;
+      const copyBtn = root.querySelector('copy-button');
+      expect(copyBtn).not.toBeNull();
+      expect(copyBtn?.closest('[inert]')).toBeNull();
+      expect((copyBtn as unknown as { disabled?: boolean }).disabled).toBeFalsy();
     });
 
     it('still renders an enabled Run button', () => {

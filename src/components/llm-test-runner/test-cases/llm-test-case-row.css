@@ -205,7 +205,9 @@
   background: var(--muted);
 }
 
-.test-case-row__input-content[inert] {
+.test-case-row__input-content--locked .test-case-row__question-input,
+.test-case-row__input-content--locked chat-history,
+.test-case-row__input-content--locked .expected-outcome-renderer {
   opacity: 0.7;
 }
 

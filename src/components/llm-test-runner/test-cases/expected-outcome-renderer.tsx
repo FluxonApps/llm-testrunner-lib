@@ -28,6 +28,7 @@ interface ExpectedOutcomeRendererProps {
   extractorIds?: string[];
   isPrimaryFieldTouched: boolean;
   onPrimaryFieldTouch: () => void;
+  readOnly?: boolean;
   onExpectedOutcomeChange: (
     e: CustomEvent<ExpectedOutcomeChangeDetail>,
   ) => void;
@@ -43,6 +44,7 @@ export const ExpectedOutcomeRenderer: FunctionalComponent<ExpectedOutcomeRendere
   extractorIds = [],
   isPrimaryFieldTouched,
   onPrimaryFieldTouch,
+  readOnly = false,
   onExpectedOutcomeChange,
 }) => {
   const hasExtractorOptions = extractorIds.length > 0;
@@ -63,6 +65,7 @@ export const ExpectedOutcomeRenderer: FunctionalComponent<ExpectedOutcomeRendere
     compact: true,
     placeholder: 'Select evaluation approach…',
     required: true,
+    disabled: readOnly,
     optionList,
     defaultValue: EvaluationApproach.EXACT,
   });
@@ -73,6 +76,7 @@ export const ExpectedOutcomeRenderer: FunctionalComponent<ExpectedOutcomeRendere
     label: 'Outcome Mode',
     placeholder: 'Select outcome mode',
     required: true,
+    disabled: readOnly,
     optionList: ['static', 'dynamic'],
     defaultValue: 'static',
   });
@@ -83,6 +87,7 @@ export const ExpectedOutcomeRenderer: FunctionalComponent<ExpectedOutcomeRendere
     label: 'Resolution Query',
     placeholder: 'Query used to resolve expected value',
     required: false,
+    readOnly,
     rows: 2,
   });
 
@@ -92,6 +97,7 @@ export const ExpectedOutcomeRenderer: FunctionalComponent<ExpectedOutcomeRendere
     label: 'Evaluation Source',
     placeholder: 'Select evaluation source',
     required: true,
+    disabled: readOnly,
     optionList: ['text', 'custom'],
     defaultValue: 'text',
   });
@@ -102,6 +108,7 @@ export const ExpectedOutcomeRenderer: FunctionalComponent<ExpectedOutcomeRendere
     label: 'Extractor',
     placeholder: 'Select extractor',
     required: true,
+    disabled: readOnly,
     optionList: extractorIds,
   });
 
@@ -143,6 +150,7 @@ export const ExpectedOutcomeRenderer: FunctionalComponent<ExpectedOutcomeRendere
         inputId={`expectedOutcomeThreshold-${index}`}
         label="Threshold"
         compact
+        disabled={readOnly}
         value={field.evaluationParameters?.threshold}
         defaultValue={defaultThreshold}
         onThresholdChange={(e) =>
@@ -214,6 +222,7 @@ export const ExpectedOutcomeRenderer: FunctionalComponent<ExpectedOutcomeRendere
       <criteria-input
         criteria={field.evaluationParameters?.criteria}
         hideLabel={hideLabel}
+        disabled={readOnly}
         onCriteriaChange={(e) =>
           emit({
             testCaseId,
@@ -264,7 +273,7 @@ export const ExpectedOutcomeRenderer: FunctionalComponent<ExpectedOutcomeRendere
         fieldType: FormFieldType.TEXT_AREA,
         placeholder: isDynamic ? 'Resolved on run' : field.placeholder,
         required: !isDynamic,
-        readOnly: isDynamic,
+        readOnly: isDynamic || readOnly,
         invalid: isMissing,
         helpText: isDynamic
           ? 'Filled automatically when the test is run'
@@ -338,6 +347,7 @@ export const ExpectedOutcomeRenderer: FunctionalComponent<ExpectedOutcomeRendere
         fieldType: FormFieldType.CHIPS,
         placeholder: field.placeholder,
         required: true,
+        disabled: readOnly,
       };
 
       return (
@@ -385,6 +395,7 @@ export const ExpectedOutcomeRenderer: FunctionalComponent<ExpectedOutcomeRendere
         fieldType: FormFieldType.SELECT,
         placeholder: field.placeholder,
         required: true,
+        disabled: readOnly,
         optionList: field.options,
       };
 
@@ -414,6 +425,7 @@ export const ExpectedOutcomeRenderer: FunctionalComponent<ExpectedOutcomeRendere
           value={field.value}
           placeholder={field.placeholder}
           aria-label={field.label}
+          readOnly={readOnly}
           onInput={(e) =>
             emit({
               testCaseId,

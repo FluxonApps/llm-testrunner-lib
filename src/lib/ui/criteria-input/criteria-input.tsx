@@ -71,6 +71,7 @@ export class CriteriaInput {
   /** For a host that already surfaces "Criteria (JSON)" itself (e.g. a disclosure
    * summary), so the two don't stack. The aria-label is kept regardless. */
   @Prop() hideLabel?: boolean = false;
+  @Prop() disabled?: boolean = false;
 
   @Event({ bubbles: true, composed: true })
   criteriaChange: EventEmitter<CriteriaInputChangeDetail>;
@@ -149,6 +150,7 @@ export class CriteriaInput {
           aria-invalid={this.error ? 'true' : 'false'}
           aria-describedby={this.error ? 'criteria-input-error' : undefined}
           value={this.text}
+          readOnly={this.disabled}
           onInput={this.onInput}
         />
 

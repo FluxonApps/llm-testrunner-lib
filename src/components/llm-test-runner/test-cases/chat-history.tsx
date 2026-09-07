@@ -25,6 +25,7 @@ export type ChatHistoryChangeDetail = {
 export class ChatHistory {
   @Prop({ reflect: true }) chatHistoryEnabled = false;
   @Prop() chatHistoryValue = '';
+  @Prop() disabled = false;
 
   @Event({ bubbles: true, composed: true })
   chatHistoryChange: EventEmitter<ChatHistoryChangeDetail>;
@@ -73,6 +74,7 @@ export class ChatHistory {
           aria-label="Chat history"
           aria-haspopup="dialog"
           aria-expanded={this.isOpen ? 'true' : 'false'}
+          disabled={this.disabled}
           onClick={this.openModal}
         >
           <FileClockIcon class="chat-history__icon" />

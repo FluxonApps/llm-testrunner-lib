@@ -429,6 +429,9 @@ export class LLMTestRunner {
         return;
       }
 
+      // Re-check: readOnly may have been toggled on while the file was being read.
+      if (this.readOnly) return;
+
       this.testCases = result.testCases || [];
     } catch (err) {
       this.error =

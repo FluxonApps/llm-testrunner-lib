@@ -155,9 +155,9 @@ export const LLMTestCaseRow: FunctionalComponent<LLMTestCaseRowProps> = ({
         </div>
       </summary>
 
-      <div class="test-case-row__body" inert={readOnly}>
+      <div class="test-case-row__body">
         <section class="test-case-row__panel test-case-row__panel--input">
-          <div class="test-case-row__input-content">
+          <div class="test-case-row__input-content" inert={readOnly}>
             <div class="test-case-row__question">
               <span class="test-case-row__question-label">
                 Add your question (prompt)

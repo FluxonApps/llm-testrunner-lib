@@ -205,7 +205,7 @@
   background: var(--muted);
 }
 
-.test-case-row__body[inert] {
+.test-case-row__input-content[inert] {
   opacity: 0.7;
 }
 

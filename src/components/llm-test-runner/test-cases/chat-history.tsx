@@ -44,6 +44,7 @@ export class ChatHistory {
   };
 
   private handleSave = () => {
+    if (this.disabled) return;
     const value = this.draft;
     this.chatHistoryChange.emit({ enabled: value.trim().length > 0, value });
     this.isOpen = false;
@@ -74,7 +75,6 @@ export class ChatHistory {
           aria-label="Chat history"
           aria-haspopup="dialog"
           aria-expanded={this.isOpen ? 'true' : 'false'}
-          disabled={this.disabled}
           onClick={this.openModal}
         >
           <FileClockIcon class="chat-history__icon" />
@@ -94,7 +94,7 @@ export class ChatHistory {
             >
               <div class="chat-history-modal__header">
                 <h2 id="chat-history-modal-title" class="chat-history-modal__title">
-                  Add chat history
+                  {this.disabled ? 'Chat history' : 'Add chat history'}
                 </h2>
                 <IconButton variant="outline" onClick={this.closeModal} title="Close">
                   <XIcon />
@@ -102,7 +102,9 @@ export class ChatHistory {
               </div>
 
               <p class="chat-history-modal__subtitle">
-                Add chat history to improve accuracy of the response.
+                {this.disabled
+                  ? 'Chat history for this test case.'
+                  : 'Add chat history to improve accuracy of the response.'}
               </p>
 
               <div class="chat-history-modal__field">
@@ -116,18 +118,25 @@ export class ChatHistory {
                   placeholder={CHAT_HISTORY_PLACEHOLDER}
                   aria-label="Chat history JSON"
                   value={this.draft}
+                  readOnly={this.disabled}
                   autoFocus
                   onInput={this.handleDraftInput}
                 />
               </div>
 
               <div class="chat-history-modal__footer">
-                <Button variant="outline" size="md" onClick={this.closeModal}>
-                  Cancel
-                </Button>
-                <Button variant="primary" size="md" onClick={this.handleSave}>
-                  Save
-                </Button>
+                {this.disabled ? (
+                  <Button variant="outline" size="md" onClick={this.closeModal}>
+                    Close
+                  </Button>
+                ) : [
+                  <Button variant="outline" size="md" onClick={this.closeModal}>
+                    Cancel
+                  </Button>,
+                  <Button variant="primary" size="md" onClick={this.handleSave}>
+                    Save
+                  </Button>,
+                ]}
               </div>
             </div>
           </div>

@@ -2,6 +2,21 @@
 
 All notable changes to this project are documented in this file. The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 2.4.1
+
+### 🐛 Fixed
+
+- `initialTestCases` (and JSON import) now accepts the documented minimal
+  `{ question, expectedOutcome }` shape without an `id` — previously threw
+  "Invalid JSON structure. Expected a JSON array." even though the input was
+  a valid array, because the schema required `id` while nothing actually
+  generated one. `id` is now optional and auto-generated when omitted, and
+  the public `initialTestCases` prop type was corrected to match
+  (`TestCaseInput[]`, not `TestCase[]`).
+- Validation errors for a malformed test case inside an otherwise-valid
+  array now report which index and field actually failed, instead of the
+  generic "expected a JSON array" message regardless of the real cause.
+
 ## 2.4.0
 
 ### 🚀 What's new

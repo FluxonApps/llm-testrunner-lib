@@ -15,6 +15,7 @@ import { RateLimitedFetcher } from '../../lib/rate-limited-fetcher/rate-limited-
 import {
   ExpectedOutcomeSchema,
   TestCase,
+  TestCaseInput,
   LLMRequestPayload,
   SavePayload,
   ModelResponsePayload,
@@ -90,7 +91,7 @@ export class LLMTestRunner {
   @Prop() usePromptEditor?: boolean = false;
   @Prop() resolveExpectedOutcome?: ExpectedOutcomeResolver;
   @Prop() evaluationSourceExtractors?: EvaluationSourceExtractors;
-  @Prop() initialTestCases?: TestCase[];
+  @Prop() initialTestCases?: TestCaseInput[];
   @Prop() defaultExpectedOutcomeSchema?: ExpectedOutcomeSchema;
   @Prop() llmJudge?: LlmJudge;
   @Prop() readOnly?: boolean = false;

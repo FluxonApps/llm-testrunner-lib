@@ -9,7 +9,11 @@ export const testCaseChatHistorySchema = z.object({
 });
 
 export const testCaseInputSchema = z.object({
-  id: z.string(),
+  // Optional here (unlike testCaseSchema below): initialTestCases/import accept
+  // the minimal { question, expectedOutcome } shape documented in the README,
+  // with id filled in by createTestCaseFromInput. A fully-formed runtime
+  // TestCase always has one -- see testCaseSchema.
+  id: z.string().optional(),
   question: z.string(),
   expectedOutcome: expectedOutcomeArraySchema,
   chatHistory: testCaseChatHistorySchema.optional(),
@@ -48,10 +52,15 @@ export function validateTestCaseInputArray(
   const parsed = testCaseInputArraySchema.safeParse(data);
   if (!parsed.success) {
     const firstIssue = parsed.error.issues[0];
+    // path.length === 0 means the issue is about `data` itself (e.g. it's an
+    // object, not an array) -- that's the only case "expected a JSON array" is
+    // actually correct. A non-empty path means the issue is about a field
+    // inside one element (e.g. `expectedOutcome` on item 0), which the generic
+    // top-level message would misreport as an array-shape problem.
     const message =
-      firstIssue.code === 'invalid_type'
+      firstIssue.code === 'invalid_type' && firstIssue.path.length === 0
         ? 'Invalid JSON structure. Expected a JSON array.'
-        : firstIssue.message;
+        : `Invalid test case at index ${String(firstIssue.path[0] ?? '?')}: ${firstIssue.message} (${firstIssue.path.slice(1).map(String).join('.') || 'root'})`;
     throw new Error(message);
   }
 }

@@ -120,7 +120,9 @@ export function createExpectedOutcomeFromSchema(
 /**
  * Creates a runtime test case from validated input data.
  * The input is expected to already satisfy `TestCaseInput`,
- * and this function only performs normalization/defaulting.
+ * and this function only performs normalization/defaulting --
+ * including generating an id when the input omits one (the minimal
+ * { question, expectedOutcome } shape the README documents).
  *
  * @param data - Validated test case input
  * @returns A normalized TestCase object with runtime defaults applied
@@ -128,6 +130,7 @@ export function createExpectedOutcomeFromSchema(
 export function createTestCaseFromInput(data: TestCaseInput): TestCase {
   return {
     ...data,
+    id: data.id ?? crypto.randomUUID(),
     chatHistory: data.chatHistory ?? { enabled: false, value: '' },
     expectedOutcome: data.expectedOutcome.map(normalizeExpectedOutcomeField),
   };

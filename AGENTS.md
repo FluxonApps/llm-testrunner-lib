@@ -46,10 +46,11 @@ consumer, in ways this repo's tests structurally cannot catch:
 ## Build has three separate stages, each backing a different published entry point
 
 `npm run build` = `stencil build && tsc --project tsconfig.react.json && tsup`.
-Each stage owns a different subpath in `package.json`'s `exports` map:
-Stencil → `.`/`./loader` (the web components + lazy-loading proxy), the
-`tsc` step → `./react` (the generated React wrapper + its types), `tsup` →
-`./headless` (the framework-free Jest-matchers module). Running just
+Each stage produces build artifacts backing a different published subpath —
+there's no bare `.` entry in `package.json`'s `exports` map, only subpaths:
+Stencil → `./loader` and `./dist/*` (the web components + lazy-loading
+proxy), the `tsc` step → `./react` (the generated React wrapper + its types),
+`tsup` → `./headless` (the framework-free Jest-matchers module). Running just
 `stencil build` (e.g. via the Stencil CLI directly, out of habit) silently
 leaves `./react` and `./headless` stale — always use `npm run build` (or
 `build:all`, which also runs `build:react` again) when verifying a change

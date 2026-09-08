@@ -15,9 +15,14 @@ jobs:
     # this job (and its "skipped" check) still appears for any PR comment that
     # doesn't match -- including the bot's own posted comments -- just cheaply
     # and near-instantly, without ever starting a runner.
+    # author_association gate matters here specifically because this repo is
+    # public: without it, any GitHub account (not just org members) could
+    # comment "@claude re-review" on any PR and trigger a paid, secret-backed,
+    # pull-requests:write invocation, repeatedly, at will.
     if: |
       github.event.issue.pull_request != null &&
-      contains(github.event.comment.body, '@claude re-review')
+      contains(github.event.comment.body, '@claude re-review') &&
+      contains(fromJson('["OWNER","MEMBER","COLLABORATOR"]'), github.event.comment.author_association)
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -42,7 +47,7 @@ jobs:
             This is a SCOPED RE-REVIEW, not a full review. Your job is to verify fixes only.
 
             Steps:
-            1. Fetch all previous comments on this PR using `gh pr view $PR_NUMBER --comments` and `gh api repos/$REPO/issues/$PR_NUMBER/comments`.
+            1. Fetch all previous comments on this PR using `gh pr view $PR_NUMBER --comments` and `gh api repos/$REPO/issues/$PR_NUMBER/comments` (GET only -- do not pass -X/--method).
             2. Identify every issue you (Claude / github-actions[bot]) flagged in prior review comments.
             3. For each previously flagged issue, check the current diff (`gh pr diff $PR_NUMBER`) and determine:
                - FIXED: the issue is resolved
@@ -67,4 +72,13 @@ jobs:
 
             Use `gh pr comment` with your Bash tool to post the result on the PR.
 
-          claude_args: '--model claude-sonnet-5 --allowed-tools "Bash(gh issue view:*),Bash(gh api:*),Bash(gh pr comment:*),Bash(gh pr diff:*),Bash(gh pr view:*)"'
+          # gh api is scoped to the one read-only endpoint the prompt above
+          # actually uses (repos/*/issues/*/comments), not the full API --
+          # this agent reads attacker-controllable PR comment text, so a
+          # prompt-injected instruction to hit an unrelated, mutating
+          # endpoint shouldn't be reachable via an over-broad allowlist. This
+          # narrows blast radius; it isn't a hard guarantee against every
+          # possible injected argument on that same endpoint (e.g. -X DELETE),
+          # since Claude Code's tool-allow patterns match by command prefix,
+          # not by HTTP method.
+          claude_args: '--model claude-sonnet-5 --allowed-tools "Bash(gh issue view:*),Bash(gh api repos/*/issues/*/comments),Bash(gh pr comment:*),Bash(gh pr diff:*),Bash(gh pr view:*)"'

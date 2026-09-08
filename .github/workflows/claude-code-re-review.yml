@@ -1,0 +1,70 @@
+name: Claude Code Re-Review
+
+# Separate workflow file from claude-code-review.yml deliberately -- a single
+# workflow listening for both pull_request and issue_comment would spin up both
+# jobs on every event and show the non-applicable one as a permanent "skipped"
+# check on every PR, even ones nobody ever comments "@claude re-review" on.
+on:
+  issue_comment:
+    types: [created]
+
+jobs:
+  claude-re-review:
+    # Scoped re-review: fires when someone comments "@claude re-review" on a PR.
+    # GitHub can't filter issue_comment events by body before creating a run, so
+    # this job (and its "skipped" check) still appears for any PR comment that
+    # doesn't match -- including the bot's own posted comments -- just cheaply
+    # and near-instantly, without ever starting a runner.
+    if: |
+      github.event.issue.pull_request != null &&
+      contains(github.event.comment.body, '@claude re-review')
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: write
+      issues: read
+      id-token: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 1
+
+      - name: Run Claude Scoped Re-Review
+        uses: anthropics/claude-code-action@v1
+        with:
+          anthropic_api_key: ${{ secrets.ANTHROPIC_CODE_REVIEW_KEY }}
+          prompt: |
+            REPO: ${{ github.repository }}
+            PR NUMBER: ${{ github.event.issue.number }}
+
+            This is a SCOPED RE-REVIEW, not a full review. Your job is to verify fixes only.
+
+            Steps:
+            1. Fetch all previous comments on this PR using `gh pr view $PR_NUMBER --comments` and `gh api repos/$REPO/issues/$PR_NUMBER/comments`.
+            2. Identify every issue you (Claude / github-actions[bot]) flagged in prior review comments.
+            3. For each previously flagged issue, check the current diff (`gh pr diff $PR_NUMBER`) and determine:
+               - FIXED: the issue is resolved
+               - STILL PRESENT: the issue was not addressed
+               - REGRESSION: a fix introduced a new problem in this area
+            4. Report ONLY on those prior issues -- do not introduce new findings.
+
+            Format your response exactly like this:
+
+            ## 🔍 Re-Review Results
+
+            | Status | Issue |
+            |--------|-------|
+            | ✅ Fixed | Brief description |
+            | ❌ Still present | Brief description |
+            | ⚠️ Regression | Brief description |
+
+            Then add a one-line summary at the bottom, e.g.:
+            **All X issues fixed. No regressions observed.** or **X/Y issues fixed -- N still need attention.**
+
+            Keep each row concise (one line). Do not write paragraphs.
+
+            Use `gh pr comment` with your Bash tool to post the result on the PR.
+
+          claude_args: '--model claude-sonnet-5 --allowed-tools "Bash(gh issue view:*),Bash(gh api:*),Bash(gh pr comment:*),Bash(gh pr diff:*),Bash(gh pr view:*)"'

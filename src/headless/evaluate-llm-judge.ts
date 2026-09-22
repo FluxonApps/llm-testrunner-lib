@@ -3,6 +3,7 @@ import { randomUUID } from 'node:crypto';
 import type { EvaluationRequest, EvaluationResult } from '../lib/evaluation/types';
 import { EvaluationApproach } from '../lib/evaluation/constants';
 import { performLlmJudgeEvaluation } from '../lib/evaluation/evaluators/llm-judge/llm-judge-evaluator';
+import { criteriaArraySchema } from '../schemas/expected-outcome';
 import type { Criterion, LlmJudge } from '../types/llm-test-runner';
 
 export interface EvaluateLlmJudgeInput {
@@ -19,6 +20,16 @@ export async function evaluateLlmJudge(
 ): Promise<EvaluationResult> {
   const { actualResponse, question, expectedOutcome, llmJudge, criteria, threshold } =
     input;
+
+  if (criteria !== undefined) {
+    const parsed = criteriaArraySchema.safeParse(criteria);
+    if (!parsed.success) {
+      throw new Error(
+        `evaluateLlmJudge: invalid criteria — ${parsed.error.issues[0].message}`,
+      );
+    }
+  }
+
   const request: EvaluationRequest = {
     testCaseId: randomUUID(),
     question,

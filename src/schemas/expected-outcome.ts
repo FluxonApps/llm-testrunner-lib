@@ -15,10 +15,20 @@ const customEvaluationSourceSchema = z.object({
   type: z.literal('custom'),
   extractorId: nonEmptyString,
 });
-const criterionSchema = z.object({
+export const criterionSchema = z.object({
   id: nonEmptyString,
   description: nonEmptyString,
   weight: z.number().positive().optional()
+});
+
+export const criteriaArraySchema = z.array(criterionSchema).superRefine((val, ctx) => {
+  const ids = val.map(c => c.id);
+  if (ids.length !== new Set(ids).size) {
+    ctx.addIssue({
+      code: 'custom',
+      message: 'criteria ids must be unique.',
+    });
+  }
 });
 
 export const evaluationSourceExtractorSchema = z.custom<
@@ -52,18 +62,7 @@ export type Criterion = z.infer<typeof criterionSchema>;
 const evaluationParametersSchema = z.object({
   approach: z.enum(EvaluationApproach),
   threshold: optionalNumber,
-  criteria: z
-    .array(criterionSchema)
-    .superRefine((val, ctx) => {
-      const ids = val.map(c => c.id);
-      if (ids.length !== new Set(ids).size) {
-        ctx.addIssue({
-          code: 'custom',
-          message: 'criteria ids must be unique.',
-        });
-      }
-    })
-    .optional(),
+  criteria: criteriaArraySchema.optional(),
 });
 
 const selectEvaluationParametersSchema = evaluationParametersSchema.superRefine(

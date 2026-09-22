@@ -97,12 +97,11 @@ export function installLlmMatchers(
       const actual = String(await Promise.resolve(received));
       const llmJudge = matchOptions?.llmJudge ?? defaultLlmJudge;
 
+      // Throw (don't return pass:false) so `.not.toLlmJudgeMatch` can't treat a config error as a pass.
       if (!llmJudge) {
-        return {
-          pass: false,
-          message: () =>
-            'toLlmJudgeMatch failed.\nNo llmJudge callback provided. Pass one via installLlmMatchers(expect, { llmJudge }) or as options.llmJudge on the matcher call.',
-        };
+        throw new Error(
+          'toLlmJudgeMatch failed.\nNo llmJudge callback provided. Pass one via installLlmMatchers(expect, { llmJudge }) or as options.llmJudge on the matcher call.',
+        );
       }
 
       const result = await evaluateLlmJudge({
@@ -113,6 +112,12 @@ export function installLlmMatchers(
         criteria: matchOptions?.criteria,
         threshold: matchOptions?.threshold,
       });
+
+      if (result.error) {
+        throw new Error(
+          `toLlmJudgeMatch failed.\nQuestion: ${question}\nExpected: ${expected}\nReceived (snippet): ${formatSnippet(actual)}\nError: ${result.error}`,
+        );
+      }
 
       return {
         pass: result.passed,
@@ -128,7 +133,6 @@ export function installLlmMatchers(
             `Question: ${question}`,
             `Expected: ${expected}`,
             `Received (snippet): ${formatSnippet(actual)}`,
-            result.error ? `Error: ${result.error}` : undefined,
             criteriaSummary ? `Criteria:\n${criteriaSummary}` : undefined,
           ]
             .filter(Boolean)

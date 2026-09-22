@@ -318,7 +318,11 @@ import { installLlmMatchers } from "llm-testrunner-components/headless";
 installLlmMatchers(expect, {
   llmJudge: async ({ messages }) => {
     const raw = await yourLLMApi(messages);
-    return JSON.parse(raw); // must match { criteria: [{ id, score, reason? }] }
+    try {
+      return JSON.parse(raw); // must match { criteria: [{ id, score, reason? }] }
+    } catch {
+      throw new Error(`Judge returned non-JSON output: ${raw}`);
+    }
   },
 });
 
@@ -336,7 +340,7 @@ it("answers correctly", async () => {
 });
 ```
 
-A per-call `llmJudge` in `options` overrides the suite-wide default set via `installLlmMatchers`. If neither is provided, the assertion fails with `No llmJudge callback provided`.
+A per-call `llmJudge` in `options` overrides the suite-wide default set via `installLlmMatchers`. If neither is provided, the assertion fails with `No llmJudge callback provided`. Omitting `criteria` entirely grades against a single default `correctness` criterion.
 
 ### Other exports
 

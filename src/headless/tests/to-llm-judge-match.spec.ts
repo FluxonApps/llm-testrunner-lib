@@ -124,4 +124,56 @@ describe('toLlmJudgeMatch', () => {
       }),
     ).rejects.toThrow();
   });
+
+  it('threads custom criteria and threshold through to the underlying evaluation', async () => {
+    mockJudge.mockResolvedValue({
+      criteria: [{ id: 'tone', score: 0.6, reason: 'A bit terse.' }],
+    });
+    const options = {
+      llmJudge: mockJudge,
+      criteria: [
+        { id: 'tone', description: 'Is the tone warm and helpful?', weight: 1 },
+      ],
+    };
+
+    // Default threshold (0.7) fails a 0.6 score...
+    await expect(
+      expect('Sure.').toLlmJudgeMatch('Be polite.', 'A warm reply.', options),
+    ).rejects.toThrow();
+
+    // ...but a lower custom threshold makes the same score pass, proving
+    // both `criteria` and `threshold` actually reach the evaluation.
+    await expect('Sure.').toLlmJudgeMatch('Be polite.', 'A warm reply.', {
+      ...options,
+      threshold: 0.5,
+    });
+  });
+
+  it('throws when the judge response fails schema validation', async () => {
+    mockJudge.mockResolvedValue({
+      criteria: [{ id: 'correctness', score: 1.5 }],
+    });
+
+    await expect(
+      expect('anything').toLlmJudgeMatch('question', 'expected', {
+        llmJudge: mockJudge,
+      }),
+    ).rejects.toThrow(/Judge response invalid/);
+  });
+
+  it('throws when the judge response is missing a score for a requested criterion', async () => {
+    mockJudge.mockResolvedValue({
+      criteria: [{ id: 'a', score: 0.9 }],
+    });
+
+    await expect(
+      expect('anything').toLlmJudgeMatch('question', 'expected', {
+        llmJudge: mockJudge,
+        criteria: [
+          { id: 'a', description: 'A', weight: 1 },
+          { id: 'b', description: 'B', weight: 1 },
+        ],
+      }),
+    ).rejects.toThrow(/missing scores for criteria: b/);
+  });
 });

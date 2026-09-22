@@ -34,6 +34,8 @@
 npm install llm-testrunner-components
 ```
 
+> Just want Jest matchers, no UI? Skip to [Headless test kit](#headless-test-kit).
+
 ---
 
 ## Get started (React)
@@ -267,6 +269,80 @@ import type {
 - **Import** — Use the UI to load a JSON file. It must be an array of test cases. Invalid or empty files show an error.
 - **Export test suite** — Downloads a JSON file with the current test cases.
 - **Export results** — Downloads a CSV of the latest run (includes evaluation score).
+
+---
+
+## Headless test kit
+
+For teams that just want Jest matchers — no UI, no browser, no Stencil runtime. `llm-testrunner-components/headless` is a Node-only ESM bundle of the same evaluators the UI component uses.
+
+```bash
+npm install llm-testrunner-components
+```
+
+```ts
+import { installLlmMatchers } from "llm-testrunner-components/headless";
+
+beforeAll(() => {
+  installLlmMatchers(expect);
+});
+
+it("greets the user correctly", async () => {
+  const response = await yourLLMApi("Say hello to Ajay");
+  await expect(response).toSemanticMatch(
+    "Hello Ajay, how can I help you today?",
+  );
+});
+```
+
+### Matchers
+
+| Matcher           | Signature                                                                 | Approach   |
+| ------------------ | -------------------------------------------------------------------------- | ---------- |
+| `toExactMatch`     | `(expected: string)`                                                       | Exact      |
+| `toSemanticMatch`  | `(expected: string, threshold?: number)`                                   | Semantic   |
+| `toBleuMatch`      | `(expected: string, threshold?: number)`                                   | BLEU       |
+| `toRouge1Match`    | `(expected: string, threshold?: number)`                                   | ROUGE-1    |
+| `toRougeLMatch`    | `(expected: string, threshold?: number)`                                   | ROUGE-L    |
+| `toLlmJudgeMatch`  | `(question: string, expected: string, options?: { criteria?, threshold?, llmJudge? })` | LLM-judge  |
+
+See [Evaluation: pick the right approach](#evaluation-pick-the-right-approach) for what each approach measures.
+
+### LLM-judge in Jest
+
+Same never-calls-an-LLM-directly contract as the UI component (see [Connect your LLM](#connect-your-llm)) — you supply the `llmJudge` callback, the library only validates the response and grades it. Set a default once for the whole suite, or override per assertion:
+
+```ts
+import { installLlmMatchers } from "llm-testrunner-components/headless";
+
+installLlmMatchers(expect, {
+  llmJudge: async ({ messages }) => {
+    const raw = await yourLLMApi(messages);
+    return JSON.parse(raw); // must match { criteria: [{ id, score, reason? }] }
+  },
+});
+
+it("answers correctly", async () => {
+  const response = await yourLLMApi("What is the capital of France?");
+  await expect(response).toLlmJudgeMatch(
+    "What is the capital of France?",
+    "Paris",
+    {
+      criteria: [
+        { id: "correctness", description: "Factually correct.", weight: 1 },
+      ],
+    },
+  );
+});
+```
+
+A per-call `llmJudge` in `options` overrides the suite-wide default set via `installLlmMatchers`. If neither is provided, the assertion fails with `No llmJudge callback provided`.
+
+### Other exports
+
+- `LLMTestKit` — wraps an `invoke` function so you can call your model and assert in one flow.
+- `createGeminiInvoke` — a ready-made `invoke` implementation for Gemini.
+- `evaluateExact`, `evaluateSemantic`, `evaluateBleu`, `evaluateRouge1`, `evaluateRougeL`, `evaluateLlmJudge` — the underlying evaluator functions each matcher calls, if you want the raw `EvaluationResult` instead of a pass/fail assertion.
 
 ---
 

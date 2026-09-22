@@ -3,3 +3,4 @@ export { evaluateSemantic } from './evaluate-semantic';
 export { evaluateBleu } from './evaluate-bleu';
 export { evaluateRouge1 } from './evaluate-rouge1';
 export { evaluateRougeL } from './evaluate-rougeL';
+export { evaluateLlmJudge } from './evaluate-llm-judge';

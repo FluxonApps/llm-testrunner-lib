@@ -1,6 +1,7 @@
 export {
   evaluateBleu,
   evaluateExact,
+  evaluateLlmJudge,
   evaluateRouge1,
   evaluateRougeL,
   evaluateSemantic,
@@ -8,5 +9,18 @@ export {
 export { installLlmMatchers } from './jest-matchers';
 export { LLMTestKit } from './llm-test-kit';
 export { createGeminiInvoke } from './gemini-invoke';
-export type { LLMTestKitConfig, LlmInvokeFn } from './types';
+export type {
+  Criterion,
+  EvaluationResult,
+  JudgeMessage,
+  JudgeResponse,
+  LLMTestKitConfig,
+  LlmInvokeFn,
+  LlmJudge,
+} from './types';
 export type { GeminiInvokeOptions } from './gemini-invoke';
+export type { EvaluateLlmJudgeInput } from './evaluate-llm-judge';
+export type {
+  InstallLlmMatchersOptions,
+  LlmJudgeMatchOptions,
+} from './jest-matchers';

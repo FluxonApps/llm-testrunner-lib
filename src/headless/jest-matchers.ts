@@ -1,12 +1,31 @@
 import { evaluateBleu } from './evaluate-bleu';
 import { evaluateExact } from './evaluate-exact';
+import { evaluateLlmJudge } from './evaluate-llm-judge';
 import { evaluateRouge1 } from './evaluate-rouge1';
 import { evaluateRougeL } from './evaluate-rougeL';
 import { evaluateSemantic } from './evaluate-semantic';
+import type { Criterion, LlmJudge } from '../types/llm-test-runner';
+
+export interface InstallLlmMatchersOptions {
+  llmJudge?: LlmJudge;
+}
+
+export interface LlmJudgeMatchOptions {
+  criteria?: Criterion[];
+  threshold?: number;
+  llmJudge?: LlmJudge;
+}
+
+function formatSnippet(actual: string): string {
+  return `${actual.slice(0, 300)}${actual.length > 300 ? '…' : ''}`;
+}
 
 export function installLlmMatchers(
   expectObj: typeof import('@jest/globals').expect,
+  options?: InstallLlmMatchersOptions,
 ): void {
+  const defaultLlmJudge = options?.llmJudge;
+
   expectObj.extend({
     async toExactMatch(received: unknown, expected: string) {
       const actual = String(await Promise.resolve(received));
@@ -14,7 +33,7 @@ export function installLlmMatchers(
       return {
         pass: result.passed,
         message: () =>
-          `toExactMatch failed.\nExpected: ${expected}\nReceived (snippet): ${actual.slice(0, 300)}${actual.length > 300 ? '…' : ''}`,
+          `toExactMatch failed.\nExpected: ${expected}\nReceived (snippet): ${formatSnippet(actual)}`,
       };
     },
     async toSemanticMatch(
@@ -27,7 +46,7 @@ export function installLlmMatchers(
       return {
         pass: result.passed,
         message: () =>
-          `toSemanticMatch failed.\nExpected: ${expected}\nReceived (snippet): ${actual.slice(0, 300)}${actual.length > 300 ? '…' : ''}`,
+          `toSemanticMatch failed.\nExpected: ${expected}\nReceived (snippet): ${formatSnippet(actual)}`,
       };
     },
     async toBleuMatch(
@@ -40,7 +59,7 @@ export function installLlmMatchers(
       return {
         pass: result.passed,
         message: () =>
-          `toBleuMatch failed.\nExpected: ${expected}\nReceived (snippet): ${actual.slice(0, 300)}${actual.length > 300 ? '…' : ''}`,
+          `toBleuMatch failed.\nExpected: ${expected}\nReceived (snippet): ${formatSnippet(actual)}`,
       };
     },
     async toRouge1Match(
@@ -53,7 +72,7 @@ export function installLlmMatchers(
       return {
         pass: result.passed,
         message: () =>
-          `toRouge1Match failed.\nExpected: ${expected}\nReceived (snippet): ${actual.slice(0, 300)}${actual.length > 300 ? '…' : ''}`,
+          `toRouge1Match failed.\nExpected: ${expected}\nReceived (snippet): ${formatSnippet(actual)}`,
       };
     },
     async toRougeLMatch(
@@ -66,7 +85,59 @@ export function installLlmMatchers(
       return {
         pass: result.passed,
         message: () =>
-          `toRougeLMatch failed.\nExpected: ${expected}\nReceived (snippet): ${actual.slice(0, 300)}${actual.length > 300 ? '…' : ''}`,
+          `toRougeLMatch failed.\nExpected: ${expected}\nReceived (snippet): ${formatSnippet(actual)}`,
+      };
+    },
+    async toLlmJudgeMatch(
+      received: unknown,
+      question: string,
+      expected: string,
+      matchOptions?: LlmJudgeMatchOptions,
+    ) {
+      const actual = String(await Promise.resolve(received));
+      const llmJudge = matchOptions?.llmJudge ?? defaultLlmJudge;
+
+      // Throw (don't return pass:false) so `.not.toLlmJudgeMatch` can't treat a config error as a pass.
+      if (!llmJudge) {
+        throw new Error(
+          'toLlmJudgeMatch failed.\nNo llmJudge callback provided. Pass one via installLlmMatchers(expect, { llmJudge }) or as options.llmJudge on the matcher call.',
+        );
+      }
+
+      const result = await evaluateLlmJudge({
+        actualResponse: actual,
+        question,
+        expectedOutcome: expected,
+        llmJudge,
+        criteria: matchOptions?.criteria,
+        threshold: matchOptions?.threshold,
+      });
+
+      if (result.error) {
+        throw new Error(
+          `toLlmJudgeMatch failed.\nQuestion: ${question}\nExpected: ${expected}\nReceived (snippet): ${formatSnippet(actual)}\nError: ${result.error}`,
+        );
+      }
+
+      return {
+        pass: result.passed,
+        message: () => {
+          const criteriaSummary = (result.criterionResults ?? [])
+            .map(
+              c =>
+                `  - ${c.id}: ${c.score.toFixed(2)}${c.reason ? ` — ${c.reason}` : ''}`,
+            )
+            .join('\n');
+          return [
+            'toLlmJudgeMatch failed.',
+            `Question: ${question}`,
+            `Expected: ${expected}`,
+            `Received (snippet): ${formatSnippet(actual)}`,
+            criteriaSummary ? `Criteria:\n${criteriaSummary}` : undefined,
+          ]
+            .filter(Boolean)
+            .join('\n');
+        },
       };
     },
   });
@@ -80,5 +151,10 @@ declare module 'expect' {
     toBleuMatch(expected: string, threshold?: number): Promise<R>;
     toRouge1Match(expected: string, threshold?: number): Promise<R>;
     toRougeLMatch(expected: string, threshold?: number): Promise<R>;
+    toLlmJudgeMatch(
+      question: string,
+      expected: string,
+      options?: LlmJudgeMatchOptions,
+    ): Promise<R>;
   }
 }

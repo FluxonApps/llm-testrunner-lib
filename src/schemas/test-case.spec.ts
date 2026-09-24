@@ -47,3 +47,36 @@ describe('validateTestCaseInputArray', () => {
     ).toThrow(/index 0/);
   });
 });
+
+describe('validateTestCaseInput metadata', () => {
+  it('accepts valid string-keyed metadata', () => {
+    expect(() =>
+      validateTestCaseInput({
+        ...minimalCase,
+        metadata: { category: 'geography', difficulty: 'easy' },
+      }),
+    ).not.toThrow();
+  });
+
+  it('accepts a test case with no metadata (backward compatible)', () => {
+    expect(() => validateTestCaseInput(minimalCase)).not.toThrow();
+  });
+
+  it('rejects a non-string metadata value', () => {
+    expect(() =>
+      validateTestCaseInput({
+        ...minimalCase,
+        metadata: { count: 3 },
+      }),
+    ).toThrow();
+  });
+
+  it('rejects an empty-string metadata key', () => {
+    expect(() =>
+      validateTestCaseInput({
+        ...minimalCase,
+        metadata: { '': 'value' },
+      }),
+    ).toThrow();
+  });
+});

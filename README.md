@@ -170,7 +170,7 @@ How you get either response is up to you: REST, SDK, or local inference. Same pa
 
 ## Loading and saving test cases
 
-**Loading** — Pass `initialTestCases` with an array of test cases (e.g. from your backend or a file). You can use the full `TestCase` shape or a minimal one: `question` and `expectedOutcome`. The runner will fill in `id` and run state.
+**Loading** — Pass `initialTestCases` with an array of test cases (e.g. from your backend or a file). You can use the full `TestCase` shape or a minimal one: `question` and `expectedOutcome`. The runner will fill in `id` and run state. Each test case also accepts an optional `metadata: Record<string, string>` bag for your own tagging (e.g. category, source) — the library stores and round-trips it through import/export but does not read or display it.
 
 **Saving** — Set `useSave={true}` to show the Save button. When the user clicks it, the component emits a `save` event with `{ timestamp, testCases }`. Persist that in your backend (e.g. Firebase or your API). After the save completes, call `runnerRef.current.resetSavingState()` so the button leaves the loading state. If you don’t call it, a failsafe resets it after 10 seconds.
 

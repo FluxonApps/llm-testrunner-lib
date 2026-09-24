@@ -13,6 +13,7 @@ export const DEMO_MODES = {
             evaluationParameters: { approach: 'exact' },
           },
         ],
+        metadata: { category: 'geography' },
       },
       {
         id: 'demo-simpleTest-2',

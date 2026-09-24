@@ -2,6 +2,17 @@
 
 All notable changes to this project are documented in this file. The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 2.5.0
+
+### 🚀 What's new
+
+- LLM-as-judge grading in the headless kit via the new `toLlmJudgeMatch` Jest matcher — grade LLM responses with per-criterion scoring in plain Jest/CI, no browser needed
+- The headless kit (all six matchers) is documented in the README for the first time
+
+### 🔒 Security
+
+- Bumped `sharp` (transitive via `@xenova/transformers`) to 0.35.4, fixing two high-severity libheif vulnerabilities
+
 ## 2.4.1
 
 ### 🐛 Fixed

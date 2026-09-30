@@ -8,6 +8,7 @@ export interface TestSuiteExportData {
     enabled: boolean;
     value: string;
   };
+  metadata?: Record<string, string>;
 }
 
 /**
@@ -24,6 +25,7 @@ export function formatTestSuiteAsJson(testCases: TestCase[]): string {
       enabled: testCase.chatHistory.enabled,
       value: testCase.chatHistory.value,
     },
+    ...(testCase.metadata ? { metadata: testCase.metadata } : {}),
   }));
 
   return JSON.stringify(exportData, null, 2);

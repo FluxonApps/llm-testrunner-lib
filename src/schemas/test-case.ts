@@ -8,6 +8,8 @@ export const testCaseChatHistorySchema = z.object({
   value: z.string(),
 });
 
+export const testCaseMetadataSchema = z.record(z.string().min(1), z.string());
+
 export const testCaseInputSchema = z.object({
   // Optional here (unlike testCaseSchema below): initialTestCases/import accept
   // the minimal { question, expectedOutcome } shape documented in the README,
@@ -17,6 +19,7 @@ export const testCaseInputSchema = z.object({
   question: z.string(),
   expectedOutcome: expectedOutcomeArraySchema,
   chatHistory: testCaseChatHistorySchema.optional(),
+  metadata: testCaseMetadataSchema.optional(),
 });
 
 export const testCaseInputArraySchema = z.array(testCaseInputSchema);
@@ -31,9 +34,11 @@ export const testCaseSchema = z.object({
   error: z.string().optional(),
   evaluationResult: z.custom<EvaluationResult>().optional(),
   responseTime: z.number().optional(),
+  metadata: testCaseMetadataSchema.optional(),
 });
 
 export type TestCaseChatHistory = z.infer<typeof testCaseChatHistorySchema>;
+export type TestCaseMetadata = z.infer<typeof testCaseMetadataSchema>;
 export type TestCaseInput = z.input<typeof testCaseInputSchema>;
 export type TestCase = z.input<typeof testCaseSchema>;
 

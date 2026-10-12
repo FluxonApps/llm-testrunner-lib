@@ -11,15 +11,28 @@ import {
 export class SemanticEvaluator {
   // TODO(LLM-39): Refactor SemanticEvaluator into a singleton pattern.
   private static extractor: FeatureExtractionPipeline = null;
+  // In-flight model load, shared by every caller that arrives before it
+  // settles. Without it, concurrent evaluations (Run All, multiple semantic
+  // fields on one test case) each start their own load and download the
+  // model again. Cleared on failure so a later call can retry.
+  private static loading: Promise<FeatureExtractionPipeline> | null = null;
 
   async initialize(): Promise<void> {
     if (SemanticEvaluator.extractor) return;
-    try {
-      SemanticEvaluator.extractor = await loadSemanticModel();
-    } catch (error) {
-      console.error('Failed to load semantic evaluation model:', error);
-      throw error;
+    if (!SemanticEvaluator.loading) {
+      SemanticEvaluator.loading = loadSemanticModel().then(
+        extractor => {
+          SemanticEvaluator.extractor = extractor;
+          return extractor;
+        },
+        error => {
+          SemanticEvaluator.loading = null;
+          console.error('Failed to load semantic evaluation model:', error);
+          throw error;
+        },
+      );
     }
+    await SemanticEvaluator.loading;
   }
 
   async performEvaluation(
